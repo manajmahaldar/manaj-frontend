@@ -1,0 +1,23 @@
+{
+  "navbar": {
+    "home": "Home",
+    "all_fish": "All Fish",
+    "feed_medicine": "Feed & Medicine",
+    "buying_requests": "Buying Requests",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
+  },
+  "hero": {
+    "title": "Your Trusted Marketplace for Fish, Feed & Medicine",
+    "subtitle": "Connect directly with farmers, sellers, and traders. Buy and sell with ease.",
+    "get_started": "Get Started",
+    "learn_more": "Learn More"
+  },
+  "common": {
+    "search": "Search...",
+    "loading": "Loading...",
+    "error": "Something went wrong"
+  }
+}
