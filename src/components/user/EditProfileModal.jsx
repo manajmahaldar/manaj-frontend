@@ -22,7 +22,7 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
         setLoading(true);
         const token = localStorage.getItem('token');
         try {
-            const res = await axios.put('http://localhost:5000/api/users/profile', formData, {
+            const res = await axios.put('https://manaj-backend.onrender.com/api/users/profile', formData, {
                 headers: { 'x-auth-token': token }
             });
             updateUser(res.data.user);

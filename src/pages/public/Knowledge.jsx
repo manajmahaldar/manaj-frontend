@@ -14,7 +14,7 @@ const Knowledge = () => {
 
     const fetchArticles = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/knowledge');
+            const res = await axios.get('https://manaj-backend.onrender.com/api/knowledge');
             setArticles(res.data);
         } catch (err) {
             console.error(err);

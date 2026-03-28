@@ -16,7 +16,7 @@ const TraderListings = () => {
 
     const fetchTraderPosts = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/posts');
+            const res = await axios.get('https://manaj-backend.onrender.com/api/posts');
             // Show only first 3-4 approved buying posts
             setPosts(res.data.slice(0, 3));
         } catch (err) {

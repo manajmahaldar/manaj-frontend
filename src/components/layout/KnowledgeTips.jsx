@@ -9,7 +9,7 @@ const KnowledgeTips = () => {
     const [liveArticles, setLiveArticles] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/knowledge')
+        axios.get('https://manaj-backend.onrender.com/api/knowledge')
             .then(res => setLiveArticles(res.data.slice(0, 1)))
             .catch(() => {});
     }, []);

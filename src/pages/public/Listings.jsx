@@ -49,8 +49,8 @@ const Listings = () => {
         setLoading(true);
         try {
             const [listingsRes, postsRes] = await Promise.all([
-                axios.get(`http://localhost:5000/api/listings?category=${category}&district=${district}&search=${search}`),
-                axios.get(`http://localhost:5000/api/posts?category=${category}&district=${district}&search=${search}`)
+                axios.get(`https://manaj-backend.onrender.com/api/listings?category=${category}&district=${district}&search=${search}`),
+                axios.get(`https://manaj-backend.onrender.com/api/posts?category=${category}&district=${district}&search=${search}`)
             ]);
             setListings(listingsRes.data);
             setBuyingPosts(postsRes.data);

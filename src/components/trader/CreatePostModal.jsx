@@ -46,7 +46,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
 
         const token = localStorage.getItem('token');
         try {
-            await axios.post('http://localhost:5000/api/posts', data, {
+            await axios.post('https://manaj-backend.onrender.com/api/posts', data, {
                 headers: { 
                     'Content-Type': 'multipart/form-data',
                     'x-auth-token': token 

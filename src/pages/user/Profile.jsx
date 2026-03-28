@@ -45,10 +45,10 @@ const Profile = () => {
         try {
             const token = localStorage.getItem('token');
             const [listingsRes, postsRes, ordersRes, incomingRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/listings/my-listings', { headers: { 'x-auth-token': token } }),
-                axios.get('http://localhost:5000/api/posts/my-posts', { headers: { 'x-auth-token': token } }),
-                axios.get('http://localhost:5000/api/orders/my-orders', { headers: { 'x-auth-token': token } }),
-                axios.get('http://localhost:5000/api/orders/incoming', { headers: { 'x-auth-token': token } })
+                axios.get('https://manaj-backend.onrender.com/api/listings/my-listings', { headers: { 'x-auth-token': token } }),
+                axios.get('https://manaj-backend.onrender.com/api/posts/my-posts', { headers: { 'x-auth-token': token } }),
+                axios.get('https://manaj-backend.onrender.com/api/orders/my-orders', { headers: { 'x-auth-token': token } }),
+                axios.get('https://manaj-backend.onrender.com/api/orders/incoming', { headers: { 'x-auth-token': token } })
             ]);
             setMyListings(listingsRes.data);
             setMyPosts(postsRes.data);
@@ -66,7 +66,7 @@ const Profile = () => {
         try {
             setIsUploading(true);
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/api/users/profile-picture', formData, {
+            const res = await axios.post('https://manaj-backend.onrender.com/api/users/profile-picture', formData, {
                 headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
             });
             updateUser({ ...user, profilePicture: res.data.profilePicture });
@@ -82,7 +82,7 @@ const Profile = () => {
         if (!window.confirm(t.deleteConfirm)) return;
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/listings/${id}`, { headers: { 'x-auth-token': token } });
+            await axios.delete(`https://manaj-backend.onrender.com/api/listings/${id}`, { headers: { 'x-auth-token': token } });
             toast.success(t.deleteSuccess);
             fetchMyContent();
         } catch (err) { toast.error(t.deleteFail); }
@@ -92,7 +92,7 @@ const Profile = () => {
         if (!window.confirm(t.deleteConfirm)) return;
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/posts/${id}`, { headers: { 'x-auth-token': token } });
+            await axios.delete(`https://manaj-backend.onrender.com/api/posts/${id}`, { headers: { 'x-auth-token': token } });
             toast.success(t.deleteSuccess);
             fetchMyContent();
         } catch (err) { toast.error(t.deleteFail); }
@@ -101,7 +101,7 @@ const Profile = () => {
     const handleUpdateOrderStatus = async (orderId, status) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status }, {
+            await axios.put(`https://manaj-backend.onrender.com/api/orders/${orderId}/status`, { status }, {
                 headers: { 'x-auth-token': token }
             });
             toast.success(t.updateSuccess);

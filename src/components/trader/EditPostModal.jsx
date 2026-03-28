@@ -57,7 +57,7 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
 
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`http://localhost:5000/api/posts/${post._id}`, data, {
+            await axios.put(`https://manaj-backend.onrender.com/api/posts/${post._id}`, data, {
                 headers: { 
                     'Content-Type': 'multipart/form-data',
                     'x-auth-token': token 

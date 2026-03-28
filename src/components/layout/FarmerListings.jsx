@@ -17,7 +17,7 @@ const FarmerListings = () => {
     const fetchFishListings = async () => {
         try {
             // Updated to use the correct API endpoint and filter by Fish and Spawn/Seed categories
-            const res = await axios.get('http://localhost:5000/api/listings?category=Fish,Spawn/Seed');
+            const res = await axios.get('https://manaj-backend.onrender.com/api/listings?category=Fish,Spawn/Seed');
             // Show only first 4 fish listings for the home page section
             setListings(res.data.slice(0, 4));
         } catch (err) {

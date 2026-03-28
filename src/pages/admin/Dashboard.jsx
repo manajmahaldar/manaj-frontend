@@ -27,9 +27,9 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         try {
             const [statsRes, usersRes, pendingRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/admin/stats', { headers: { 'x-auth-token': token } }),
-                axios.get('http://localhost:5000/api/admin/users', { headers: { 'x-auth-token': token } }),
-                axios.get('http://localhost:5000/api/admin/pending-listings', { headers: { 'x-auth-token': token } })
+                axios.get('https://manaj-backend.onrender.com/api/admin/stats', { headers: { 'x-auth-token': token } }),
+                axios.get('https://manaj-backend.onrender.com/api/admin/users', { headers: { 'x-auth-token': token } }),
+                axios.get('https://manaj-backend.onrender.com/api/admin/pending-listings', { headers: { 'x-auth-token': token } })
             ]);
             setStats(statsRes.data);
             setUsers(usersRes.data);
@@ -44,7 +44,7 @@ const AdminDashboard = () => {
     const handleVerifyUser = async (userId) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`http://localhost:5000/api/admin/users/${userId}/verify`, {}, { headers: { 'x-auth-token': token } });
+            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/verify`, {}, { headers: { 'x-auth-token': token } });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
     const handleApproveListing = async (listingId) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`http://localhost:5000/api/admin/listings/${listingId}/approve`, {}, { headers: { 'x-auth-token': token } });
+            await axios.put(`https://manaj-backend.onrender.com/api/admin/listings/${listingId}/approve`, {}, { headers: { 'x-auth-token': token } });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
     const handleRejectListing = async (listingId) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`http://localhost:5000/api/admin/listings/${listingId}/reject`, {}, { headers: { 'x-auth-token': token } });
+            await axios.put(`https://manaj-backend.onrender.com/api/admin/listings/${listingId}/reject`, {}, { headers: { 'x-auth-token': token } });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
@@ -71,7 +71,7 @@ const AdminDashboard = () => {
     const handleApproveUser = async (userId) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`http://localhost:5000/api/admin/users/${userId}/status`, { accountStatus: 'active' }, { headers: { 'x-auth-token': token } });
+            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/status`, { accountStatus: 'active' }, { headers: { 'x-auth-token': token } });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
     const handleRejectUser = async (userId) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`http://localhost:5000/api/admin/users/${userId}/status`, { accountStatus: 'suspended' }, { headers: { 'x-auth-token': token } });
+            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/status`, { accountStatus: 'suspended' }, { headers: { 'x-auth-token': token } });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
     const handleUpdateStatus = async (userId, status) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.put(`http://localhost:5000/api/admin/users/${userId}/status`, { accountStatus: status }, { headers: { 'x-auth-token': token } });
+            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/status`, { accountStatus: status }, { headers: { 'x-auth-token': token } });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }

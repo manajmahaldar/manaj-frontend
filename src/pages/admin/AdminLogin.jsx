@@ -21,7 +21,7 @@ const AdminLogin = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', { phone, password });
+            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/login', { phone, password });
             
             // Explicitly deny non-admins
             if (res.data.user.role !== 'admin') {

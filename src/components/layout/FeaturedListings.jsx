@@ -23,11 +23,11 @@ const FeaturedListings = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const postsRes = await axios.get('http://localhost:5000/api/posts').catch(e => {
+            const postsRes = await axios.get('https://manaj-backend.onrender.com/api/posts').catch(e => {
                 console.error('Buying Posts API failed:', e);
                 return { data: [] };
             });
-            const listingsRes = await axios.get('http://localhost:5000/api/listings').catch(e => {
+            const listingsRes = await axios.get('https://manaj-backend.onrender.com/api/listings').catch(e => {
                 console.error('Listings API failed:', e);
                 return { data: [] };
             });

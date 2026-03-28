@@ -18,8 +18,8 @@ const SellerListings = () => {
         try {
             // Fetch both Feed and Medicine to show in this section
             const [feedRes, medRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/listings?category=Feed'),
-                axios.get('http://localhost:5000/api/listings?category=Medicine')
+                axios.get('https://manaj-backend.onrender.com/api/listings?category=Feed'),
+                axios.get('https://manaj-backend.onrender.com/api/listings?category=Medicine')
             ]);
             
             // Combine and show top 4 supplies total

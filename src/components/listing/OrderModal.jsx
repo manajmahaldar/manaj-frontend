@@ -17,7 +17,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess, listing }) => {
         setLoading(true);
         const token = localStorage.getItem('token');
         try {
-            await axios.post('http://localhost:5000/api/orders', {
+            await axios.post('https://manaj-backend.onrender.com/api/orders', {
                 listingId: listing._id,
                 quantity,
                 message
