@@ -2,7 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { Fish, User, LogOut, Menu, X, Languages } from 'lucide-react';
+import { User, LogOut, Menu, X, Languages } from 'lucide-react';
+import logoImg from '../../assets/logo/logo.png';
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
@@ -28,9 +29,8 @@ const Navbar = () => {
         <nav className="bg-white shadow-sm sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16 items-center">
-                    <Link to="/" className="flex items-center gap-2 text-primary font-bold text-xl">
-                        <Fish size={28} />
-                        <span>{language === 'bn' ? 'পদ্মা' : language === 'hi' ? 'पद्मा' : 'Padma'}</span>
+                    <Link to="/" className="flex items-center">
+                        <img src={logoImg} alt="Logo" className="h-10 w-auto object-contain" />
                     </Link>
 
                     {/* Desktop Links */}
