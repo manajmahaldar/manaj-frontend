@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Youtube, MessageCircle, Mail, Phone, MapPin, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import logoImg from '../../assets/logo/logo.png';
 
 const Footer = () => {
     const { t, formatDigit, language } = useLanguage();
@@ -12,8 +13,9 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     {/* Brand Section */}
                     <div className="space-y-6 text-center md:text-left flex flex-col items-center md:items-start">
-                        <Link to="/" className="text-3xl font-black tracking-tight flex items-center justify-center md:justify-start gap-2">
-                            <span className="text-blue-500">{language === 'bn' ? 'মাছ' : language === 'hi' ? 'मछली' : 'Fish'}</span> {language === 'bn' ? 'বাজার' : language === 'hi' ? 'बाजार' : 'Market'}
+                        <Link to="/" className="flex items-center justify-center md:justify-start gap-2">
+                            <img src={logoImg} alt="MatsyaLink Logo" className="h-14 w-auto object-contain" />
+                            <span className="text-2xl font-black text-white">MatsyaLink</span>
                         </Link>
                         <p className="text-gray-400 font-medium leading-relaxed">
                             {t.footerDesc}
@@ -97,7 +99,7 @@ const Footer = () => {
 
                 {/* Bottom Bar */}
                 <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-gray-500 font-bold text-center md:text-left">
-                    <p>© {formatDigit(new Date().getFullYear())} {language === 'bn' ? 'পদ্মা' : language === 'hi' ? 'पद्मा' : 'Padma'}। {t.allRightsReserved}।</p>
+                    <p>© {formatDigit(new Date().getFullYear())} MatsyaLink। {t.allRightsReserved}।</p>
                     <div className="flex flex-wrap justify-center gap-4 md:gap-8">
                         <Link to="/privacy-policy" className="hover:text-white transition-colors whitespace-nowrap">{t.privacy}</Link>
                         <Link to="/terms" className="hover:text-white transition-colors whitespace-nowrap">{t.termsAlt}</Link>
