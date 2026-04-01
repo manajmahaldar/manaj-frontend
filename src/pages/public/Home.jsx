@@ -8,6 +8,7 @@ import PostRequirement from '../../components/layout/PostRequirement';
 import WhyChooseUs from '../../components/layout/WhyChooseUs';
 import KnowledgeTips from '../../components/layout/KnowledgeTips';
 import FarmerListings from '../../components/layout/FarmerListings';
+import HatcheryListings from '../../components/layout/HatcheryListings';
 import SellerListings from '../../components/layout/SellerListings';
 import TraderListings from '../../components/layout/TraderListings';
 import CTA from '../../components/layout/CTA';
@@ -32,6 +33,7 @@ const Home = () => {
             <FeaturedListings />
             <FarmerListings />
             <SellerListings />
+            <HatcheryListings />
             <TraderListings />
 
 

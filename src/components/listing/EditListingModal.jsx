@@ -28,7 +28,9 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
         ? ['Feed', 'Medicine'] 
         : user?.role === 'farmer' 
             ? ['Fish', 'Spawn/Seed'] 
-            : allCategories;
+            : user?.role === 'hatchery'
+                ? ['Spawn/Seed']
+                : allCategories;
 
     const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
 

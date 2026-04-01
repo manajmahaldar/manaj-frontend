@@ -240,6 +240,7 @@ const translations = {
         farmer: 'খামারি',
         seller: 'বিক্রেতা',
         trader: 'ট্রেডার',
+        hatchery: 'হ্যাচারি',
         loginBtn: 'লগইন',
         registerBtn: 'রেজিস্ট্রেশন সম্পন্ন করুন',
         noAccount: 'একাউন্ট নেই?',
@@ -250,6 +251,8 @@ const translations = {
         loginFail: 'লগইন ব্যর্থ হয়েছে',
         registerSuccess: 'রেজিস্ট্রেশন সফল হয়েছে!',
         registerFail: 'রেজিস্ট্রেশন ব্যর্থ হয়েছে',
+        or: 'অথবা',
+        googleLogin: 'গুগল দিয়ে লগইন করুন',
 
         // Districts (BN)
         districtsList: ["আলিপুরদুয়ার", "বাঁকুড়া", "বীরভূম", "কোচবিহার", "দক্ষিণ দিনাজপুর", "দার্জিলিং", "হুগলি", "হাওড়া", "জলপাইগুড়ি", "ঝাড়গ্রাম", "কালিম্পং", "কলকাতা", "মালদা", "মুর্শিদাবাদ", "নদিয়া", "উত্তর ২৪ পরগনা", "পশ্চিম মেদিনীপুর", "পশ্চিম বর্ধমান", "পূর্ব বর্ধমান", "পূর্ব মেদিনীপুর", "পুরুলিয়া", "দক্ষিণ ২৪ পরগনা", "উত্তর দিনাজপুর"],
@@ -293,6 +296,10 @@ const translations = {
         traderDesc: 'মাছ, ফিড বা ওষুধের জন্য ট্রেডারদের বর্তমান চাহিদা দেখে সরাসরি তাদের সাথে যোগাযোগ করুন।',
         browseAllDemands: 'সব চাহিদা দেখুন',
         viewAllRequests: 'সব চাহিদা দেখুন',
+        hatcheryTitle: 'হ্যাচারি স্পেশাল',
+        hatcherySubtitle: 'উন্নতমানের রেণু ও পোণা',
+        hatcheryDesc: 'সেরা হ্যাচারি থেকে সরাসরি সংগ্রহ করুন সুস্থ ও সবল রেণু এবং পোণা।',
+        exploreHatchery: 'রেণু/পোণা দেখুন',
 
         // WhyChooseUs
         whyChooseUsBadge: 'কেন আমাদের বেছে নেবেন',
@@ -625,6 +632,10 @@ const translations = {
         privacyPolicy: 'Privacy Policy',
         terms: 'Terms of Service',
         allRightsReserved: 'All rights reserved',
+        hatcheryTitle: 'Hatchery Specials',
+        hatcherySubtitle: 'High Quality Spawn & Seed',
+        hatcheryDesc: 'Directly source healthy spawn and seed from the best hatcheries and distributors.',
+        exploreHatchery: 'Explore Spawn/Seed',
 
         // Hero Expanded
         heroBadge: 'Digital Fish Marketplace of West Bengal',
@@ -799,6 +810,7 @@ const translations = {
         farmer: 'Farmer',
         seller: 'Seller',
         trader: 'Trader',
+        hatchery: 'Hatchery',
         loginBtn: 'Login',
         registerBtn: 'Complete Registration',
         noAccount: "Don't have an account?",
@@ -809,6 +821,8 @@ const translations = {
         loginFail: 'Login failed',
         registerSuccess: 'Registration successful!',
         registerFail: 'Registration failed',
+        or: 'OR',
+        googleLogin: 'Continue with Google',
 
         // Districts (EN)
         districtsList: ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Medinipur", "Paschim Bardhaman", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"],
@@ -1360,6 +1374,10 @@ const translations = {
         usageLimits: '4. उपयोग सीमाएं',
         usageLimitsDesc: 'किसी भी तरह की स्पैमिंग या अनैतिक कार्य की अनुमति नहीं है। किसी अन्य उपयोगकर्ता की जानकारी को कॉपी करना या उसका दुरुपयोग करना कानूनी रूप से दंडनीय है।',
         termsLastUpdated: 'अंतिम अपडेट: 25 मार्च, 2026। ये शर्तें किसी भी समय बदली जा सकती हैं।',
+        hatcheryTitle: 'हैचरी स्पेशल',
+        hatcherySubtitle: 'उच्च गुणवत्ता वाले बीज',
+        hatcheryDesc: 'सर्वोत्तम हैचरी से सीधे स्वस्थ बीज प्राप्त करें।',
+        exploreHatchery: 'बीज देखें',
 
         // Knowledge Page
         knowledgeHub: 'विशेषज्ञ अंतर्दृष्टि',
@@ -1379,6 +1397,7 @@ const translations = {
         farmer: 'किसान',
         seller: 'विक्रेता',
         trader: 'व्यापारी',
+        hatchery: 'हैचरी',
         loginBtn: 'लॉगिन',
         registerBtn: 'पंजीकरण पूरा करें',
         noAccount: 'खाता नहीं है?',

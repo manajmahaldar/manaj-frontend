@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -19,20 +20,38 @@ const Register = () => {
 
     const districts = t.districtsList;
 
+    const handleSuccessRedirect = (res) => {
+        login(res.data);
+        toast.success(t.registerSuccess);
+        const role = res.data.user.role;
+        if (role === 'admin') {
+            navigate('/admin');
+        } else {
+            navigate('/profile');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const res = await axios.post('https://manaj-backend.onrender.com/api/auth/register', formData);
-            login(res.data);
-            toast.success(t.registerSuccess);
-            const role = res.data.user.role;
-            if (role === 'admin') {
-                navigate('/admin');
-            } else {
-                navigate('/profile');
-            }
+            handleSuccessRedirect(res);
         } catch (err) {
             toast.error(err.response?.data?.msg || t.registerFail);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/google-login', {
+                token: credentialResponse.credential,
+                role: formData.role,
+                district: formData.district,
+                isRegistration: true
+            });
+            handleSuccessRedirect(res);
+        } catch (err) {
+            toast.error(err.response?.data?.msg || "Google registration failed");
         }
     };
 
@@ -76,15 +95,15 @@ const Register = () => {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t.yourRole}</label>
-                        <div className="grid grid-cols-3 gap-2">
-                            {['farmer', 'seller', 'trader'].map(role => (
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                            {['farmer', 'seller', 'trader', 'hatchery'].map(role => (
                                 <button
                                     key={role}
                                     type="button"
                                     onClick={() => setFormData({...formData, role})}
                                     className={`py-2 rounded-lg border text-sm font-medium ${formData.role === role ? 'bg-primary text-white border-primary' : 'bg-gray-50 border-gray-200 text-gray-700'}`}
                                 >
-                                    {role === 'farmer' ? t.farmer : role === 'seller' ? t.seller : t.trader}
+                                    {role === 'farmer' ? t.farmer : role === 'seller' ? t.seller : role === 'trader' ? t.trader : t.hatchery}
                                 </button>
                             ))}
                         </div>
@@ -100,6 +119,27 @@ const Register = () => {
                     </div>
                     <button type="submit" className="w-full btn btn-primary py-4">{t.registerBtn}</button>
                 </form>
+
+                <div className="mt-8">
+                    <div className="relative flex items-center justify-center mb-6">
+                        <div className="border-t border-gray-300 w-full"></div>
+                        <span className="bg-white px-4 text-sm text-gray-500 absolute uppercase font-medium">{t.or || 'OR'}</span>
+                    </div>
+
+                    <div className="flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => toast.error("Google Registration Failed")}
+                            useOneTap
+                            theme="outline"
+                            size="large"
+                            width="100%"
+                            text="signup_with"
+                            shape="pill"
+                        />
+                    </div>
+                </div>
+
                 <p className="mt-6 text-center text-gray-600">
                     {t.alreadyAccount} <Link to="/login" className="text-primary font-semibold">{t.loginLink}</Link>
                 </p>

@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -12,20 +13,36 @@ const Login = () => {
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    const handleSuccess = (res) => {
+        const role = res.data.user.role;
+        login(res.data);
+        toast.success(t.loginSuccess);
+        if (role === 'admin') {
+            navigate('/admin/dashboard');
+        } else {
+            navigate('/profile');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const res = await axios.post('https://manaj-backend.onrender.com/api/auth/login', { phone, password });
-            login(res.data);
-            toast.success(t.loginSuccess);
-            const role = res.data.user.role;
-            if (role === 'admin') {
-                navigate('/admin/dashboard');
-            } else {
-                navigate('/profile');
-            }
+            handleSuccess(res);
         } catch (err) {
             toast.error(err.response?.data?.msg || t.loginFail);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/google-login', {
+                token: credentialResponse.credential,
+                isRegistration: false
+            });
+            handleSuccess(res);
+        } catch (err) {
+            toast.error(err.response?.data?.msg || "Google login failed");
         }
     };
 
@@ -58,6 +75,27 @@ const Login = () => {
                     </div>
                     <button type="submit" className="w-full btn btn-primary py-4">{t.loginBtn}</button>
                 </form>
+
+                <div className="mt-6">
+                    <div className="relative flex items-center justify-center mb-6">
+                        <div className="border-t border-gray-300 w-full"></div>
+                        <span className="bg-white px-4 text-sm text-gray-500 absolute uppercase font-medium">{t.or}</span>
+                    </div>
+
+                    <div className="flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => toast.error("Google Login Failed")}
+                            useOneTap
+                            theme="outline"
+                            size="large"
+                            width="100%"
+                            text="continue_with"
+                            shape="pill"
+                        />
+                    </div>
+                </div>
+
                 <p className="mt-6 text-center text-gray-600">
                     {t.noAccount} <Link to="/register" className="text-primary font-semibold">{t.registerLink}</Link>
                 </p>

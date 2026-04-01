@@ -204,7 +204,7 @@ const Profile = () => {
                                 <h1 className="text-3xl font-black text-gray-900">{t.myListings}</h1>
                                 <p className="text-gray-500 font-medium">{t.viewManageListings}</p>
                             </div>
-                            {(user.role === 'farmer' || user.role === 'seller') && (
+                            {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery') && (
                                 <button 
                                     onClick={() => setIsListingModalOpen(true)}
                                     className="bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-primary/25 active:scale-95"
@@ -323,9 +323,10 @@ const Profile = () => {
                                         <span className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest ring-1 ring-inset ${
                                             user.role === 'farmer' ? 'bg-blue-50 text-blue-700 ring-blue-600/20' :
                                             user.role === 'seller' ? 'bg-green-50 text-green-700 ring-green-600/20' :
+                                            user.role === 'hatchery' ? 'bg-cyan-50 text-cyan-700 ring-cyan-600/20' :
                                             'bg-purple-50 text-purple-700 ring-purple-600/20'
                                         }`}>
-                                            {user.role === 'farmer' ? t.farmer : user.role === 'seller' ? t.seller : t.trader}
+                                            {user.role === 'farmer' ? t.farmer : user.role === 'seller' ? t.seller : user.role === 'hatchery' ? t.hatchery : t.trader}
                                         </span>
                                         {user.verifiedStatus && (
                                             <span className="px-5 py-2 rounded-full bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-600/20 text-xs font-black uppercase tracking-widest flex items-center gap-2">

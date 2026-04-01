@@ -28,13 +28,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'Dashboard', 
             path: '/profile', 
             icon: <LayoutDashboard size={20} />, 
-            roles: ['farmer', 'seller', 'trader', 'admin'] 
+            roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
         { 
             name: 'My Listings', 
             path: '/profile/listings', 
             icon: <ShoppingBag size={20} />, 
-            roles: ['farmer', 'seller'] 
+            roles: ['farmer', 'seller', 'hatchery'] 
         },
         { 
             name: 'Buying Demands', 
@@ -46,7 +46,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'Orders Received', 
             path: '/profile/orders-received', 
             icon: <ArrowDownRight size={20} />, 
-            roles: ['farmer', 'seller'] 
+            roles: ['farmer', 'seller', 'hatchery'] 
         },
         { 
             name: 'My Orders', 
@@ -76,13 +76,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'Knowledge Base', 
             path: '/knowledge', 
             icon: <FileText size={20} />, 
-            roles: ['farmer', 'seller', 'trader', 'admin'] 
+            roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
         { 
             name: 'Profile Settings', 
             path: '/profile/settings', 
             icon: <Settings size={20} />, 
-            roles: ['farmer', 'seller', 'trader', 'admin'] 
+            roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
     ];
 

@@ -5,6 +5,7 @@ import { X, Save, Upload } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
+    const { t, formatDigit } = useLanguage();
     const [formData, setFormData] = useState({
         fishName: '',
         size: '',

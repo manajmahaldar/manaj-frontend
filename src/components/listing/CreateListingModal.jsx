@@ -28,7 +28,9 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
         ? ['Feed', 'Medicine'] 
         : user?.role === 'farmer' 
             ? ['Fish', 'Spawn/Seed'] 
-            : allCategories;
+            : user?.role === 'hatchery'
+                ? ['Spawn/Seed']
+                : allCategories;
 
     useEffect(() => {
         if (categories.length > 0 && !categories.includes(formData.category)) {
