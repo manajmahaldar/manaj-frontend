@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Padma</title>
+  <meta name="theme-color" content="#0066cc">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/logo192.png">
+
   <script>
-    // Force unregister all service workers to clear the stuck cache
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
-          registration.unregister();
-          console.log('Service Worker unregistered');
-        }
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+          console.log('SW registration failed: ', registrationError);
+        });
       });
     }
   </script>

@@ -7,7 +7,7 @@ import { ShieldCheck, LockKeyhole } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const AdminLogin = () => {
-    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { user, login } = useContext(AuthContext);
     const { t } = useLanguage();
@@ -21,7 +21,7 @@ const AdminLogin = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/login', { phone, password });
+            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/login', { email, password });
             
             // Explicitly deny non-admins
             if (res.data.user.role !== 'admin') {
@@ -51,22 +51,21 @@ const AdminLogin = () => {
                 <div className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-100 animate-in fade-in zoom-in-95 duration-500 delay-100">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">{t.phone}</label>
+                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Email Admin ID</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400 group-focus-within:text-gray-900 transition-colors">+91</div>
                                 <input 
-                                    type="tel" 
+                                    type="email" 
                                     required 
-                                    className="w-full pl-14 pr-4 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-gray-900 rounded-2xl outline-none transition-all font-bold text-gray-900 placeholder:font-medium placeholder:text-gray-400"
-                                    placeholder="8XXXXXXX"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="w-full px-4 py-4 bg-gray-50 border-2 border-transparent focus:bg-white focus:border-gray-900 rounded-2xl outline-none transition-all font-bold text-gray-900 placeholder:font-medium placeholder:text-gray-400"
+                                    placeholder="admin@matsyalink.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">{t.password}</label>
+                            <label className="text-sm font-bold text-gray-700 uppercase tracking-wider">{t.password || 'Password'}</label>
                             <div className="relative group">
                                 <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-900 transition-colors" size={20} />
                                 <input 
