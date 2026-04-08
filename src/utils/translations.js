@@ -1,4 +1,4 @@
-const translations = {
+﻿const translations = {
     bn: {
         // Navbar
         home: 'হোম',
@@ -1744,3 +1744,4 @@ const translations = {
 };
 
 export default translations;
+

@@ -11,7 +11,9 @@ const Register = () => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
+        email: '',
         password: '',
+        confirmPassword: '',
         district: '',
         role: 'farmer'
     });
@@ -33,6 +35,11 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (formData.password !== formData.confirmPassword) {
+            return toast.error("Passwords do not match");
+        }
+
         try {
             const res = await axios.post('https://manaj-backend.onrender.com/api/auth/register', formData);
             handleSuccessRedirect(res);
@@ -62,16 +69,17 @@ const Register = () => {
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.name}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                             <input 
                                 type="text" required 
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
+                                placeholder="Your Name"
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.phone}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile No</label>
                             <input 
                                 type="tel" required 
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
@@ -80,6 +88,16 @@ const Register = () => {
                                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
                             />
                         </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Gmail</label>
+                        <input 
+                            type="email" required
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
+                            placeholder="example@gmail.com"
+                            value={formData.email}
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t.district}</label>
@@ -109,12 +127,23 @@ const Register = () => {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.passwordPlaceholder}</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Create Password</label>
                         <input 
                             type="password" required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
+                            placeholder="Enter a secure password"
                             value={formData.password}
                             onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input 
+                            type="password" required 
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
+                            placeholder="Re-enter your password"
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                         />
                     </div>
                     <button type="submit" className="w-full btn btn-primary py-4">{t.registerBtn}</button>
