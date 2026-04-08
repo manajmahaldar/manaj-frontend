@@ -81,7 +81,7 @@ const InstallPrompt = () => {
                     
                     <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900 mb-1">
-                            Install App
+                            Install Matsyalink
                         </h3>
                         <p className="text-sm text-gray-600 mb-4">
                             Add our app to your home screen for quick access and a better experience.

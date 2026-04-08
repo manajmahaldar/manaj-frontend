@@ -53,7 +53,7 @@ const WhyChooseUs = () => {
                     <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
                         {language === 'hi' ? '' : language === 'bn' ? 'কেন ' : 'Why '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 px-2 lg:px-4">
-                            {language === 'en' ? 'Padma' : language === 'hi' ? 'पद्मा' : 'পদ্মা'}
+                            Matsyalink
                         </span>
                         {language === 'hi' ? ' क्यों?' : '?'}
                     </h2>
