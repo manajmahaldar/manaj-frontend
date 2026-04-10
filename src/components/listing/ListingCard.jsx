@@ -101,9 +101,11 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                         <ShoppingBag size={18} /> {t.orderNow}
                     </button>
                 ) : (
-                    <button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
-                        <Phone size={18} /> {t.contactNow}
-                    </button>
+                    <ContactButtons 
+                        phone={item.phoneNumber} 
+                        message={t.contactMessageTemplate?.replace('{fishName}', item.productName)}
+                        variant="light"
+                    />
                 )}
             </div>
 

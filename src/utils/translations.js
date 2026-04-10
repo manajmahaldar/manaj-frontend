@@ -1,4 +1,4 @@
-﻿const translations = {
+const translations = {
     bn: {
         // Navbar
         home: 'হোম',
@@ -56,6 +56,19 @@
         password: 'পাসওয়ার্ড',
         noAccount: 'একাউন্ট নেই?',
         register: 'রেজিস্ট্রেশন করুন',
+        forgotPasswordLink: 'পাসওয়ার্ড ভুলে গেছেন?',
+        forgotPasswordTitle: 'পাসওয়ার্ড রিসেট',
+        forgotPasswordDesc: 'আপনার ইমেইল দিন, আমরা একটি রিসেট লিঙ্ক পাঠাবো।',
+        sendResetLink: 'রিসেট লিঙ্ক পাঠান',
+        resetPasswordTitle: 'নতুন পাসওয়ার্ড সেট করুন',
+        newPassword: 'নতুন পাসওয়ার্ড',
+        confirmNewPassword: 'পাসওয়ার্ড নিশ্চিত করুন',
+        resetPasswordBtn: 'পাসওয়ার্ড আপডেট করুন',
+        backToLogin: 'লগইন-এ ফিরে যান',
+        emailSentSuccess: 'রিসেট লিঙ্ক আপনার ইমেইলে পাঠানো হয়েছে।',
+        emailSentFail: 'ইমেইল পাঠাতে সমস্যা হয়েছে।',
+        passwordResetSuccess: 'পাসওয়ার্ড সফলভাবে আপডেট করা হয়েছে!',
+        passwordsNotMatch: 'পাসওয়ার্ড মিলছে না',
 
         // Footer/About
         footerTagline: 'পশ্চিমবঙ্গের মৎস্য চাষিদের জন্য',
@@ -622,6 +635,19 @@
         password: 'Password',
         noAccount: "Don't have an account?",
         register: 'Register',
+        forgotPasswordLink: 'Forgot Password?',
+        forgotPasswordTitle: 'Reset Password',
+        forgotPasswordDesc: 'Enter your email, we will send a reset link.',
+        sendResetLink: 'Send Reset Link',
+        resetPasswordTitle: 'Set New Password',
+        newPassword: 'New Password',
+        confirmNewPassword: 'Confirm Password',
+        resetPasswordBtn: 'Update Password',
+        backToLogin: 'Back to Login',
+        emailSentSuccess: 'Reset link has been sent to your email.',
+        emailSentFail: 'Failed to send email.',
+        passwordResetSuccess: 'Password updated successfully!',
+        passwordsNotMatch: 'Passwords do not match',
 
         // Footer/About
         footerTagline: 'For fish farmers of West Bengal',
@@ -1209,6 +1235,19 @@
         password: 'पासवर्ड',
         noAccount: "एकाउंट नहीं है?",
         register: 'पंजीकरण करें',
+        forgotPasswordLink: 'पासवर्ड भूल गए?',
+        forgotPasswordTitle: 'पासवर्ड रीसेट',
+        forgotPasswordDesc: 'अपना ईमेल दर्ज करें, हम एक रीसेट लिंक भेजेंगे।',
+        sendResetLink: 'रीसेट लिंक भेजें',
+        resetPasswordTitle: 'नया पासवर्ड सेट करें',
+        newPassword: 'नया पासवर्ड',
+        confirmNewPassword: 'पासवर्ड की पुष्टि करें',
+        resetPasswordBtn: 'पासवर्ड अपडेट करें',
+        backToLogin: 'लॉगिन पर वापस जाएं',
+        emailSentSuccess: 'रीसेट लिंक आपके ईमेल पर भेज दिया गया है।',
+        emailSentFail: 'ईमेल भेजने में विफल।',
+        passwordResetSuccess: 'पासवर्ड सफलतापूर्वक अपडेट किया गया!',
+        passwordsNotMatch: 'पासवर्ड मेल नहीं खाते',
 
         // Footer/About
         footerTagline: 'पश्चिम बंगाल के मछली किसानों के लिए',

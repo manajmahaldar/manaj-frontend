@@ -72,6 +72,11 @@ const Login = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
+                        <div className="flex justify-end mt-1">
+                            <Link to="/forgot-password" size="sm" className="text-sm text-primary hover:underline font-medium">
+                                {t.forgotPasswordLink}
+                            </Link>
+                        </div>
                     </div>
                     <button type="submit" className="w-full btn btn-primary py-4">{t.loginBtn}</button>
                 </form>
