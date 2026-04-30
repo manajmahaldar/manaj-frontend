@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
     User as UserIcon, Package, MessageSquare, ShieldCheck, 
@@ -14,8 +14,11 @@ const AdminDashboard = () => {
     const { t, language, formatDigit } = useLanguage();
     const [stats, setStats] = useState(null);
     const [users, setUsers] = useState([]);
+    const [pendingUsers, setPendingUsers] = useState([]);
     const [pendingListings, setPendingListings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [rejectionReason, setRejectionReason] = useState("");
+    const [rejectingUserId, setRejectingUserId] = useState(null);
     const location = useLocation();
 
     useEffect(() => {
@@ -24,16 +27,17 @@ const AdminDashboard = () => {
 
     const fetchData = async () => {
         setLoading(true);
-        const token = localStorage.getItem('token');
         try {
-            const [statsRes, usersRes, pendingRes] = await Promise.all([
-                axios.get('https://manaj-backend.onrender.com/api/admin/stats', { headers: { 'x-auth-token': token } }),
-                axios.get('https://manaj-backend.onrender.com/api/admin/users', { headers: { 'x-auth-token': token } }),
-                axios.get('https://manaj-backend.onrender.com/api/admin/pending-listings', { headers: { 'x-auth-token': token } })
+            const [statsRes, usersRes, pendingRes, pendingUsersRes] = await Promise.all([
+                api.get('/admin/stats'),
+                api.get('/admin/users'),
+                api.get('/admin/pending-listings'),
+                api.get('/admin/pending-users')
             ]);
             setStats(statsRes.data);
             setUsers(usersRes.data);
             setPendingListings(pendingRes.data);
+            setPendingUsers(pendingUsersRes.data || []);
         } catch (err) {
             toast.error(t.loadFail);
         } finally {
@@ -42,54 +46,67 @@ const AdminDashboard = () => {
     };
 
     const handleVerifyUser = async (userId) => {
-        const token = localStorage.getItem('token');
         try {
-            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/verify`, {}, { headers: { 'x-auth-token': token } });
+            await api.put(`/admin/users/${userId}/verify`, {});
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
 
-    const handleApproveListing = async (listingId) => {
-        const token = localStorage.getItem('token');
+    const handleApproveVerification = async (userId) => {
         try {
-            await axios.put(`https://manaj-backend.onrender.com/api/admin/listings/${listingId}/approve`, {}, { headers: { 'x-auth-token': token } });
+            await api.put(`/admin/users/${userId}/approve-verification`, {});
+            toast.success("User verified and activated!");
+            fetchData();
+        } catch (err) { toast.error("Failed to approve verification"); }
+    };
+
+    const handleRejectVerification = async () => {
+        if (!rejectionReason) return toast.error("Please provide a reason");
+        try {
+            await api.put(`/admin/users/${rejectingUserId}/reject-verification`, { reason: rejectionReason });
+            toast.success("Verification rejected and notified");
+            setRejectingUserId(null);
+            setRejectionReason("");
+            fetchData();
+        } catch (err) { toast.error("Failed to reject verification"); }
+    };
+
+    const handleApproveListing = async (listingId) => {
+        try {
+            await api.put(`/admin/listings/${listingId}/approve`, {});
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
 
     const handleRejectListing = async (listingId) => {
-        const token = localStorage.getItem('token');
         try {
-            await axios.put(`https://manaj-backend.onrender.com/api/admin/listings/${listingId}/reject`, {}, { headers: { 'x-auth-token': token } });
+            await api.put(`/admin/listings/${listingId}/reject`, {});
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
 
     const handleApproveUser = async (userId) => {
-        const token = localStorage.getItem('token');
         try {
-            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/status`, { accountStatus: 'active' }, { headers: { 'x-auth-token': token } });
+            await api.put(`/admin/users/${userId}/status`, { accountStatus: 'active' });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
 
     const handleRejectUser = async (userId) => {
-        const token = localStorage.getItem('token');
         try {
-            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/status`, { accountStatus: 'suspended' }, { headers: { 'x-auth-token': token } });
+            await api.put(`/admin/users/${userId}/status`, { accountStatus: 'suspended' });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
 
     const handleUpdateStatus = async (userId, status) => {
-        const token = localStorage.getItem('token');
         try {
-            await axios.put(`https://manaj-backend.onrender.com/api/admin/users/${userId}/status`, { accountStatus: status }, { headers: { 'x-auth-token': token } });
+            await api.put(`/admin/users/${userId}/status`, { accountStatus: status });
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
@@ -130,8 +147,101 @@ const AdminDashboard = () => {
                         <h2 className="text-2xl font-black text-gray-900 mb-2">{t.pendingApprovals}</h2>
                         <p className="text-gray-500 font-bold">{formatDigit(stats?.pendingApprovals || 0)} {t.waitingApproval}</p>
                     </div>
-                    <Link to="/listings" className="text-primary font-black hover:underline underline-offset-8">{t.goToListingsDashboard}</Link>
+                    <Link to="/admin/dashboard/listings-approval" className="text-primary font-black hover:underline underline-offset-8">Review Pending Items</Link>
                 </div>
+                <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 flex flex-col items-center justify-center space-y-6 text-center">
+                    <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                        <ShieldCheck size={40} />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-black text-gray-900 mb-2">Pending Verifications</h2>
+                        <p className="text-gray-500 font-bold">{formatDigit(pendingUsers.length)} Users Waiting</p>
+                    </div>
+                    <Link to="/admin/dashboard/user-verification" className="text-primary font-black hover:underline underline-offset-8">Verify Users Now</Link>
+                </div>
+            </div>
+        </div>
+    );
+
+    const UserVerificationView = () => (
+        <div className="space-y-8">
+            <header className="space-y-2">
+                <h1 className="text-4xl font-black text-gray-900 leading-tight">User <span className="text-primary">Verification</span></h1>
+                <p className="text-gray-500 font-medium">Review submitted Aadhaar cards and live videos to grant access.</p>
+            </header>
+
+            <div className="grid grid-cols-1 gap-8">
+                {pendingUsers.length === 0 ? (
+                    <div className="py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100 text-center">
+                        <p className="text-gray-400 font-bold">No pending verifications found.</p>
+                    </div>
+                ) : (
+                    pendingUsers.map(u => (
+                        <div key={u._id} className="bg-white p-10 rounded-[3.5rem] shadow-xl border border-gray-100 grid grid-cols-1 xl:grid-cols-3 gap-10 items-start">
+                            {/* User Info */}
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-20 h-20 rounded-3xl bg-gray-100 flex items-center justify-center overflow-hidden ring-4 ring-white shadow-lg">
+                                        {u.profilePicture ? <img src={u.profilePicture} className="w-full h-full object-cover" alt={`${u.name}'s profile`} /> : <UserIcon size={32} className="text-gray-300" />}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black text-gray-900">{u.name}</h3>
+                                        <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">{u.role}</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 text-gray-600 font-medium bg-gray-50 p-4 rounded-2xl">
+                                        <Clock size={18} className="text-primary" />
+                                        <span>{new Date(u.createdAt).toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-gray-600 font-medium bg-gray-50 p-4 rounded-2xl">
+                                        <AlertCircle size={18} className="text-primary" />
+                                        <span>{u.phone} • {u.email}</span>
+                                    </div>
+                                </div>
+                                
+                                {rejectingUserId === u._id ? (
+                                    <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
+                                        <textarea 
+                                            placeholder="Reason for rejection..."
+                                            className="w-full p-4 rounded-2xl bg-red-50 border border-red-100 outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium"
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                        />
+                                        <div className="flex gap-2">
+                                            <button onClick={handleRejectVerification} className="btn bg-red-600 text-white flex-grow py-3 rounded-xl font-bold">Confirm Reject</button>
+                                            <button onClick={() => setRejectingUserId(null)} className="btn bg-gray-100 text-gray-500 px-6 py-3 rounded-xl font-bold">Cancel</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-4 pt-4">
+                                        <button onClick={() => handleApproveVerification(u._id)} className="btn btn-primary flex-grow py-4 rounded-2xl font-black shadow-lg shadow-primary/25">Approve User</button>
+                                        <button onClick={() => setRejectingUserId(u._id)} className="btn bg-red-50 text-red-600 px-8 py-4 rounded-2xl font-black hover:bg-red-600 hover:text-white transition-all">Reject</button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Aadhaar Card */}
+                            <div className="space-y-4">
+                                <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Aadhaar Card</h4>
+                                <div className="rounded-[2rem] overflow-hidden border-4 border-gray-50 shadow-xl group cursor-pointer relative">
+                                    <img src={u.aadhaarCard} alt="Aadhaar" className="w-full aspect-video object-cover transition-transform group-hover:scale-110 duration-500" />
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <a href={u.aadhaarCard} target="_blank" rel="noreferrer" className="text-white font-black underline">View Full Size</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Video Verification */}
+                            <div className="space-y-4">
+                                <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Verification Video</h4>
+                                <div className="rounded-[2rem] overflow-hidden border-4 border-gray-50 shadow-xl bg-black aspect-video">
+                                    <video src={u.verificationVideo} controls className="w-full h-full object-contain" />
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
@@ -160,7 +270,7 @@ const AdminDashboard = () => {
                                     <td className="px-10 py-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
-                                                {u.profilePicture ? <img src={u.profilePicture} className="w-full h-full object-cover" /> : u.name.charAt(0)}
+                                                {u.profilePicture ? <img src={u.profilePicture} className="w-full h-full object-cover" alt={`${u.name}'s profile`} /> : u.name.charAt(0)}
                                             </div>
                                             <div>
                                                 <div className="font-black text-gray-900 flex items-center gap-2">
@@ -188,24 +298,14 @@ const AdminDashboard = () => {
                                     </td>
                                     <td className="px-10 py-6 text-right">
                                         <div className="flex justify-end gap-2">
-                                            {/* Approve / Reject for pending users */}
+                                            {/* Approve / Reject for pending users — redirect to verification tab */}
                                             {u.accountStatus === 'pending' && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleApproveUser(u._id)}
-                                                        className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                        title="Approve User"
-                                                    >
-                                                        <ThumbsUp size={14} /> {t.approve}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleRejectUser(u._id)}
-                                                        className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                        title="Reject User"
-                                                    >
-                                                        <ThumbsDown size={14} /> {t.reject}
-                                                    </button>
-                                                </>
+                                                <Link
+                                                    to="/admin/dashboard/user-verification"
+                                                    className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm text-xs font-bold"
+                                                >
+                                                    <ShieldCheck size={14} /> Review Verification
+                                                </Link>
                                             )}
 
                                             {/* For active/suspended users — verify and toggle status */}
@@ -317,6 +417,7 @@ const AdminDashboard = () => {
                 <Route path="/" element={<UsersView />} />
                 <Route path="/stats" element={<StatsView />} />
                 <Route path="/listings-approval" element={<ListingApprovalsView />} />
+                <Route path="/user-verification" element={<UserVerificationView />} />
                 <Route path="*" element={<div className="text-center py-20 font-black text-2xl text-gray-300">{t.adminPageNotFound}</div>} />
             </Routes>
         </div>

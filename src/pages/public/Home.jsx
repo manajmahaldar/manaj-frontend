@@ -10,6 +10,7 @@ import KnowledgeTips from '../../components/layout/KnowledgeTips';
 import FarmerListings from '../../components/layout/FarmerListings';
 import HatcheryListings from '../../components/layout/HatcheryListings';
 import SellerListings from '../../components/layout/SellerListings';
+import AdminFishListings from '../../components/layout/AdminFishListings';
 import TraderListings from '../../components/layout/TraderListings';
 import CTA from '../../components/layout/CTA';
 import { useLanguage } from '../../context/LanguageContext';
@@ -30,7 +31,7 @@ const Home = () => {
             <HomeSearch />
 
             <RoleSelection />
-            <FeaturedListings />
+            <AdminFishListings />
             <FarmerListings />
             <SellerListings />
             <HatcheryListings />

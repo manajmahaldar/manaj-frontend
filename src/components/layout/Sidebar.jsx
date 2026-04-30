@@ -17,6 +17,8 @@ import {
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 
+import { getDashboardPath } from '../../utils/roleUtils';
+
 const Sidebar = ({ isOpen, toggleSidebar }) => {
     const { user, logout } = useContext(AuthContext);
     const location = useLocation();
@@ -26,7 +28,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     const navItems = [
         { 
             name: 'Dashboard', 
-            path: '/profile', 
+            path: getDashboardPath(user.role), 
             icon: <LayoutDashboard size={20} />, 
             roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },

@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import ListingCard from '../../components/listing/ListingCard';
 import BuyingPostCard from '../../components/trader/BuyingPostCard';
 import { Search, Filter, MapPin, X, ShoppingBag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -14,15 +14,17 @@ const Listings = () => {
     
     const [listings, setListings] = useState([]);
     const [buyingPosts, setBuyingPosts] = useState([]);
+    const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
     const [loading, setLoading] = useState(true);
     
     // Filter States
-    const [viewType, setViewType] = useState(searchParams.get('view') || 'selling'); // 'selling' or 'buying'
+    const [viewType, setViewType] = useState(searchParams.get('view') || 'selling');
     const [category, setCategory] = useState(searchParams.get('category') || '');
     const [search, setSearch] = useState(searchParams.get('search') || '');
     const [district, setDistrict] = useState(searchParams.get('district') || '');
     const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
     const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+    const [page, setPage] = useState(parseInt(searchParams.get('page')) || 1);
 
     const districtKeys = Object.keys(t.districts);
     const categoryKeys = ['Spawn/Seed', 'Feed', 'Medicine', 'Fish', 'Equipment'];
@@ -31,7 +33,6 @@ const Listings = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchData();
-            // Update URL when filters change
             const params = {};
             if (viewType !== 'selling') params.view = viewType;
             if (category) params.category = category;
@@ -39,21 +40,25 @@ const Listings = () => {
             if (district) params.district = district;
             if (minPrice) params.minPrice = minPrice;
             if (maxPrice) params.maxPrice = maxPrice;
+            if (page > 1) params.page = page;
             setSearchParams(params);
-        }, 300);
+        }, 500);
 
         return () => clearTimeout(timer);
-    }, [viewType, category, district, search, minPrice, maxPrice]);
+    }, [viewType, category, district, search, minPrice, maxPrice, page]);
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [listingsRes, postsRes] = await Promise.all([
-                axios.get(`https://manaj-backend.onrender.com/api/listings?category=${category}&district=${district}&search=${search}`),
-                axios.get(`https://manaj-backend.onrender.com/api/posts?category=${category}&district=${district}&search=${search}`)
-            ]);
-            setListings(listingsRes.data);
-            setBuyingPosts(postsRes.data);
+            if (viewType === 'selling') {
+                const res = await api.get(`/listings?category=${category}&district=${district}&search=${search}&page=${page}&limit=12`);
+                setListings(res.data.listings);
+                setPagination(res.data.pagination);
+            } else {
+                const res = await api.get(`/posts?category=${category}&district=${district}&search=${search}&page=${page}&limit=12`);
+                setBuyingPosts(res.data.posts);
+                setPagination(res.data.pagination);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -67,21 +72,8 @@ const Listings = () => {
         setDistrict('');
         setMinPrice('');
         setMaxPrice('');
+        setPage(1);
     };
-
-    const filteredListings = listings.filter(l => {
-        const matchesSearch = l.productName.toLowerCase().includes(search.toLowerCase()) || 
-                             l.district.toLowerCase().includes(search.toLowerCase());
-        const matchesMinPrice = !minPrice || l.price >= Number(minPrice);
-        const matchesMaxPrice = !maxPrice || l.price <= Number(maxPrice);
-        return matchesSearch && matchesMinPrice && matchesMaxPrice;
-    });
-
-    const filteredPosts = buyingPosts.filter(p => {
-        const matchesSearch = p.fishName.toLowerCase().includes(search.toLowerCase()) || 
-                             p.district.toLowerCase().includes(search.toLowerCase());
-        return matchesSearch;
-    });
 
     return (
         <div className="pb-20 bg-gray-50/30 min-h-screen">
@@ -234,23 +226,48 @@ const Listings = () => {
                         <div key={n} className="h-96 bg-gray-50 animate-pulse rounded-[2rem] border border-gray-100"></div>
                     ))}
                 </div>
-            ) : (viewType === 'selling' ? filteredListings : filteredPosts).length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    {viewType === 'selling' ? (
-                        filteredListings.map(item => (
-                            <ListingCard 
-                                key={item._id} 
-                                item={item} 
-                                userRole={user?.role} 
-                            />
-                        ))
-                    ) : (
-                        filteredPosts.map(post => (
-                            <BuyingPostCard 
-                                key={post._id} 
-                                post={post} 
-                            />
-                        ))
+            ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (
+                <div className="space-y-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        {viewType === 'selling' ? (
+                            listings.map(item => (
+                                <ListingCard 
+                                    key={item._id} 
+                                    item={item} 
+                                    userRole={user?.role} 
+                                />
+                            ))
+                        ) : (
+                            buyingPosts.map(post => (
+                                <BuyingPostCard 
+                                    key={post._id} 
+                                    post={post} 
+                                />
+                            ))
+                        )}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {pagination.pages > 1 && (
+                        <div className="flex items-center justify-center gap-4 py-8">
+                            <button 
+                                disabled={page === 1}
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                className="px-6 py-2 bg-white border border-gray-200 rounded-xl font-bold disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                            >
+                                {t.previous}
+                            </button>
+                            <span className="font-black text-gray-900">
+                                {formatDigit(page)} / {formatDigit(pagination.pages)}
+                            </span>
+                            <button 
+                                disabled={page === pagination.pages}
+                                onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
+                                className="px-6 py-2 bg-white border border-gray-200 rounded-xl font-bold disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                            >
+                                {t.next}
+                            </button>
+                        </div>
                     )}
                 </div>
             ) : (

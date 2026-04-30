@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Upload, Plus } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
@@ -21,15 +21,15 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const allCategories = ['Fish', 'Spawn/Seed', 'Feed', 'Medicine', 'Equipment'];
+    const allCategories = ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'];
     
     // Filter categories based on role
     const categories = user?.role === 'seller' 
         ? ['Feed', 'Medicine'] 
         : user?.role === 'farmer' 
-            ? ['Fish', 'Spawn/Seed'] 
+            ? ['Fingerling'] 
             : user?.role === 'hatchery'
-                ? ['Spawn/Seed']
+                ? ['Spawn', 'Fingerling']
                 : allCategories;
 
     useEffect(() => {
@@ -56,12 +56,10 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
         Object.keys(formData).forEach(key => data.append(key, formData[key]));
         Array.from(photos).forEach(photo => data.append('photos', photo));
 
-        const token = localStorage.getItem('token');
         try {
-            await axios.post('https://manaj-backend.onrender.com/api/listings', data, {
+            await api.post('/listings', data, {
                 headers: { 
-                    'Content-Type': 'multipart/form-data',
-                    'x-auth-token': token
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             toast.success(t.listingSubmitSuccess);
@@ -105,7 +103,16 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                                 value={formData.category}
                                 onChange={(e) => setFormData({...formData, category: e.target.value})}
                             >
-                                {categories.map(c => <option key={c} value={c}>{c === 'Fish' ? t.categoryFish : c === 'Spawn/Seed' ? t.categorySeed : c === 'Feed' ? t.categoryFeed : c === 'Medicine' ? t.categoryMed : t.categoryEquip}</option>)}
+                                {categories.map(c => (
+                                    <option key={c} value={c}>
+                                        {c === 'Fish' ? t.categoryFish : 
+                                         c === 'Spawn' ? t.categorySpawn : 
+                                         c === 'Fingerling' ? t.categoryFingerling : 
+                                         c === 'Feed' ? t.categoryFeed : 
+                                         c === 'Medicine' ? t.categoryMed : 
+                                         t.categoryEquip}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import ListingCard from '../listing/ListingCard';
 import { useLanguage } from '../../context/LanguageContext';
 import { ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
@@ -18,8 +18,8 @@ const SellerListings = () => {
         try {
             // Fetch both Feed and Medicine to show in this section
             const [feedRes, medRes] = await Promise.all([
-                axios.get('https://manaj-backend.onrender.com/api/listings?category=Feed'),
-                axios.get('https://manaj-backend.onrender.com/api/listings?category=Medicine')
+                api.get('/listings?category=Feed'),
+                api.get('/listings?category=Medicine')
             ]);
             
             // Combine and show top 4 supplies total

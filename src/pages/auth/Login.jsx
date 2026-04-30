@@ -3,8 +3,10 @@ import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
+
+import { getDashboardPath } from '../../utils/roleUtils';
 
 const Login = () => {
     const { t } = useLanguage();
@@ -14,20 +16,18 @@ const Login = () => {
     const navigate = useNavigate();
 
     const handleSuccess = (res) => {
-        const role = res.data.user.role;
+        const user = res.data.user;
         login(res.data);
         toast.success(t.loginSuccess);
-        if (role === 'admin') {
-            navigate('/admin/dashboard');
-        } else {
-            navigate('/profile');
-        }
+        
+        // Redirect to role-specific dashboard
+        navigate(getDashboardPath(user.role));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/login', { phone, password });
+            const res = await api.post('/auth/login', { phone, password });
             handleSuccess(res);
         } catch (err) {
             toast.error(err.response?.data?.msg || t.loginFail);
@@ -36,7 +36,7 @@ const Login = () => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/google-login', {
+            const res = await api.post('/auth/google-login', {
                 token: credentialResponse.credential,
                 isRegistration: false
             });

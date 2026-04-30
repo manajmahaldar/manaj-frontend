@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
@@ -14,7 +14,7 @@ const ForgotPassword = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/forgot-password', { email });
+            const res = await api.post('/auth/forgot-password', { email });
             toast.success(t.emailSentSuccess);
             // navigate('/login'); // We can either navigate back or keep them here to see the success
         } catch (err) {

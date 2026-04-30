@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { X, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -15,14 +15,11 @@ const OrderModal = ({ isOpen, onClose, onSuccess, listing }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const token = localStorage.getItem('token');
         try {
-            await axios.post('https://manaj-backend.onrender.com/api/orders', {
+            await api.post('/orders', {
                 listingId: listing._id,
                 quantity,
                 message
-            }, {
-                headers: { 'x-auth-token': token }
             });
             toast.success(t.orderSuccessMessage);
             onSuccess();

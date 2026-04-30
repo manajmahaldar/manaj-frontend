@@ -1,43 +1,103 @@
-import { Routes, Route } from 'react-router-dom';
-import Home from '../pages/public/Home';
-import Login from '../pages/auth/Login';
-import Register from '../pages/auth/Register';
-import ForgotPassword from '../pages/auth/ForgotPassword';
-import ResetPassword from '../pages/auth/ResetPassword';
-import Listings from '../pages/public/Listings';
-import BuyingPosts from '../pages/public/BuyingPosts';
-import Knowledge from '../pages/public/Knowledge';
-import About from '../pages/public/About';
-import Profile from '../pages/user/Profile';
-import AdminLogin from '../pages/admin/AdminLogin';
-import AdminDashboard from '../pages/admin/Dashboard';
-import Contact from '../pages/public/Contact';
-import PrivacyPolicy from '../pages/public/PrivacyPolicy';
-import Terms from '../pages/public/Terms';
-import DashboardLayout from '../components/layout/DashboardLayout';
+import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
+import RoleRoute from './RoleRoute';
 
+// Lazy-load all pages
+const Home             = lazy(() => import('../pages/public/Home'));
+const Login            = lazy(() => import('../pages/auth/Login'));
+const Register         = lazy(() => import('../pages/auth/Register'));
+const ForgotPassword   = lazy(() => import('../pages/auth/ForgotPassword'));
+const ResetPassword    = lazy(() => import('../pages/auth/ResetPassword'));
+const Listings         = lazy(() => import('../pages/public/Listings'));
+const BuyingPosts      = lazy(() => import('../pages/public/BuyingPosts'));
+const Knowledge        = lazy(() => import('../pages/public/Knowledge'));
+const About            = lazy(() => import('../pages/public/About'));
+const Contact          = lazy(() => import('../pages/public/Contact'));
+const PrivacyPolicy    = lazy(() => import('../pages/public/PrivacyPolicy'));
+const Terms            = lazy(() => import('../pages/public/Terms'));
+const Profile          = lazy(() => import('../pages/user/Profile'));
+const Verification     = lazy(() => import('../pages/user/Verification'));
+const AdminLogin       = lazy(() => import('../pages/admin/AdminLogin'));
+const AdminDashboard   = lazy(() => import('../pages/admin/Dashboard'));
+const DashboardLayout  = lazy(() => import('../components/layout/DashboardLayout'));
+const RoleDashboard    = lazy(() => import('../pages/dashboards/RoleDashboard'));
+
+// Full-screen loading fallback for route transitions
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen bg-white">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+      <p className="text-gray-500 text-sm">লোড হচ্ছে...</p>
+    </div>
+  </div>
+);
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" element={<ResetPassword />} />
-      <Route path="/listings" element={<Listings />} />
-      <Route path="/posts" element={<BuyingPosts />} />
-      <Route path="/knowledge" element={<Knowledge />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/profile/*" element={<DashboardLayout><Profile /></DashboardLayout>} />
-      <Route path="/admin" element={<AdminLogin />} />
-      <Route path="/admin/dashboard/*" element={<DashboardLayout><AdminDashboard /></DashboardLayout>} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-      <Route path="/terms" element={<Terms />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/"                    element={<Home />} />
+        <Route path="/login"               element={<Login />} />
+        <Route path="/register"            element={<Register />} />
+        <Route path="/forgot-password"     element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/listings"            element={<Listings />} />
+        <Route path="/posts"               element={<BuyingPosts />} />
+        <Route path="/knowledge"           element={<Knowledge />} />
+        <Route path="/about"               element={<About />} />
+        <Route path="/contact"             element={<Contact />} />
+        <Route path="/privacy-policy"      element={<PrivacyPolicy />} />
+        <Route path="/terms"               element={<Terms />} />
 
-      <Route path="*" element={<div className="text-center py-20 font-bold text-2xl text-gray-500">পেজটি পাওয়া যায়নি (৪১০)</div>} />
-    </Routes>
+        {/* General Profile (Dashboard Overview) */}
+        <Route path="/profile/*" element={
+          <ProtectedRoute>
+            <DashboardLayout><Profile /></DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        {/* Role-specific Dashboards */}
+        <Route path="/dashboard/farmer" element={
+          <RoleRoute allowedRoles={['farmer']}>
+            <DashboardLayout><RoleDashboard allowedRole="farmer" /></DashboardLayout>
+          </RoleRoute>
+        } />
+        <Route path="/dashboard/seller" element={
+          <RoleRoute allowedRoles={['seller']}>
+            <DashboardLayout><RoleDashboard allowedRole="seller" /></DashboardLayout>
+          </RoleRoute>
+        } />
+        <Route path="/dashboard/trader" element={
+          <RoleRoute allowedRoles={['trader']}>
+            <DashboardLayout><RoleDashboard allowedRole="trader" /></DashboardLayout>
+          </RoleRoute>
+        } />
+        <Route path="/dashboard/hatchery" element={
+          <RoleRoute allowedRoles={['hatchery']}>
+            <DashboardLayout><RoleDashboard allowedRole="hatchery" /></DashboardLayout>
+          </RoleRoute>
+        } />
+
+        <Route path="/verification" element={
+          <ProtectedRoute><Verification /></ProtectedRoute>
+        } />
+
+        <Route path="/admin" element={<AdminLogin />} />
+
+        <Route path="/admin/dashboard/*" element={
+          <ProtectedRoute requireAdmin={true}>
+            <DashboardLayout><AdminDashboard /></DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="*" element={
+          <div className="text-center py-20 font-bold text-2xl text-gray-500">
+            পেজটি পাওয়া যায়নি (৪০৪)
+          </div>
+        } />
+      </Routes>
+    </Suspense>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const ResetPassword = () => {
@@ -21,7 +21,7 @@ const ResetPassword = () => {
 
         setLoading(true);
         try {
-            await axios.post(`https://manaj-backend.onrender.com/api/auth/reset-password/${token}`, { password });
+            await api.post(`/auth/reset-password/${token}`, { password });
             toast.success(t.passwordResetSuccess);
             navigate('/login');
         } catch (err) {

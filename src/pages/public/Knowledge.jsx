@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import ArticleCard from '../../components/listing/ArticleCard';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -14,7 +14,7 @@ const Knowledge = () => {
 
     const fetchArticles = async () => {
         try {
-            const res = await axios.get('https://manaj-backend.onrender.com/api/knowledge');
+            const res = await api.get('/knowledge');
             setArticles(res.data);
         } catch (err) {
             console.error(err);

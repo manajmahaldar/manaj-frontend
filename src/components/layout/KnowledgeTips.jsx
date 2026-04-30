@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { BookOpen, Fish, Pill, Lightbulb, ArrowRight, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -9,7 +9,7 @@ const KnowledgeTips = () => {
     const [liveArticles, setLiveArticles] = useState([]);
 
     useEffect(() => {
-        axios.get('https://manaj-backend.onrender.com/api/knowledge')
+        api.get('/knowledge')
             .then(res => setLiveArticles(res.data.slice(0, 1)))
             .catch(() => {});
     }, []);

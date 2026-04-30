@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Save, User as UserIcon, Phone, MapPin } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
@@ -20,11 +20,8 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const token = localStorage.getItem('token');
         try {
-            const res = await axios.put('https://manaj-backend.onrender.com/api/users/profile', formData, {
-                headers: { 'x-auth-token': token }
-            });
+            const res = await api.put('/users/profile', formData);
             updateUser(res.data.user);
             toast.success(t.updateSuccess);
             onSuccess();

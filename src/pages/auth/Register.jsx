@@ -3,8 +3,10 @@ import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
+
+import { getDashboardPath } from '../../utils/roleUtils';
 
 const Register = () => {
     const { t } = useLanguage();
@@ -23,14 +25,12 @@ const Register = () => {
     const districts = t.districtsList;
 
     const handleSuccessRedirect = (res) => {
+        const user = res.data.user;
         login(res.data);
         toast.success(t.registerSuccess);
-        const role = res.data.user.role;
-        if (role === 'admin') {
-            navigate('/admin');
-        } else {
-            navigate('/profile');
-        }
+        
+        // Redirect to role-specific dashboard
+        navigate(getDashboardPath(user.role));
     };
 
     const handleSubmit = async (e) => {
@@ -41,7 +41,7 @@ const Register = () => {
         }
 
         try {
-            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/register', formData);
+            const res = await api.post('/auth/register', formData);
             handleSuccessRedirect(res);
         } catch (err) {
             toast.error(err.response?.data?.msg || t.registerFail);
@@ -50,7 +50,7 @@ const Register = () => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/google-login', {
+            const res = await api.post('/auth/google-login', {
                 token: credentialResponse.credential,
                 role: formData.role,
                 district: formData.district,
@@ -159,7 +159,7 @@ const Register = () => {
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
                             onError={() => toast.error("Google Registration Failed")}
-                            useOneTap
+                            useOneTap={false}
                             theme="outline"
                             size="large"
                             width="100%"

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Save, Upload } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -56,12 +56,10 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
         data.set('category', formData.category || 'fish');
         Array.from(photos).forEach(photo => data.append('photos', photo));
 
-        const token = localStorage.getItem('token');
         try {
-            await axios.put(`https://manaj-backend.onrender.com/api/posts/${post._id}`, data, {
+            await api.put(`/posts/${post._id}`, data, {
                 headers: { 
-                    'Content-Type': 'multipart/form-data',
-                    'x-auth-token': token 
+                    'Content-Type': 'multipart/form-data'
                 }
             });
             toast.success(t.orderUpdateSuccess);

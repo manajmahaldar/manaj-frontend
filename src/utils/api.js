@@ -1,0 +1,77 @@
+/**
+ * api.js — central Axios instance
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Token is stored in module-level memory (NOT localStorage) so it cannot
+ * be stolen by XSS.  AuthContext calls setApiToken() after login / refresh
+ * and registerRefreshFn() to register its silentRefresh callback.
+ */
+import axios from 'axios';
+
+let _token      = null;
+let _refreshFn  = null;
+let _logoutFn   = null;
+
+/** Called by AuthContext after login or silent refresh */
+export const setApiToken   = (token) => { _token = token; };
+export const clearApiToken = ()      => { _token = null; };
+
+/** Called by AuthContext on mount to register silentRefresh + logout */
+export const registerAuthCallbacks = (refreshFn, logoutFn) => {
+    _refreshFn = refreshFn;
+    _logoutFn  = logoutFn;
+};
+
+const api = axios.create({
+    baseURL:         import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+    withCredentials: true, // send httpOnly refresh-token cookie automatically
+    headers: { 'Content-Type': 'application/json' }
+});
+
+// ── Request interceptor: attach access token ──────────────────────────────────
+api.interceptors.request.use(
+    (config) => {
+        if (_token) {
+            config.headers['x-auth-token'] = _token;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// ── Response interceptor: auto-refresh on TOKEN_EXPIRED ───────────────────────
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const original = error.config;
+
+        const shouldRefresh =
+            error.response?.status === 401 &&
+            (error.response?.data?.code === 'TOKEN_EXPIRED' ||
+             error.response?.data?.code === 'TOKEN_INVALIDATED') &&
+            !original._retry &&
+            _refreshFn;
+
+        if (shouldRefresh) {
+            original._retry = true;
+            try {
+                const newToken = await _refreshFn();
+                if (newToken) {
+                    original.headers['x-auth-token'] = newToken;
+                    return api(original); // retry original request with new token
+                }
+            } catch {
+                // Refresh failed — log the user out
+                if (_logoutFn) _logoutFn();
+            }
+        }
+
+        // Hard 401 that can't be recovered — clear session
+        if (error.response?.status === 401 && original._retry) {
+            if (_logoutFn) _logoutFn();
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+export default api;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import ListingCard from '../listing/ListingCard';
 import { useLanguage } from '../../context/LanguageContext';
 import { Sprout, ArrowRight, Loader2 } from 'lucide-react';
@@ -17,7 +17,7 @@ const HatcheryListings = () => {
     const fetchSeedListings = async () => {
         try {
             // Filter by Spawn/Seed category specifically
-            const res = await axios.get('https://manaj-backend.onrender.com/api/listings?category=Spawn/Seed');
+            const res = await api.get('/listings?category=Spawn/Seed');
             // Show only first 4 seed listings for the home page section
             setListings(res.data.slice(0, 4));
         } catch (err) {

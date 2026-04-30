@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import BuyingPostCard from '../../components/trader/BuyingPostCard';
 import { Search } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,30 +7,30 @@ import { useLanguage } from '../../context/LanguageContext';
 const BuyingPosts = () => {
     const { t, formatDigit, language } = useLanguage();
     const [posts, setPosts] = useState([]);
+    const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
-        fetchPosts();
-    }, []);
+        const timer = setTimeout(() => {
+            fetchPosts();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, page]);
 
     const fetchPosts = async () => {
+        setLoading(true);
         try {
-            const res = await axios.get('https://manaj-backend.onrender.com/api/posts');
-            setPosts(res.data);
+            const res = await api.get(`/posts?search=${search}&page=${page}&limit=12`);
+            setPosts(res.data.posts);
+            setPagination(res.data.pagination);
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
         }
     };
-
-
-    const filteredPosts = posts.filter(p => 
-        p.fishName.toLowerCase().includes(search.toLowerCase()) ||
-        p.district.toLowerCase().includes(search.toLowerCase()) ||
-        (p.category && p.category.toLowerCase().includes(search.toLowerCase()))
-    );
 
     return (
         <div className="pb-20 bg-gray-50/30 min-h-screen">
@@ -78,17 +78,44 @@ const BuyingPosts = () => {
 
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1,2,3].map(n => <div key={n} className="h-48 bg-gray-50 animate-pulse rounded-xl"></div>)}
+                    {[1,2,3,4,5,6].map(n => <div key={n} className="h-48 bg-gray-50 animate-pulse rounded-xl border border-gray-100"></div>)}
                 </div>
-            ) : filteredPosts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredPosts.map(post => (
-                        <BuyingPostCard key={post._id} post={post} />
-                    ))}
+            ) : posts.length > 0 ? (
+                <div className="space-y-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {posts.map(post => (
+                            <BuyingPostCard key={post._id} post={post} />
+                        ))}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {pagination.pages > 1 && (
+                        <div className="flex items-center justify-center gap-4 py-8">
+                            <button 
+                                disabled={page === 1}
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                className="px-6 py-2 bg-white border border-gray-200 rounded-xl font-bold disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                            >
+                                {t.previous}
+                            </button>
+                            <span className="font-black text-gray-900">
+                                {formatDigit(page)} / {formatDigit(pagination.pages)}
+                            </span>
+                            <button 
+                                disabled={page === pagination.pages}
+                                onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
+                                className="px-6 py-2 bg-white border border-gray-200 rounded-xl font-bold disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                            >
+                                {t.next}
+                            </button>
+                        </div>
+                    )}
                 </div>
             ) : (
-                <div className="text-center py-20 text-gray-500">
-                    {t.noBuyingPostsFound}
+                <div className="text-center py-20 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100">
+                    <Search className="mx-auto text-gray-300 mb-4" size={48} />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t.noBuyingPostsFound}</h3>
+                    <p className="text-gray-500">{t.tryDifferentFilters}</p>
                 </div>
             )}
         </div>

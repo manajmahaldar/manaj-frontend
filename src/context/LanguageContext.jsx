@@ -1,10 +1,51 @@
-import { createContext, useContext, useState, useMemo } from 'react';
-import translations from '../utils/translations';
+import { createContext, useContext, useState, useMemo, useEffect } from 'react';
 
 export const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
     const [language, setLanguage] = useState(localStorage.getItem('language') || 'bn');
+    const [translations, setTranslations] = useState({});
+    const [isTranslating, setIsTranslating] = useState(true);
+
+    useEffect(() => {
+        const loadTranslations = async () => {
+            setIsTranslating(true);
+            try {
+                // Dynamically import the locale based on current language
+                const module = await import(`../locales/${language}.json`);
+                setTranslations(prev => ({
+                    ...prev,
+                    [language]: module.default
+                }));
+            } catch (error) {
+                console.error(`Failed to load translation for language: ${language}`, error);
+                // Fallback to bn if loading fails
+                if (language !== 'bn' && !translations['bn']) {
+                    try {
+                        const fallbackModule = await import(`../locales/bn.json`);
+                        setTranslations(prev => ({
+                            ...prev,
+                            ['bn']: fallbackModule.default
+                        }));
+                    } catch (fallbackErr) {
+                         console.error(`Failed to load fallback translation`, fallbackErr);
+                    }
+                }
+            } finally {
+                setIsTranslating(false);
+            }
+        };
+
+        if (!translations[language]) {
+            loadTranslations();
+        } else {
+            setIsTranslating(false);
+        }
+    }, [language, translations]);
+
+    useEffect(() => {
+        document.documentElement.lang = language;
+    }, [language]);
 
     const toggleLanguage = () => {
         let newLang;
@@ -21,7 +62,10 @@ export const LanguageProvider = ({ children }) => {
         localStorage.setItem('language', newLang);
     };
 
-    const t = useMemo(() => translations[language] || translations.bn, [language]);
+    // Provide loaded translations or an empty object if not yet loaded
+    const t = useMemo(() => {
+        return translations[language] || translations['bn'] || {};
+    }, [language, translations]);
 
     const formatDigit = (num) => {
         if (language !== 'bn') return num;
@@ -31,6 +75,11 @@ export const LanguageProvider = ({ children }) => {
         };
         return String(num).split('').map(char => numbers[char] || char).join('');
     };
+
+    // Prevent rendering children until at least the initial language is loaded
+    if (isTranslating && !translations[language] && !translations['bn']) {
+        return null; // Prevents layout shift/empty text before translation loads
+    }
 
     return (
         <LanguageContext.Provider value={{ language, toggleLanguage, changeLanguage, t, formatDigit }}>

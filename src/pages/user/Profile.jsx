@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import ListingCard from '../../components/listing/ListingCard';
 import BuyingPostCard from '../../components/trader/BuyingPostCard';
@@ -14,7 +14,7 @@ import {
     Edit, Trash2, ArrowDownRight, ArrowUpRight, Package, ShoppingCart,
     CheckCircle, Clock, XCircle, Settings
 } from 'lucide-react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 
 const Profile = () => {
@@ -43,12 +43,11 @@ const Profile = () => {
 
     const fetchMyContent = async () => {
         try {
-            const token = localStorage.getItem('token');
             const [listingsRes, postsRes, ordersRes, incomingRes] = await Promise.all([
-                axios.get('https://manaj-backend.onrender.com/api/listings/my-listings', { headers: { 'x-auth-token': token } }),
-                axios.get('https://manaj-backend.onrender.com/api/posts/my-posts', { headers: { 'x-auth-token': token } }),
-                axios.get('https://manaj-backend.onrender.com/api/orders/my-orders', { headers: { 'x-auth-token': token } }),
-                axios.get('https://manaj-backend.onrender.com/api/orders/incoming', { headers: { 'x-auth-token': token } })
+                api.get('/listings/my-listings'),
+                api.get('/posts/my-posts'),
+                api.get('/orders/my-orders'),
+                api.get('/orders/incoming')
             ]);
             setMyListings(listingsRes.data);
             setMyPosts(postsRes.data);
@@ -65,9 +64,8 @@ const Profile = () => {
         formData.append('image', file);
         try {
             setIsUploading(true);
-            const token = localStorage.getItem('token');
-            const res = await axios.post('https://manaj-backend.onrender.com/api/users/profile-picture', formData, {
-                headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token }
+            const res = await api.post('/users/profile-picture', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
             updateUser({ ...user, profilePicture: res.data.profilePicture });
             toast.success(t.imageUploadSuccess);
@@ -81,8 +79,7 @@ const Profile = () => {
     const handleDeleteListing = async (id) => {
         if (!window.confirm(t.deleteConfirm)) return;
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`https://manaj-backend.onrender.com/api/listings/${id}`, { headers: { 'x-auth-token': token } });
+            await api.delete(`/listings/${id}`);
             toast.success(t.deleteSuccess);
             fetchMyContent();
         } catch (err) { toast.error(t.deleteFail); }
@@ -91,8 +88,7 @@ const Profile = () => {
     const handleDeletePost = async (id) => {
         if (!window.confirm(t.deleteConfirm)) return;
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`https://manaj-backend.onrender.com/api/posts/${id}`, { headers: { 'x-auth-token': token } });
+            await api.delete(`/posts/${id}`);
             toast.success(t.deleteSuccess);
             fetchMyContent();
         } catch (err) { toast.error(t.deleteFail); }
@@ -100,10 +96,7 @@ const Profile = () => {
 
     const handleUpdateOrderStatus = async (orderId, status) => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`https://manaj-backend.onrender.com/api/orders/${orderId}/status`, { status }, {
-                headers: { 'x-auth-token': token }
-            });
+            await api.put(`/orders/${orderId}/status`, { status });
             toast.success(t.updateSuccess);
             fetchMyContent();
         } catch (err) { toast.error(t.updateFail); }
@@ -191,97 +184,126 @@ const Profile = () => {
         </div>
     );
 
+    const VerificationRequired = ({ title, desc }) => (
+        <div className="py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100 text-center flex flex-col items-center space-y-6">
+            <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                <BadgeCheck size={48} />
+            </div>
+            <div className="max-w-md mx-auto">
+                <h2 className="text-2xl font-black text-gray-900 mb-2">{title || "Verification Required"}</h2>
+                <p className="text-gray-500 font-bold mb-8">{desc || "You need to complete your profile verification to access this feature."}</p>
+                <Link to="/verification" className="btn btn-primary px-10 py-4 rounded-2xl font-black shadow-lg shadow-primary/25">Verify Now</Link>
+            </div>
+        </div>
+    );
+
     if (!user) return <div className="text-center py-20 font-bold text-gray-500 animate-pulse">{t.pleaseLogin}</div>;
+
+    const isUnverified = user.role !== 'admin' && user.accountStatus !== 'active';
 
     return (
         <div className="w-full">
             <Routes>
                 <Route path="/" element={<DashboardOverview />} />
                 <Route path="/listings" element={
-                    <div className="space-y-8">
-                        <div className="flex justify-between items-center bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100">
-                            <div>
-                                <h1 className="text-3xl font-black text-gray-900">{t.myListings}</h1>
-                                <p className="text-gray-500 font-medium">{t.viewManageListings}</p>
+                    isUnverified ? (
+                        <VerificationRequired title="Verification Needed to Sell" desc="To list your products and sell on our platform, you must first complete the identity verification." />
+                    ) : (
+                        <div className="space-y-8">
+                            <div className="flex justify-between items-center bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100">
+                                <div>
+                                    <h1 className="text-3xl font-black text-gray-900">{t.myListings}</h1>
+                                    <p className="text-gray-500 font-medium">{t.viewManageListings}</p>
+                                </div>
+                                {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery') && (
+                                    <button 
+                                        onClick={() => setIsListingModalOpen(true)}
+                                        className="bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-primary/25 active:scale-95"
+                                    >
+                                        <PlusCircle size={20} />
+                                        {t.newListing}
+                                    </button>
+                                )}
                             </div>
-                            {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery') && (
-                                <button 
-                                    onClick={() => setIsListingModalOpen(true)}
-                                    className="bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-primary/25 active:scale-95"
-                                >
-                                    <PlusCircle size={20} />
-                                    {t.newListing}
-                                </button>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                            {myListings.map(item => (
-                                <div key={item._id} className="relative group">
-                                    <ListingCard item={item} userRole={user.role} />
-                                    <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                        <button onClick={() => { setSelectedListing(item); setIsEditModalOpen(true); }} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
-                                            <Edit size={18} />
-                                        </button>
-                                        <button onClick={() => handleDeleteListing(item._id)} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-red-600 hover:bg-red-600 hover:text-white transition-all">
-                                            <Trash2 size={18} />
-                                        </button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                                {myListings.map(item => (
+                                    <div key={item._id} className="relative group">
+                                        <ListingCard item={item} userRole={user.role} />
+                                        <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                                            <button onClick={() => { setSelectedListing(item); setIsEditModalOpen(true); }} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
+                                                <Edit size={18} />
+                                            </button>
+                                            <button onClick={() => handleDeleteListing(item._id)} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-red-600 hover:bg-red-600 hover:text-white transition-all">
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                            {myListings.length === 0 && (
-                                <div className="col-span-full py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200 text-center space-y-4">
-                                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300">
-                                        <Package size={40} />
+                                ))}
+                                {myListings.length === 0 && (
+                                    <div className="col-span-full py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200 text-center space-y-4">
+                                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                                            <Package size={40} />
+                                        </div>
+                                        <p className="text-gray-500 font-bold text-xl">{t.noSalesPost}</p>
                                     </div>
-                                    <p className="text-gray-500 font-bold text-xl">{t.noSalesPost}</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )
                 } />
                 <Route path="/posts" element={
-                    <div className="space-y-8">
-                        <div className="flex justify-between items-center bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100">
-                            <div>
-                                <h1 className="text-3xl font-black text-gray-900">{t.buyingRequirements}</h1>
-                                <p className="text-gray-500 font-medium">{t.manageRequirements}</p>
+                    isUnverified ? (
+                        <VerificationRequired title="Verification Needed to Post Requirements" desc="To post buying requirements and connect with sellers, you must first complete the identity verification." />
+                    ) : (
+                        <div className="space-y-8">
+                            <div className="flex justify-between items-center bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100">
+                                <div>
+                                    <h1 className="text-3xl font-black text-gray-900">{t.buyingRequirements}</h1>
+                                    <p className="text-gray-500 font-medium">{t.manageRequirements}</p>
+                                </div>
+                                {(user.role === 'trader' || user.role === 'admin') && (
+                                    <button 
+                                        onClick={() => setIsPostModalOpen(true)}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-green-600/25 active:scale-95"
+                                    >
+                                        <PlusCircle size={20} />
+                                        {t.newRequirement}
+                                    </button>
+                                )}
                             </div>
-                            {(user.role === 'trader' || user.role === 'admin') && (
-                                <button 
-                                    onClick={() => setIsPostModalOpen(true)}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-green-600/25 active:scale-95"
-                                >
-                                    <PlusCircle size={20} />
-                                    {t.newRequirement}
-                                </button>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {myPosts.map(post => (
-                                <div key={post._id} className="relative group">
-                                    <BuyingPostCard post={post} />
-                                    <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                        <button onClick={() => { setSelectedPost(post); setIsEditPostModalOpen(true); }} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
-                                            <Edit size={18} />
-                                        </button>
-                                        <button onClick={() => handleDeletePost(post._id)} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-red-600 hover:bg-red-600 hover:text-white transition-all">
-                                            <Trash2 size={18} />
-                                        </button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {myPosts.map(post => (
+                                    <div key={post._id} className="relative group">
+                                        <BuyingPostCard post={post} />
+                                        <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                                            <button onClick={() => { setSelectedPost(post); setIsEditPostModalOpen(true); }} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
+                                                <Edit size={18} />
+                                            </button>
+                                            <button onClick={() => handleDeletePost(post._id)} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-red-600 hover:bg-red-600 hover:text-white transition-all">
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                            {myPosts.length === 0 && (
-                                <div className="col-span-full py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200 text-center space-y-4">
-                                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300">
-                                        <ShoppingCart size={40} />
+                                ))}
+                                {myPosts.length === 0 && (
+                                    <div className="col-span-full py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200 text-center space-y-4">
+                                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                                            <ShoppingCart size={40} />
+                                        </div>
+                                        <p className="text-gray-500 font-bold text-xl">{t.noPurchasePost}</p>
                                     </div>
-                                    <p className="text-gray-500 font-bold text-xl">{t.noPurchasePost}</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )
                 } />
-                <Route path="/orders-received" element={<OrdersView title={t.receivedOrders} orders={incomingOrders} showActions={true} />} />
+                <Route path="/orders-received" element={
+                    isUnverified ? (
+                        <VerificationRequired title="Verification Needed to Manage Orders" desc="To accept or fulfill orders received from buyers, you must be a verified seller." />
+                    ) : (
+                        <OrdersView title={t.receivedOrders} orders={incomingOrders} showActions={true} />
+                    )
+                } />
                 <Route path="/my-orders" element={<OrdersView title={t.sentOrders} orders={myOrders} />} />
                 <Route path="/settings" element={
                     <div className="max-w-4xl mx-auto space-y-8">

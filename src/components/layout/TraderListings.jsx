@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import BuyingPostCard from '../trader/BuyingPostCard';
 import { useLanguage } from '../../context/LanguageContext';
 import { ShoppingCart, ArrowRight, Loader2, Megaphone } from 'lucide-react';
@@ -16,7 +16,7 @@ const TraderListings = () => {
 
     const fetchTraderPosts = async () => {
         try {
-            const res = await axios.get('https://manaj-backend.onrender.com/api/posts');
+            const res = await api.get('/posts');
             // Show only first 3-4 approved buying posts
             setPosts(res.data.slice(0, 3));
         } catch (err) {

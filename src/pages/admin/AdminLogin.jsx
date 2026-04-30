@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigate, Navigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { ShieldCheck, LockKeyhole } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -21,7 +21,7 @@ const AdminLogin = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('https://manaj-backend.onrender.com/api/auth/login', { email, password });
+            const res = await api.post('/auth/login', { email, password });
             
             // Explicitly deny non-admins
             if (res.data.user.role !== 'admin') {

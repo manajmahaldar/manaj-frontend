@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import ListingCard from '../listing/ListingCard';
 import { useLanguage } from '../../context/LanguageContext';
 import { Fish, ArrowRight, Loader2 } from 'lucide-react';
@@ -17,7 +17,7 @@ const FarmerListings = () => {
     const fetchFishListings = async () => {
         try {
             // Updated to use the correct API endpoint and filter by Fish category only
-            const res = await axios.get('https://manaj-backend.onrender.com/api/listings?category=Fish');
+            const res = await api.get('/listings?category=Fish');
             // Show only first 4 fish listings for the home page section
             setListings(res.data.slice(0, 4));
         } catch (err) {

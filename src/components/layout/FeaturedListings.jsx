@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { ShoppingBag, ShoppingCart, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ListingCard from '../listing/ListingCard';
@@ -23,11 +23,11 @@ const FeaturedListings = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const postsRes = await axios.get('https://manaj-backend.onrender.com/api/posts').catch(e => {
+            const postsRes = await api.get('/posts').catch(e => {
                 console.error('Buying Posts API failed:', e);
                 return { data: [] };
             });
-            const listingsRes = await axios.get('https://manaj-backend.onrender.com/api/listings').catch(e => {
+            const listingsRes = await api.get('/listings').catch(e => {
                 console.error('Listings API failed:', e);
                 return { data: [] };
             });
