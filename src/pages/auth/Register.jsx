@@ -135,6 +135,7 @@ const Register = () => {
                             value={formData.password}
                             onChange={(e) => setFormData({...formData, password: e.target.value})}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters, include uppercase, lowercase, number, and special character.</p>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>

@@ -18,7 +18,7 @@ const AdminFishListings = () => {
         try {
             // Fetch Big Fish specifically from Admin role
             const res = await api.get('/listings?category=Fish&sellerRole=admin');
-            setListings(res.data.slice(0, 4));
+            setListings(res.data.listings ? res.data.listings.slice(0, 4) : res.data.slice(0, 4));
         } catch (err) {
             console.error('Error fetching admin fish listings:', err);
         } finally {
@@ -38,7 +38,7 @@ const AdminFishListings = () => {
     if (listings.length === 0) return null;
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-10 md:py-20 relative overflow-hidden group">
+        <section className="max-w-7xl mx-auto px-4 py-6 md:py-10 relative overflow-hidden group">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 right-0 -u-z-10 w-64 h-64 bg-amber-200/20 blur-[100px] rounded-full group-hover:bg-amber-300/30 transition-colors duration-700"></div>
             <div className="absolute bottom-0 left-0 -u-z-10 w-96 h-96 bg-blue-200/10 blur-[120px] rounded-full group-hover:bg-blue-300/20 transition-colors duration-700"></div>
@@ -51,7 +51,7 @@ const AdminFishListings = () => {
                             {t.bigFishMarket}
                         </div>
                         
-                        <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">
+                        <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
                             {t.bigFishMarket} <br/>
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-orange-500 flex items-center gap-4 justify-center lg:justify-start">
                                 Exclusive Stock <Sparkles className="text-amber-400 hidden md:block" />

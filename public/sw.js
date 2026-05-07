@@ -63,7 +63,11 @@ self.addEventListener('fetch', event => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        return fetch(event.request).catch(error => {
+          console.error('Service Worker Fetch Failed:', error);
+          // Return nothing or a fallback here
+          throw error;
+        });
       })
   );
 });

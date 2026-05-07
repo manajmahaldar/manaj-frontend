@@ -10,7 +10,7 @@ const CTA = () => {
     };
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-10 md:py-20">
+        <section className="max-w-7xl mx-auto px-4 py-6 md:py-10">
             <div className="relative overflow-hidden rounded-[3rem] bg-gray-900 p-8 md:p-12 lg:p-20 text-center">
                 {/* Decorative background elements */}
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-[120px]"></div>
@@ -22,11 +22,11 @@ const CTA = () => {
                         {t.joinCommunity}
                     </div>
 
-                    <h2 className="text-4xl md:text-7xl font-black text-white leading-[1.1]">
+                    <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
                         {t.startSellingTitle} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">{t.startSellingStart}</span>
                     </h2>
 
-                    <p className="text-gray-400 text-lg md:text-xl font-medium leading-relaxed">
+                    <p className="text-gray-400 text-base md:text-lg font-medium leading-relaxed">
                         {t.startSellingDesc}
                     </p>
 

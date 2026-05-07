@@ -23,7 +23,9 @@ const SellerListings = () => {
             ]);
             
             // Combine and show top 4 supplies total
-            const combined = [...feedRes.data, ...medRes.data];
+            const feedListings = feedRes.data.listings ? feedRes.data.listings : feedRes.data;
+            const medListings = medRes.data.listings ? medRes.data.listings : medRes.data;
+            const combined = [...feedListings, ...medListings];
             setListings(combined.slice(0, 4));
         } catch (err) {
             console.error('Error fetching seller listings:', err);
@@ -44,7 +46,7 @@ const SellerListings = () => {
     if (listings.length === 0) return null;
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-10 md:py-20">
+        <section className="max-w-7xl mx-auto px-4 py-6 md:py-10">
             <div className="bg-emerald-50/50 rounded-[3rem] p-6 md:p-16 border border-emerald-100/50">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                     <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start w-full md:w-auto">
@@ -52,7 +54,7 @@ const SellerListings = () => {
                             <ShoppingBag size={14} />
                             {t.suppliesHub}
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight w-full">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight w-full">
                             {t.suppliesHub} <br/>
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-500">
                                 {t.feedAndMed}

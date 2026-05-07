@@ -44,13 +44,13 @@ const WhyChooseUs = () => {
     ];
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-8 md:py-16">
+        <section className="max-w-7xl mx-auto px-4 py-4 md:py-8">
             {/* Header */}
             <div className="text-center mb-10 md:mb-16 space-y-4">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-xs font-bold uppercase tracking-widest">
                     ✦ {t.whyChooseUsBadge}
                 </div>
-                    <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
+                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
                         {language === 'hi' ? '' : language === 'bn' ? 'কেন ' : 'Why '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 px-2 lg:px-4">
                             Matsyalink

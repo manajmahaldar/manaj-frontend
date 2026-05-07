@@ -3,7 +3,7 @@ import api from '../../utils/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
     User as UserIcon, Package, MessageSquare, ShieldCheck, 
-    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock
+    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2
 } from 'lucide-react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -110,6 +110,17 @@ const AdminDashboard = () => {
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
+    };
+
+    const handleDeleteUser = async (userId) => {
+        if (!window.confirm("Are you sure you want to PERMANENTLY remove this user and all their data? This cannot be undone.")) return;
+        try {
+            await api.delete(`/admin/users/${userId}`);
+            toast.success("User removed successfully");
+            fetchData();
+        } catch (err) {
+            toast.error("Failed to remove user");
+        }
     };
 
     if (loading) return <div className="flex justify-center items-center h-96 animate-pulse text-primary font-black text-xl">{t.dataLoading}</div>;
@@ -319,6 +330,11 @@ const AdminDashboard = () => {
                                                     {u.role !== 'admin' && (
                                                         <button onClick={() => handleUpdateStatus(u._id, u.accountStatus === 'active' ? 'suspended' : 'active')} className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all shadow-sm text-xs font-bold ${u.accountStatus === 'active' ? 'bg-red-50 text-red-600 hover:bg-red-600 hover:text-white' : 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white'}`}>
                                                             <X size={14} /> {u.accountStatus === 'active' ? t.suspend : t.active}
+                                                        </button>
+                                                    )}
+                                                    {u.role !== 'admin' && (
+                                                        <button onClick={() => handleDeleteUser(u._id)} className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold" title="Delete User">
+                                                            <Trash2 size={14} />
                                                         </button>
                                                     )}
                                                 </>

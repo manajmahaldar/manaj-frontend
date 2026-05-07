@@ -19,7 +19,7 @@ const HatcheryListings = () => {
             // Filter by Spawn/Seed category specifically
             const res = await api.get('/listings?category=Spawn/Seed');
             // Show only first 4 seed listings for the home page section
-            setListings(res.data.slice(0, 4));
+            setListings(res.data.listings ? res.data.listings.slice(0, 4) : res.data.slice(0, 4));
         } catch (err) {
             console.error('Error fetching seed listings:', err);
         } finally {
@@ -39,7 +39,7 @@ const HatcheryListings = () => {
     if (listings.length === 0) return null;
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-10 md:py-20 lg:pt-0">
+        <section className="max-w-7xl mx-auto px-4 py-6 md:py-10 lg:pt-0">
             <div className="bg-cyan-50/50 rounded-[3rem] p-6 md:p-16 border border-cyan-100/50">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                     <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start w-full md:w-auto">
@@ -47,7 +47,7 @@ const HatcheryListings = () => {
                             <Sprout size={14} />
                             {t.hatcheryTitle}
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight w-full">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight w-full">
                             {t.hatcheryTitle} <br/>
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-500">
                                 {t.hatcherySubtitle}

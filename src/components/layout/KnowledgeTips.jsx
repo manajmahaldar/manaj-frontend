@@ -59,7 +59,7 @@ const KnowledgeTips = () => {
     ];
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-8 md:py-16">
+        <section className="max-w-7xl mx-auto px-4 py-4 md:py-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-14">
                 <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start w-full md:w-auto">
@@ -67,7 +67,7 @@ const KnowledgeTips = () => {
                         <BookOpen size={14} />
                         {t.knowledgeTips.badge}
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight w-full">
+                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight w-full">
                         {t.knowledgeTips.title}{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">
                             {t.knowledgeTips.titleSpan}

@@ -33,9 +33,9 @@ const RoleSelection = () => {
     ];
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-6 md:py-12">
+        <section className="max-w-7xl mx-auto px-4 py-4 md:py-8">
             <div className="text-center mb-8 md:mb-12">
-                <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
+                <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">
                     {t.roleSelection.title.split(' ')[0]} {t.roleSelection.title.split(' ')[1]} <span className="text-blue-600">{t.roleSelection.title.split(' ').slice(2).join(' ')}</span>
                 </h2>
                 <p className="text-gray-600 font-medium">{t.roleSelection.subtitle}</p>

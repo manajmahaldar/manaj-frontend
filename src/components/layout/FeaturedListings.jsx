@@ -32,8 +32,8 @@ const FeaturedListings = () => {
                 return { data: [] };
             });
 
-            const allListings = Array.isArray(listingsRes.data) ? listingsRes.data : [];
-            const allPosts = Array.isArray(postsRes.data) ? postsRes.data : [];
+            const allListings = Array.isArray(listingsRes.data?.listings) ? listingsRes.data.listings : (Array.isArray(listingsRes.data) ? listingsRes.data : []);
+            const allPosts = Array.isArray(postsRes.data?.posts) ? postsRes.data.posts : (Array.isArray(postsRes.data) ? postsRes.data : []);
 
             // Get latest 4 fish and spawn/seed listings
             setFishListings(allListings.filter(l => ['Fish', 'Spawn/Seed', 'মাছ', 'পোনা'].includes(l.category)).reverse().slice(0, 4));

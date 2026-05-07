@@ -17,6 +17,10 @@ const RoleDashboard = ({ allowedRole }) => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
+                if (user?.accountStatus !== 'active') {
+                    setLoading(false);
+                    return;
+                }
                 const res = await api.get(`/${allowedRole}/dashboard`);
                 setStats(res.data.stats);
             } catch (err) {

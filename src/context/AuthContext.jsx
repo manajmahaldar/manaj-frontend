@@ -4,9 +4,7 @@ import api, { setApiToken, clearApiToken, registerAuthCallbacks } from '../utils
 
 export const AuthContext = createContext();
 
-const REFRESH_URL =
-    (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api')
-        .replace(/\/api$/, '') + '/api/auth/refresh-token';
+// removed manual REFRESH_URL parsing
 
 export const AuthProvider = ({ children }) => {
     const [user,    setUser]    = useState(null);
@@ -15,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     // ── Silent refresh (no auth header needed — uses httpOnly cookie) ─────────
     const silentRefresh = useCallback(async () => {
         try {
-            const res = await axios.post(REFRESH_URL, {}, { withCredentials: true });
+            const res = await api.post('/auth/refresh-token');
             const { token } = res.data;
             setApiToken(token);
             return token;

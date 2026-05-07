@@ -18,7 +18,7 @@ const TraderListings = () => {
         try {
             const res = await api.get('/posts');
             // Show only first 3-4 approved buying posts
-            setPosts(res.data.slice(0, 3));
+            setPosts(res.data.posts ? res.data.posts.slice(0, 3) : res.data.slice(0, 3));
         } catch (err) {
             console.error('Error fetching trader posts:', err);
         } finally {
@@ -38,7 +38,7 @@ const TraderListings = () => {
     if (posts.length === 0) return null;
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-10 md:py-20">
+        <section className="max-w-7xl mx-auto px-4 py-6 md:py-10">
             <div className="bg-green-50/50 rounded-[3rem] p-6 md:p-16 border border-green-100/50">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                     <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start w-full md:w-auto">
@@ -46,7 +46,7 @@ const TraderListings = () => {
                             <Megaphone size={14} />
                             {t.traderDemand}
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight w-full">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight w-full">
                             {t.traderDemand} <br/>
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-teal-500">
                                 {t.buyingRequirements}

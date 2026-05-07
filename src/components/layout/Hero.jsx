@@ -7,7 +7,7 @@ const Hero = () => {
 
 
     return (
-        <section className="relative bg-white pt-6 pb-12 md:pt-10 md:pb-20 px-4 md:px-8 overflow-hidden">
+        <section className="relative bg-white pt-6 pb-16 md:pt-10 md:pb-24 px-4 md:px-8 overflow-hidden">
             {/* Background Decorative Elements */}
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse"></div>
             <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-green-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse delay-700"></div>
@@ -23,7 +23,7 @@ const Hero = () => {
                         {t.heroBadge}
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-[1.1]">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 leading-[1.2]">
                         {t.heroTitle1} <br/>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600">
                             {t.heroTitle2}
@@ -70,46 +70,21 @@ const Hero = () => {
                 </div>
 
                 {/* Hero Image Section */}
-                <div className="flex-1 order-1 lg:order-2 w-full lg:max-w-none max-w-2xl mx-auto">
-                    <div className="relative">
-                        {/* Glassmorphism Cards */}
-                        <div className="absolute -top-6 -left-6 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl z-20 border border-white/50 hidden md:block animate-in slide-in-from-left duration-1000 delay-500">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-green-100 rounded-lg text-green-600">
-                                    <ShoppingBag size={20} />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-bold uppercase">{t.newPost}</p>
-                                    <p className="text-sm font-bold text-gray-900">{t.heroSampleFish}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="absolute -bottom-6 -right-6 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl z-20 border border-white/50 hidden md:block animate-in slide-in-from-right duration-1000 delay-700">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                                    <ArrowRight size={20} />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-bold uppercase">{t.marketStatus}</p>
-                                    <p className="text-sm font-bold text-gray-900">{t.tradingActive}</p>
-                                </div>
-                            </div>
-                        </div>
-
+                <div className="flex-1 order-1 lg:order-2 w-full flex justify-center lg:justify-end">
+                    <div className="relative w-full max-w-[450px]">
                         {/* Main Image Container */}
-                        <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-gray-900/5 rotate-1 hover:rotate-0 transition-transform duration-700 group">
+                        <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-gray-900/5 transition-all duration-700">
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                             <img 
-                                src="/hero-fish.png" 
-                                alt="Fish Farming Bangladesh" 
-                                className="w-full aspect-[4/5] object-cover"
+                                src="/hero-fish-new.png" 
+                                alt="Fresh Fish Marketplace" 
+                                className="w-full aspect-[4/5] md:aspect-[3/4] object-cover"
                             />
                         </div>
                         
                         {/* Decorative Rings */}
-                        <div className="absolute -top-10 -right-10 w-40 h-40 border-[20px] border-blue-100/30 rounded-full -z-10 animate-pulse"></div>
-                        <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-green-100/50 rounded-full -z-10 animate-bounce"></div>
+                        <div className="absolute -top-10 -right-10 w-32 h-32 border-[15px] border-blue-100/30 rounded-full -z-10 animate-pulse"></div>
+                        <div className="absolute -bottom-10 -left-10 w-16 h-16 bg-green-100/50 rounded-full -z-10 animate-bounce"></div>
                     </div>
                 </div>
             </div>

@@ -51,8 +51,8 @@ const Profile = () => {
             ]);
             setMyListings(listingsRes.data);
             setMyPosts(postsRes.data);
-            setMyOrders(ordersRes.data);
-            setIncomingOrders(incomingRes.data);
+            setMyOrders(ordersRes.data.orders || []);
+            setIncomingOrders(incomingRes.data.orders || []);
         } catch (err) {
             console.error('Failed to fetch content', err);
         }
@@ -96,7 +96,7 @@ const Profile = () => {
 
     const handleUpdateOrderStatus = async (orderId, status) => {
         try {
-            await api.put(`/orders/${orderId}/status`, { status });
+            await api.patch(`/orders/${orderId}/status`, { status });
             toast.success(t.updateSuccess);
             fetchMyContent();
         } catch (err) { toast.error(t.updateFail); }
