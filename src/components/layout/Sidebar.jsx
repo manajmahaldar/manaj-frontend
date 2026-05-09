@@ -101,7 +101,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 <nav className="flex-1 space-y-1">
                     {filteredItems.map((item) => (
                         <Link 
-                            key={item.path}
+                            key={`${item.name}-${item.path}`}
                             to={item.path}
                             onClick={toggleSidebar}
                             className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${

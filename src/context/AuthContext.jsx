@@ -49,9 +49,14 @@ export const AuthProvider = ({ children }) => {
             try { setUser(JSON.parse(storedUser)); } catch { /* corrupt data */ }
         }
 
-        // Attempt silent refresh to get a fresh access token on every page load.
-        // Fails gracefully if cookie is absent or expired.
-        silentRefresh().finally(() => setLoading(false));
+        // Attempt silent refresh if we think the user might be logged in.
+        // This avoids 401 noise for pure guest visitors while still
+        // recovering sessions where localStorage was cleared but cookie remains.
+        if (storedUser) {
+            silentRefresh().finally(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

@@ -63,15 +63,24 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
 
                         <div className="space-y-1">
                             <label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-2">{t.mobileNumberLabel}</label>
-                            <div className="relative">
-                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                <input 
-                                    type="tel" required 
-                                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold"
-                                    placeholder={t.yourPhonePlaceholder}
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                />
+                            <div className="flex border border-gray-100 rounded-2xl overflow-hidden focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all bg-gray-50">
+                                <select className="bg-transparent border-r border-gray-200 px-3 py-4 outline-none text-gray-700 text-sm font-bold cursor-pointer h-full">
+                                    <option value="+91">🇮🇳 +91</option>
+                                </select>
+                                <div className="relative w-full">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    <input 
+                                        type="tel" required 
+                                        maxLength={10}
+                                        className="w-full pl-10 pr-4 py-4 outline-none bg-transparent font-bold"
+                                        placeholder={t.yourPhonePlaceholder}
+                                        value={formData.phone}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            if (val.length <= 10) setFormData({...formData, phone: val});
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
 

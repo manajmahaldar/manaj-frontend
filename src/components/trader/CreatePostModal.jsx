@@ -25,7 +25,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
         setPhotos(e.target.files);
     };
 
-    const districtsEn = ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Medinipur", "Paschim Bardhaman", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"];
+    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha"];
     const districts = t.districtsList || [];
 
     const categories = [
@@ -159,13 +159,22 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
 
                     <div className="space-y-1">
                         <label className="text-sm font-bold text-gray-700">{t.mobileNumberLabel}</label>
-                        <input 
-                            type="tel" required
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary"
-                            placeholder="98XXXXXXXX"
-                            value={formData.phoneNumber}
-                            onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
-                        />
+                        <div className="flex border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent bg-white">
+                            <select className="bg-gray-50 border-r border-gray-200 px-3 py-3 outline-none text-gray-700 text-sm font-medium cursor-pointer h-[50px]">
+                                <option value="+91">🇮🇳 +91</option>
+                            </select>
+                            <input 
+                                type="tel" required
+                                maxLength={10}
+                                className="w-full px-4 py-3 outline-none bg-transparent"
+                                placeholder="98XXXXXXXX"
+                                value={formData.phoneNumber}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '');
+                                    if (val.length <= 10) setFormData({...formData, phoneNumber: val});
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-1">

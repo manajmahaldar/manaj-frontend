@@ -72,17 +72,19 @@ const AdminDashboard = () => {
         } catch (err) { toast.error("Failed to reject verification"); }
     };
 
-    const handleApproveListing = async (listingId) => {
+    const handleApproveListing = async (itemId, type = 'listing') => {
         try {
-            await api.put(`/admin/listings/${listingId}/approve`, {});
+            const url = type === 'listing' ? `/admin/listings/${itemId}/approve` : `/admin/posts/${itemId}/approve`;
+            await api.put(url, {});
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
 
-    const handleRejectListing = async (listingId) => {
+    const handleRejectListing = async (itemId, type = 'listing') => {
         try {
-            await api.put(`/admin/listings/${listingId}/reject`, {});
+            const url = type === 'listing' ? `/admin/listings/${itemId}/reject` : `/admin/posts/${itemId}/reject`;
+            await api.put(url, {});
             toast.success(t.updateSuccess);
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
@@ -197,7 +199,13 @@ const AdminDashboard = () => {
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-black text-gray-900">{u.name}</h3>
-                                        <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">{u.role}</p>
+                                        <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">
+                                            {u.role === 'farmer' ? t.farmer : 
+                                             u.role === 'seller' ? t.seller : 
+                                             u.role === 'hatchery' ? t.hatchery : 
+                                             u.role === 'delivery_partner' ? (t.deliveryPartner || 'Delivery Partner') : 
+                                             t.trader}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="space-y-3">
@@ -296,9 +304,15 @@ const AdminDashboard = () => {
                                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
                                             u.role === 'farmer' ? 'bg-blue-50 text-blue-700' :
                                             u.role === 'seller' ? 'bg-green-50 text-green-700' :
+                                            u.role === 'hatchery' ? 'bg-cyan-50 text-cyan-700' :
+                                            u.role === 'delivery_partner' ? 'bg-amber-50 text-amber-700' :
                                             'bg-purple-50 text-purple-700'
                                         }`}>
-                                            {u.role === 'farmer' ? t.farmer : u.role === 'seller' ? t.seller : t.trader}
+                                            {u.role === 'farmer' ? t.farmer : 
+                                             u.role === 'seller' ? t.seller : 
+                                             u.role === 'hatchery' ? t.hatchery : 
+                                             u.role === 'delivery_partner' ? (t.deliveryPartner || 'Delivery Partner') : 
+                                             t.trader}
                                         </span>
                                     </td>
                                     <td className="px-6 py-6 text-sm">
@@ -374,44 +388,53 @@ const AdminDashboard = () => {
                                     <td colSpan="4" className="text-center py-10 text-gray-500 font-medium">{t.noPendingListings}</td>
                                 </tr>
                             ) : (
-                                pendingListings.map((listing) => (
-                                    <tr key={listing._id} className="hover:bg-blue-50/30 transition-colors">
+                                pendingListings.map((item) => (
+                                    <tr key={item._id} className="hover:bg-blue-50/30 transition-colors">
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
-                                                    {listing.photos && listing.photos.length > 0 ? <img src={listing.photos[0]} className="w-full h-full object-cover" alt={listing.productName} /> : <Image size={24} />}
+                                                    {item.photos && item.photos.length > 0 ? <img src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
                                                 </div>
                                                 <div>
-                                                    <div className="font-black text-gray-900">{listing.productName}</div>
-                                                    <div className="text-xs text-gray-400 font-bold tracking-tight">{listing.category} • {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(listing.price)}/{listing.unit}</div>
+                                                    <div className="font-black text-gray-900 flex items-center gap-2">
+                                                        {item.productName || item.fishName}
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                            {item.type === 'listing' ? 'Sale' : 'Buy'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-xs text-gray-400 font-bold tracking-tight">
+                                                        {item.category} • {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price || item.buyingPrice)}
+                                                        {item.unit ? `/${item.unit}` : ''}
+                                                        {item.size ? ` • ${item.size}` : ''}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-6">
                                             <div className="flex items-center gap-2">
                                                 <UserIcon size={16} className="text-gray-400" />
-                                                <span className="font-bold text-gray-700">{formatDigit(listing.phoneNumber)}</span>
+                                                <span className="font-bold text-gray-700">{formatDigit(item.phoneNumber)}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-6 text-sm">
                                             <div className="flex items-center gap-2">
                                                 <Clock size={16} className="text-gray-400" />
-                                                <span className="font-bold text-gray-700">{new Date(listing.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
+                                                <span className="font-bold text-gray-700">{new Date(item.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
                                             </div>
                                         </td>
                                         <td className="px-10 py-6 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button
-                                                    onClick={() => handleApproveListing(listing._id)}
+                                                    onClick={() => handleApproveListing(item._id, item.type)}
                                                     className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                    title="Approve Listing"
+                                                    title="Approve"
                                                 >
                                                     <ThumbsUp size={14} /> {t.approve}
                                                 </button>
                                                 <button
-                                                    onClick={() => handleRejectListing(listing._id)}
+                                                    onClick={() => handleRejectListing(item._id, item.type)}
                                                     className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                    title="Reject Listing"
+                                                    title="Reject"
                                                 >
                                                     <ThumbsDown size={14} /> {t.reject}
                                                 </button>

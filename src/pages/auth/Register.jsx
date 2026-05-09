@@ -33,11 +33,24 @@ const Register = () => {
         navigate(getDashboardPath(user.role));
     };
 
+    const isStrongPassword = (pw) => {
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(pw);
+        const hasLowerCase = /[a-z]/.test(pw);
+        const hasNumber = /[0-9]/.test(pw);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+        return pw.length >= minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (formData.password !== formData.confirmPassword) {
             return toast.error("Passwords do not match");
+        }
+
+        if (!isStrongPassword(formData.password)) {
+            return toast.error("Password is too weak. It must be at least 8 characters and include uppercase, lowercase, number, and special character.");
         }
 
         try {
@@ -69,7 +82,7 @@ const Register = () => {
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.name}</label>
                             <input 
                                 type="text" required 
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
@@ -79,18 +92,27 @@ const Register = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile No</label>
-                            <input 
-                                type="tel" required 
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                                placeholder="98XXXXXXXX"
-                                value={formData.phone}
-                                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                            />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.phone}</label>
+                            <div className="flex border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent">
+                                <select className="bg-gray-50 border-r border-gray-300 px-3 py-3 outline-none text-gray-700 text-sm font-medium cursor-pointer">
+                                    <option value="+91">🇮🇳 +91</option>
+                                </select>
+                                <input 
+                                    type="tel" required 
+                                    maxLength={10}
+                                    className="w-full px-4 py-3 outline-none bg-transparent"
+                                    placeholder="98XXXXXXXX"
+                                    value={formData.phone}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '');
+                                        if (val.length <= 10) setFormData({...formData, phone: val});
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Gmail</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddress}</label>
                         <input 
                             type="email" required
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
@@ -127,7 +149,7 @@ const Register = () => {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Create Password</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.newPassword}</label>
                         <input 
                             type="password" required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
@@ -138,7 +160,7 @@ const Register = () => {
                         <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters, include uppercase, lowercase, number, and special character.</p>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.confirmNewPassword}</label>
                         <input 
                             type="password" required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"

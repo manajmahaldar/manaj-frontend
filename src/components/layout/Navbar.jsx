@@ -2,8 +2,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { User, LogOut, Menu, X, Languages } from 'lucide-react';
+import { User, LogOut, Menu, X, Languages, LayoutDashboard, UserPlus } from 'lucide-react';
 import logoImg from '../../assets/logo/logo.png';
+import { getDashboardPath } from '../../utils/roleUtils';
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
@@ -76,21 +77,18 @@ const Navbar = () => {
                             )}
                         </div>
 
-                        {user ? (
-                            <div className="flex items-center gap-4 border-l pl-4">
-                                <Link to="/profile" className="flex items-center gap-1 text-gray-700">
-                                    <User size={20} />
-                                    <span>{user.name}</span>
-                                </Link>
-                                <button onClick={handleLogout} className="text-red-500 hover:text-red-600">
-                                    <LogOut size={20} />
-                                </button>
-                                {user.role === 'admin' && (
-                                    <Link to="/admin/dashboard" className="bg-primary text-white px-4 py-1.5 rounded-md text-sm">{t.adminDashboard}</Link>
-                                )}
-                            </div>
+                        {!user ? (
+                            <Link to="/register" className="bg-primary text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all">
+                                {t.register}
+                            </Link>
                         ) : (
-                            <Link to="/login" className="bg-primary text-white px-6 py-2 rounded-lg font-medium">{t.login}</Link>
+                            <Link 
+                                to={getDashboardPath(user.role)} 
+                                className="flex items-center gap-2 bg-primary/10 text-primary px-5 py-2 rounded-xl font-bold hover:bg-primary hover:text-white transition-all active:scale-95"
+                            >
+                                <LayoutDashboard size={18} />
+                                {t.dashboard}
+                            </Link>
                         )}
                     </div>
 
@@ -143,16 +141,24 @@ const Navbar = () => {
                             {link.name}
                         </Link>
                     ))}
-                    {user ? (
-                        <>
-                            <Link to="/profile" onClick={() => setIsOpen(false)} className="block text-gray-700 font-medium">{t.profile}</Link>
-                            {user.role === 'admin' && (
-                                <Link to="/admin/dashboard" onClick={() => setIsOpen(false)} className="block text-primary font-bold">{t.adminDashboard}</Link>
-                            )}
-                            <button onClick={handleLogout} className="w-full text-left text-red-500 font-medium">{t.logout}</button>
-                        </>
+                    {!user ? (
+                        <Link 
+                            to="/register" 
+                            onClick={() => setIsOpen(false)} 
+                            className="flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold shadow-lg shadow-primary/20"
+                        >
+                            <UserPlus size={18} />
+                            {t.register}
+                        </Link>
                     ) : (
-                        <Link to="/login" onClick={() => setIsOpen(false)} className="block bg-primary text-white text-center py-3 rounded-lg">{t.login}</Link>
+                        <Link 
+                            to={getDashboardPath(user.role)} 
+                            onClick={() => setIsOpen(false)} 
+                            className="flex items-center justify-center gap-2 bg-primary/10 text-primary py-3 rounded-xl font-bold border border-primary/20"
+                        >
+                            <LayoutDashboard size={18} />
+                            {t.dashboard}
+                        </Link>
                     )}
                 </div>
             )}

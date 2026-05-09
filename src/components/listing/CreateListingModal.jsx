@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { X, Upload, Plus } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { stateDistricts } from '../../utils/districtsData';
 
 const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
     const { user } = useContext(AuthContext);
@@ -13,6 +14,7 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
         category: 'Fish',
         price: '',
         district: '',
+        localDistrict: '',
         description: '',
         phoneNumber: '',
         quantity: '',
@@ -39,13 +41,47 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
     }, [user, isOpen]);
 
     const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
-    const districtsEn = ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Medinipur", "Paschim Bardhaman", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"];
+    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha"];
 
-    const handlePhotoChange = (e) => {
-        if (e.target.files.length > 3) {
+    const handlePhotoChange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 3) {
             toast.error(t.maxPhotos);
             return;
         }
+
+        let hasError = false;
+        for (let file of files) {
+            if (file.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.src = URL.createObjectURL(file);
+                
+                try {
+                    await new Promise((resolve, reject) => {
+                        video.onloadedmetadata = () => {
+                            window.URL.revokeObjectURL(video.src);
+                            if (video.duration > 11) { // 11s to allow slight float margins
+                                reject(new Error("Video must be 10 seconds or less."));
+                            } else {
+                                resolve();
+                            }
+                        };
+                        video.onerror = () => reject(new Error("Failed to load video metadata."));
+                    });
+                } catch (error) {
+                    toast.error(error.message);
+                    hasError = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasError) {
+            e.target.value = '';
+            return;
+        }
+
         setPhotos(e.target.files);
     };
 
@@ -152,13 +188,15 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.district}</label>
                             <select 
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
                                 value={formData.district}
-                                onChange={(e) => setFormData({...formData, district: e.target.value})}
+                                onChange={(e) => {
+                                    setFormData({...formData, district: e.target.value, localDistrict: ''})
+                                }}
                                 required
                             >
                                 <option value="">{t.selectBtn}</option>
@@ -166,14 +204,36 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                             </select>
                         </div>
                         <div className="space-y-1">
+                            <label className="text-sm font-bold text-gray-700">{t.localDistrict || 'District'}</label>
+                            <select 
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
+                                value={formData.localDistrict}
+                                onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
+                                required
+                                disabled={!formData.district}
+                            >
+                                <option value="">{t.selectBtn}</option>
+                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                        </div>
+                        <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.mobileNumberLabel}</label>
-                            <input 
-                                type="tel" required
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary"
-                                placeholder="98XXXXXXXX"
-                                value={formData.phoneNumber}
-                                onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
-                            />
+                            <div className="flex border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent bg-white">
+                                <select className="bg-gray-50 border-r border-gray-200 px-3 py-3 outline-none text-gray-700 text-sm font-medium cursor-pointer h-[50px]">
+                                    <option value="+91">🇮🇳 +91</option>
+                                </select>
+                                <input 
+                                    type="tel" required
+                                    maxLength={10}
+                                    className="w-full px-4 py-3 outline-none bg-transparent"
+                                    placeholder="98XXXXXXXX"
+                                    value={formData.phoneNumber}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '');
+                                        if (val.length <= 10) setFormData({...formData, phoneNumber: val});
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -189,10 +249,10 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm font-bold text-gray-700">{t.photoUploadMax}</label>
+                        <label className="text-sm font-bold text-gray-700">Photo / Video Upload (Max 3 files, Video max 10s)</label>
                         <div className="relative h-32 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer overflow-hidden">
                             <input 
-                                type="file" multiple accept="image/*"
+                                type="file" multiple accept="image/*,video/*"
                                 className="absolute inset-0 opacity-0 cursor-pointer"
                                 onChange={handlePhotoChange}
                             />

@@ -10,7 +10,7 @@ import { getDashboardPath } from '../../utils/roleUtils';
 
 const Login = () => {
     const { t } = useLanguage();
-    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await api.post('/auth/login', { phone, password });
+            const res = await api.post('/auth/login', { email, password });
             handleSuccess(res);
         } catch (err) {
             toast.error(err.response?.data?.msg || t.loginFail);
@@ -52,14 +52,14 @@ const Login = () => {
                 <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">{t.loginTitle}</h2>
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.phone}</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddress}</label>
                         <input 
-                            type="tel" 
+                            type="email" 
                             required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                            placeholder="98XXXXXXXX"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="example@mail.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div>
@@ -91,7 +91,7 @@ const Login = () => {
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
                             onError={() => toast.error("Google Login Failed")}
-                            useOneTap
+                            useOneTap={false}
                             theme="outline"
                             size="large"
                             width="100%"

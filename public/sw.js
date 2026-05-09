@@ -1,4 +1,4 @@
-const CACHE_NAME = 'matsyalink-pwa-v2';
+const CACHE_NAME = 'matsyalink-pwa-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -34,6 +34,10 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Bypass non-GET requests and API calls
+  if (event.request.method !== 'GET') return;
+  if (event.request.url.includes('/api/')) return;
+
   // Always try network first for HTML and our root to prevent stale bundle errors
   if (event.request.mode === 'navigate' || 
       event.request.url.includes('index.html') || 

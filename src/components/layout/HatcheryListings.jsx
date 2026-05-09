@@ -16,8 +16,8 @@ const HatcheryListings = () => {
 
     const fetchSeedListings = async () => {
         try {
-            // Filter by Spawn/Seed category specifically
-            const res = await api.get('/listings?category=Spawn/Seed');
+            // Filter by Spawn and Fingerling categories (Renu Pona)
+            const res = await api.get('/listings?category=Spawn,Fingerling');
             // Show only first 4 seed listings for the home page section
             setListings(res.data.listings ? res.data.listings.slice(0, 4) : res.data.slice(0, 4));
         } catch (err) {

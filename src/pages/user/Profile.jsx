@@ -105,9 +105,9 @@ const Profile = () => {
     // Sub-Views
     const DashboardOverview = () => (
         <div className="space-y-12">
-            <header className="space-y-4">
+            <header className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
                 <h1 className="text-4xl font-black text-gray-900 leading-tight">{t.welcome}, <span className="text-primary">{user.name}</span>!</h1>
-                <p className="text-lg text-gray-500 font-medium max-w-2xl">{t.dashboardDesc}</p>
+                <p className="text-lg text-gray-500 font-medium max-w-2xl text-center md:text-left">{t.dashboardDesc}</p>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -131,9 +131,9 @@ const Profile = () => {
 
     const OrdersView = ({ title, orders, showActions = false }) => (
         <div className="space-y-8">
-            <div className="bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100">
+            <div className="bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 text-center md:text-left flex flex-col items-center md:items-start">
                 <h1 className="text-3xl font-black text-gray-900">{title}</h1>
-                <p className="text-gray-500 font-medium">{t.manageOrdersDesc}</p>
+                <p className="text-gray-500 font-medium text-center md:text-left">{t.manageOrdersDesc}</p>
             </div>
             <div className="grid grid-cols-1 gap-6">
                 {orders.map(order => (
@@ -210,10 +210,10 @@ const Profile = () => {
                         <VerificationRequired title="Verification Needed to Sell" desc="To list your products and sell on our platform, you must first complete the identity verification." />
                     ) : (
                         <div className="space-y-8">
-                            <div className="flex justify-between items-center bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100">
-                                <div>
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 text-center md:text-left">
+                                <div className="flex flex-col items-center md:items-start">
                                     <h1 className="text-3xl font-black text-gray-900">{t.myListings}</h1>
-                                    <p className="text-gray-500 font-medium">{t.viewManageListings}</p>
+                                    <p className="text-gray-500 font-medium text-center md:text-left">{t.viewManageListings}</p>
                                 </div>
                                 {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery') && (
                                     <button 
@@ -227,16 +227,14 @@ const Profile = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                                 {myListings.map(item => (
-                                    <div key={item._id} className="relative group">
-                                        <ListingCard item={item} userRole={user.role} />
-                                        <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                            <button onClick={() => { setSelectedListing(item); setIsEditModalOpen(true); }} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
-                                                <Edit size={18} />
-                                            </button>
-                                            <button onClick={() => handleDeleteListing(item._id)} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-red-600 hover:bg-red-600 hover:text-white transition-all">
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
+                                    <div key={item._id}>
+                                        <ListingCard 
+                                            item={item} 
+                                            isOwner={true} 
+                                            userRole={user.role} 
+                                            onEdit={(l) => { setSelectedListing(l); setIsEditModalOpen(true); }} 
+                                            onDelete={handleDeleteListing} 
+                                        />
                                     </div>
                                 ))}
                                 {myListings.length === 0 && (
@@ -256,10 +254,10 @@ const Profile = () => {
                         <VerificationRequired title="Verification Needed to Post Requirements" desc="To post buying requirements and connect with sellers, you must first complete the identity verification." />
                     ) : (
                         <div className="space-y-8">
-                            <div className="flex justify-between items-center bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100">
-                                <div>
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 text-center md:text-left">
+                                <div className="flex flex-col items-center md:items-start">
                                     <h1 className="text-3xl font-black text-gray-900">{t.buyingRequirements}</h1>
-                                    <p className="text-gray-500 font-medium">{t.manageRequirements}</p>
+                                    <p className="text-gray-500 font-medium text-center md:text-left">{t.manageRequirements}</p>
                                 </div>
                                 {(user.role === 'trader' || user.role === 'admin') && (
                                     <button 
@@ -273,16 +271,13 @@ const Profile = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {myPosts.map(post => (
-                                    <div key={post._id} className="relative group">
-                                        <BuyingPostCard post={post} />
-                                        <div className="absolute top-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                            <button onClick={() => { setSelectedPost(post); setIsEditPostModalOpen(true); }} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
-                                                <Edit size={18} />
-                                            </button>
-                                            <button onClick={() => handleDeletePost(post._id)} className="p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl text-red-600 hover:bg-red-600 hover:text-white transition-all">
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
+                                    <div key={post._id}>
+                                        <BuyingPostCard 
+                                            post={post} 
+                                            isOwner={true} 
+                                            onEdit={(p) => { setSelectedPost(p); setIsEditPostModalOpen(true); }} 
+                                            onDelete={handleDeletePost} 
+                                        />
                                     </div>
                                 ))}
                                 {myPosts.length === 0 && (
@@ -307,8 +302,8 @@ const Profile = () => {
                 <Route path="/my-orders" element={<OrdersView title={t.sentOrders} orders={myOrders} />} />
                 <Route path="/settings" element={
                     <div className="max-w-4xl mx-auto space-y-8">
-                        <section className="bg-white p-12 rounded-[3.5rem] shadow-xl shadow-gray-200/40 border border-gray-100">
-                            <div className="flex justify-between items-start mb-12">
+                        <section className="bg-white p-8 md:p-12 rounded-[3.5rem] shadow-xl shadow-gray-200/40 border border-gray-100 text-center md:text-left">
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
                                 <h2 className="text-3xl font-black text-gray-900">{t.profileSettings}</h2>
                                 <button 
                                     onClick={() => setIsEditProfileModalOpen(true)}

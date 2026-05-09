@@ -60,15 +60,15 @@ const RoleDashboard = ({ allowedRole }) => {
 
     return (
         <div className="space-y-12 p-8">
-            <header className="space-y-4">
-                <div className="flex items-center gap-3 text-primary font-black text-sm uppercase tracking-widest">
+            <header className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
+                <div className="flex items-center justify-center md:justify-start gap-3 text-primary font-black text-sm uppercase tracking-widest w-full">
                     <LayoutDashboard size={20} />
                     <span>{roleTitle} Dashboard</span>
                 </div>
                 <h1 className="text-4xl font-black text-gray-900 leading-tight">
                     {t.welcome}, <span className="text-primary">{user.name}</span>!
                 </h1>
-                <p className="text-lg text-gray-500 font-medium max-w-2xl">
+                <p className="text-lg text-gray-500 font-medium max-w-2xl text-center md:text-left">
                     Manage your {allowedRole} activities and track your progress here.
                 </p>
             </header>
@@ -85,13 +85,13 @@ const RoleDashboard = ({ allowedRole }) => {
                 ))}
             </div>
 
-            <div className="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-xl shadow-gray-200/40 flex items-start gap-6">
-                <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl">
+            <div className="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-6">
+                <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl flex-shrink-0">
                     <Info size={32} />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 flex flex-col items-center md:items-start">
                     <h3 className="text-xl font-black text-gray-900">Role Guidelines</h3>
-                    <p className="text-gray-500 font-medium leading-relaxed">
+                    <p className="text-gray-500 font-medium leading-relaxed text-center md:text-left">
                         As a <span className="font-bold text-gray-900">{roleTitle}</span>, you can 
                         {allowedRole === 'trader' ? ' post buying requirements and connect with sellers.' : ' list products specific to your expertise and receive orders from traders.'}
                     </p>

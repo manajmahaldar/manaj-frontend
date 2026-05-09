@@ -1,5 +1,5 @@
 import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import ContactButtons from '../common/ContactButtons';
 
@@ -10,14 +10,24 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
 
 
     const nextImage = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         setCurrentImageIndex((prev) => (prev + 1) % photos.length);
     };
 
     const prevImage = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         setCurrentImageIndex((prev) => (prev - 1 + photos.length) % photos.length);
     };
+
+    useEffect(() => {
+        if (photos.length <= 1) return;
+
+        const timer = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % photos.length);
+        }, 3000);
+
+        return () => clearInterval(timer);
+    }, [currentImageIndex, photos.length]);
 
     return (
         <div className="card p-5 border-l-4 border-green-500 space-y-4 shadow-sm hover:shadow-xl transition-all duration-300 group">
@@ -59,6 +69,13 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                         }`}>
                             {t.categories[post.category] || post.category}
                         </span>
+                        {isOwner && post.status !== 'approved' && (
+                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                post.status === 'pending' ? 'bg-orange-500 text-white' : 'bg-red-500 text-white'
+                            }`}>
+                                {post.status === 'pending' ? t.pending : t.rejected}
+                            </span>
+                        )}
                     </div>
                 </div>
                 <div className="flex-shrink-0 mt-1">
