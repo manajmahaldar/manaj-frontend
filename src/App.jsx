@@ -14,7 +14,7 @@ import NetworkStatus from './components/common/NetworkStatus';
 import GlobalErrorBoundary from './components/common/GlobalErrorBoundary';
 
 function App() {
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "GOOGLE_CLIENT_ID_PLACEHOLDER";
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "613301631751-4m4t7be6u5cc37j651lco62j2p57564n.apps.googleusercontent.com";
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
