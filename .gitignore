@@ -27,3 +27,9 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Large media files — served from Cloudinary, not committed to Git
+public/video-folder/
+public/*.mp4
+public/*.mov
+public/*.webm

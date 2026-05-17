@@ -12,7 +12,8 @@ import {
     PlusCircle,
     ArrowDownRight,
     ArrowUpRight,
-    Package
+    Package,
+    Images
 } from 'lucide-react';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
@@ -72,6 +73,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'Platform Stats', 
             path: '/admin/dashboard/stats', 
             icon: <ShieldCheck size={20} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: 'Media Library', 
+            path: '/admin/dashboard/media', 
+            icon: <Images size={20} />, 
             roles: ['admin'] 
         },
         { 

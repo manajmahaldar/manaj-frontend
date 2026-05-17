@@ -1,12 +1,12 @@
 import { useState, useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { AuthContext } from '../../../context/AuthContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
-import api from '../../utils/api';
+import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 
-import { getDashboardPath } from '../../utils/roleUtils';
+import { getDashboardPath } from '../../../utils/roleUtils';
 
 const Login = () => {
     const { t } = useLanguage();

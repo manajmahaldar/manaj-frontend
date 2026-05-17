@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
-import api from '../../utils/api';
+import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Upload, Save } from 'lucide-react';
-import { AuthContext } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
-import { stateDistricts } from '../../utils/districtsData';
+import { AuthContext } from '../../../context/AuthContext';
+import { useLanguage } from '../../../context/LanguageContext';
+import { stateDistricts } from '../../../utils/districtsData';
 
 const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
     const { user } = useContext(AuthContext);

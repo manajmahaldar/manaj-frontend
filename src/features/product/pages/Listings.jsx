@@ -1,11 +1,11 @@
 import { useState, useEffect, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../../utils/api';
-import ListingCard from '../../components/listing/ListingCard';
-import BuyingPostCard from '../../components/trader/BuyingPostCard';
+import api from '../../../utils/api';
+import ListingCard from '../components/ListingCard';
+import BuyingPostCard from '../../../components/trader/BuyingPostCard';
 import { Search, Filter, MapPin, X, ShoppingBag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { useLanguage } from '../../context/LanguageContext';
-import { AuthContext } from '../../context/AuthContext';
+import { useLanguage } from '../../../context/LanguageContext';
+import { AuthContext } from '../../../context/AuthContext';
 
 const Listings = () => {
     const { t, formatDigit, language } = useLanguage();

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
-import ListingCard from '../listing/ListingCard';
+import ListingCard from '../../features/product/components/ListingCard';
+import ListingSkeleton from '../common/ListingSkeleton';
 import { useLanguage } from '../../context/LanguageContext';
-import { ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 
 const SellerListings = () => {
     const { t } = useLanguage();
@@ -36,10 +37,13 @@ const SellerListings = () => {
 
     if (loading) {
         return (
-            <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="animate-spin text-emerald-600" size={40} />
-                <p className="text-gray-500 font-bold">{t.loadingData}</p>
-            </div>
+            <section className="max-w-7xl mx-auto px-4 py-6 md:py-10">
+                <div className="bg-emerald-50/30 rounded-[3rem] p-6 md:p-16 border border-emerald-100/30">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[1, 2, 3, 4].map(n => <ListingSkeleton key={n} />)}
+                    </div>
+                </div>
+            </section>
         );
     }
 

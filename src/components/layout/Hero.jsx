@@ -1,18 +1,34 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Search, PlusCircle, ArrowRight } from 'lucide-react';
+import { Search, PlusCircle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import api from '../../utils/api';
+
+const FALLBACK_VIDEO1 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%2010.59.14%20PM.mp4';
+const FALLBACK_VIDEO2 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%208.03.59%20PM.mp4';
+const FALLBACK_IMAGE  = '/hero-fish-new.png';
 
 const Hero = () => {
-    const { t, formatDigit, language } = useLanguage();
+    const { t, formatDigit } = useLanguage();
+    const [heroMedia, setHeroMedia] = useState({ video1Url: '', video2Url: '', heroImageUrl: '' });
 
+    useEffect(() => {
+        api.get('/hero-settings')
+            .then(({ data }) => { if (data) setHeroMedia(data); })
+            .catch(() => {}); // silently fall back to local files
+    }, []);
+
+    const video1Src    = heroMedia.video1Url    || FALLBACK_VIDEO1;
+    const video2Src    = heroMedia.video2Url    || FALLBACK_VIDEO2;
+    const heroImageSrc = heroMedia.heroImageUrl || FALLBACK_IMAGE;
 
     return (
-        <section className="relative bg-white pt-6 pb-16 md:pt-10 md:pb-24 px-4 md:px-8 overflow-hidden">
+        <section className="relative bg-white pt-4 pb-10 sm:pt-6 sm:pb-16 md:pt-10 md:pb-24 px-4 sm:px-6 md:px-8 overflow-hidden">
             {/* Background Decorative Elements */}
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[600px] h-[600px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse"></div>
-            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-green-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse delay-700"></div>
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse"></div>
+            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-green-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse delay-700"></div>
 
-            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 sm:gap-10 lg:gap-20">
                 {/* Text Content */}
                 <div className="flex-1 space-y-8 text-center lg:text-left order-2 lg:order-1">
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-bold animate-bounce md:animate-none">
@@ -69,22 +85,34 @@ const Hero = () => {
                     </div>
                 </div>
 
-                {/* Hero Image Section */}
+                {/* Hero Media Section */}
                 <div className="flex-1 order-1 lg:order-2 w-full flex justify-center lg:justify-end">
-                    <div className="relative w-full max-w-[450px]">
-                        {/* Main Image Container */}
-                        <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-gray-900/5 transition-all duration-700">
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                            <img 
-                                src="/hero-fish-new.png" 
-                                alt="Fresh Fish Marketplace" 
-                                className="w-full aspect-[4/5] md:aspect-[3/4] object-cover"
-                            />
+                    <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-[500px] mx-auto lg:mx-0">
+                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 relative z-10">
+
+                            {/* Video 1 — Cloudinary URL or local fallback */}
+                            <div className="relative rounded-xl sm:rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-md sm:shadow-xl ring-1 ring-gray-900/5 group">
+                                <video key={video1Src} src={video1Src} autoPlay loop muted playsInline 
+                                    className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-700" />
+                            </div>
+
+                            {/* Video 2 — Cloudinary URL or local fallback */}
+                            <div className="relative rounded-xl sm:rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-md sm:shadow-xl ring-1 ring-gray-900/5 group">
+                                <video key={video2Src} src={video2Src} autoPlay loop muted playsInline 
+                                    className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-700" />
+                            </div>
+
+                            {/* Hero Image — Cloudinary URL or local fallback */}
+                            <div className="col-span-2 relative rounded-2xl sm:rounded-3xl md:rounded-[2rem] overflow-hidden shadow-lg sm:shadow-2xl ring-1 ring-gray-900/5 transition-all duration-700 group">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none"></div>
+                                <img src={heroImageSrc} alt="Fresh Fish Marketplace" 
+                                    className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-700" />
+                            </div>
+
                         </div>
-                        
-                        {/* Decorative Rings */}
-                        <div className="absolute -top-10 -right-10 w-32 h-32 border-[15px] border-blue-100/30 rounded-full -z-10 animate-pulse"></div>
-                        <div className="absolute -bottom-10 -left-10 w-16 h-16 bg-green-100/50 rounded-full -z-10 animate-bounce"></div>
+
+                        <div className="hidden sm:block absolute -top-8 -right-8 md:-top-10 md:-right-10 w-24 md:w-32 h-24 md:h-32 border-[10px] md:border-[15px] border-blue-100/30 rounded-full -z-0 animate-pulse"></div>
+                        <div className="hidden sm:block absolute -bottom-8 -left-8 md:-bottom-10 md:-left-10 w-12 md:w-16 h-12 md:h-16 bg-green-100/50 rounded-full -z-0 animate-bounce"></div>
                     </div>
                 </div>
             </div>

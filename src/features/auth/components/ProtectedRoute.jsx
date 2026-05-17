@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../../context/AuthContext';
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireVerification = false }) => {
     const { user, loading } = useContext(AuthContext);
@@ -15,8 +15,10 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireVerification = 
     }
 
     if (!user) {
-        // Redirect to login if not logged in
-        return <Navigate to="/login" state={{ from: location }} replace />;
+        // Redirect to admin login if trying to access an admin route, otherwise general login
+        const isAdminRoute = location.pathname.startsWith('/admin');
+        const redirectPath = isAdminRoute ? '/master-control-gate' : '/login';
+        return <Navigate to={redirectPath} state={{ from: location }} replace />;
     }
 
     if (requireAdmin && user.role !== 'admin') {

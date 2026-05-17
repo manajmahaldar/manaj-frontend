@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../../context/LanguageContext';
 import { useNavigate, useParams } from 'react-router-dom';
-import api from '../../utils/api';
+import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 
 const ResetPassword = () => {

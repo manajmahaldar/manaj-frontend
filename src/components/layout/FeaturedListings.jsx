@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import api from '../../utils/api';
 import { ShoppingBag, ShoppingCart, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ListingCard from '../listing/ListingCard';
+import ListingCard from '../../features/product/components/ListingCard';
 import BuyingPostCard from '../trader/BuyingPostCard';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';

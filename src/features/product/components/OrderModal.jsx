@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import api from '../../utils/api';
+import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 import { X, ShoppingBag } from 'lucide-react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const OrderModal = ({ isOpen, onClose, onSuccess, listing }) => {
     const { t, formatDigit, language } = useLanguage();

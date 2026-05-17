@@ -1,10 +1,8 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import api, { setApiToken, clearApiToken, registerAuthCallbacks } from '../utils/api';
+import { setApiToken, clearApiToken, registerAuthCallbacks } from '../utils/api';
+import * as authService from '../services/auth.service.js';
 
 export const AuthContext = createContext();
-
-// removed manual REFRESH_URL parsing
 
 export const AuthProvider = ({ children }) => {
     const [user,    setUser]    = useState(null);
@@ -12,26 +10,20 @@ export const AuthProvider = ({ children }) => {
 
     // ── Silent refresh (no auth header needed — uses httpOnly cookie) ─────────
     const silentRefresh = useCallback(async () => {
-        try {
-            const res = await api.post('/auth/refresh-token');
-            const { token } = res.data;
+        const token = await authService.silentRefresh();
+        if (token) {
             setApiToken(token);
-            return token;
-        } catch {
+        } else {
             clearApiToken();
             setUser(null);
             localStorage.removeItem('user');
-            return null;
         }
+        return token;
     }, []);
 
     // ── Logout — invalidates refresh token on server, clears everything ───────
     const logout = useCallback(async () => {
-        try {
-            await api.post('/auth/logout');
-        } catch {
-            // Best-effort — clear client state regardless
-        }
+        await authService.logout();
         clearApiToken();
         setUser(null);
         localStorage.removeItem('user');
@@ -49,9 +41,7 @@ export const AuthProvider = ({ children }) => {
             try { setUser(JSON.parse(storedUser)); } catch { /* corrupt data */ }
         }
 
-        // Attempt silent refresh if we think the user might be logged in.
-        // This avoids 401 noise for pure guest visitors while still
-        // recovering sessions where localStorage was cleared but cookie remains.
+        // Attempt silent refresh only if we think user was previously logged in
         if (storedUser) {
             silentRefresh().finally(() => setLoading(false));
         } else {
@@ -61,6 +51,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     // ── login — called after a successful POST /api/auth/login ───────────────
+    // @param {{ token: string, user: object }} data
     const login = (data) => {
         setApiToken(data.token);
         setUser(data.user);
@@ -69,9 +60,16 @@ export const AuthProvider = ({ children }) => {
     };
 
     // ── updateUser — after profile edits ─────────────────────────────────────
-    const updateUser = (updatedUser) => {
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+    // Accepts an object OR an updater function (like useState's setter)
+    const updateUser = (updatedUserOrFn) => {
+        setUser((prev) => {
+            const next =
+                typeof updatedUserOrFn === 'function'
+                    ? updatedUserOrFn(prev)
+                    : updatedUserOrFn;
+            localStorage.setItem('user', JSON.stringify(next));
+            return next;
+        });
     };
 
     return (

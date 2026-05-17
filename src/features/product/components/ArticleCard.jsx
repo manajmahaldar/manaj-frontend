@@ -1,5 +1,5 @@
 import { Youtube, ExternalLink, Calendar } from 'lucide-react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const ArticleCard = ({ article }) => {
     const { t, language } = useLanguage();

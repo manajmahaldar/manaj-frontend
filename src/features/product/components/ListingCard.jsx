@@ -1,7 +1,7 @@
 import { MapPin, Phone, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
-import ContactButtons from '../common/ContactButtons';
+import { useLanguage } from '../../../context/LanguageContext';
+import ContactButtons from '../../../components/common/ContactButtons';
 import OrderModal from './OrderModal';
 
 const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {

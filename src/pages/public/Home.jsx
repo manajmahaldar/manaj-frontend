@@ -10,9 +10,9 @@ import KnowledgeTips from '../../components/layout/KnowledgeTips';
 import FarmerListings from '../../components/layout/FarmerListings';
 import HatcheryListings from '../../components/layout/HatcheryListings';
 import SellerListings from '../../components/layout/SellerListings';
-import AdminFishListings from '../../components/layout/AdminFishListings';
 import TraderListings from '../../components/layout/TraderListings';
 import CTA from '../../components/layout/CTA';
+import SEO from '../../components/common/SEO';
 import { useLanguage } from '../../context/LanguageContext';
 
 const Home = () => {
@@ -27,11 +27,14 @@ const Home = () => {
 
     return (
         <div className="pb-12">
+            <SEO 
+                title={t.heroTitle}
+                description="Connect directly with fish farmers, hatchery owners, and suppliers in India. Monaj is a commission-free marketplace for the aquaculture industry."
+            />
             <Hero />
             <HomeSearch />
 
             <RoleSelection />
-            <AdminFishListings />
             <FarmerListings />
             <SellerListings />
             <HatcheryListings />

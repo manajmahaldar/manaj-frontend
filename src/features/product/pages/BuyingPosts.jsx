@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import api from '../../utils/api';
-import BuyingPostCard from '../../components/trader/BuyingPostCard';
+import api from '../../../utils/api';
+import BuyingPostCard from '../../../components/trader/BuyingPostCard';
 import { Search } from 'lucide-react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const BuyingPosts = () => {
     const { t, formatDigit, language } = useLanguage();

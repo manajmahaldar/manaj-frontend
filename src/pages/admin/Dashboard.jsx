@@ -8,6 +8,7 @@ import {
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useLanguage } from '../../context/LanguageContext';
+import MediaManager from './MediaManager';
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -457,6 +458,7 @@ const AdminDashboard = () => {
                 <Route path="/stats" element={<StatsView />} />
                 <Route path="/listings-approval" element={<ListingApprovalsView />} />
                 <Route path="/user-verification" element={<UserVerificationView />} />
+                <Route path="/media" element={<MediaManager />} />
                 <Route path="*" element={<div className="text-center py-20 font-black text-2xl text-gray-300">{t.adminPageNotFound}</div>} />
             </Routes>
         </div>

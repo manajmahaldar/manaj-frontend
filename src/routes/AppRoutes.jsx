@@ -1,16 +1,15 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
-import RoleRoute from './RoleRoute';
+import { ProtectedRoute, RoleRoute } from '../features/auth/components';
 
 // Lazy-load all pages
 const Home             = lazy(() => import('../pages/public/Home'));
-const Login            = lazy(() => import('../pages/auth/Login'));
-const Register         = lazy(() => import('../pages/auth/Register'));
-const ForgotPassword   = lazy(() => import('../pages/auth/ForgotPassword'));
-const ResetPassword    = lazy(() => import('../pages/auth/ResetPassword'));
-const Listings         = lazy(() => import('../pages/public/Listings'));
-const BuyingPosts      = lazy(() => import('../pages/public/BuyingPosts'));
+const Login            = lazy(() => import('../features/auth/pages/Login'));
+const Register         = lazy(() => import('../features/auth/pages/Register'));
+const ForgotPassword   = lazy(() => import('../features/auth/pages/ForgotPassword'));
+const ResetPassword    = lazy(() => import('../features/auth/pages/ResetPassword'));
+const Listings         = lazy(() => import('../features/product/pages/Listings'));
+const BuyingPosts      = lazy(() => import('../features/product/pages/BuyingPosts'));
 const Knowledge        = lazy(() => import('../pages/public/Knowledge'));
 const About            = lazy(() => import('../pages/public/About'));
 const Contact          = lazy(() => import('../pages/public/Contact'));
@@ -83,7 +82,11 @@ const AppRoutes = () => {
           <ProtectedRoute><Verification /></ProtectedRoute>
         } />
 
-        <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/master-control-gate" element={<AdminLogin />} />
+
+        {/* Convenience redirects for /admin */}
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin/login" element={<Navigate to="/master-control-gate" replace />} />
 
         <Route path="/admin/dashboard/*" element={
           <ProtectedRoute requireAdmin={true}>
