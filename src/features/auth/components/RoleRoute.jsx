@@ -25,6 +25,10 @@ const RoleRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
+    if (user.role !== 'admin' && user.accountStatus !== 'active') {
+        return <Navigate to="/verification" replace />;
+    }
+
     if (allowedRoles && !allowedRoles.includes(user.role)) {
         // Redirect to their own dashboard based on their role
         const dashboardPaths = {

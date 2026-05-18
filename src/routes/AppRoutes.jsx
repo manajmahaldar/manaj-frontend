@@ -79,7 +79,7 @@ const AppRoutes = () => {
         } />
 
         <Route path="/verification" element={
-          <ProtectedRoute><Verification /></ProtectedRoute>
+          <ProtectedRoute requireVerification={false}><Verification /></ProtectedRoute>
         } />
 
         <Route path="/master-control-gate" element={<AdminLogin />} />

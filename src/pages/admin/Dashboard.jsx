@@ -214,9 +214,14 @@ const AdminDashboard = () => {
                                         <Clock size={18} className="text-primary" />
                                         <span>{new Date(u.createdAt).toLocaleString()}</span>
                                     </div>
-                                    <div className="flex items-center gap-3 text-gray-600 font-medium bg-gray-50 p-4 rounded-2xl">
-                                        <AlertCircle size={18} className="text-primary" />
-                                        <span>{u.phone} • {u.email}</span>
+                                    <div className="flex items-start gap-3 text-gray-600 font-medium bg-gray-50 p-4 rounded-2xl">
+                                        <AlertCircle size={18} className="text-primary mt-1" />
+                                        <div className="flex flex-col text-sm space-y-1">
+                                            <span><strong>Phone:</strong> {u.phone || 'Not provided'}</span>
+                                            <span><strong>Email:</strong> {u.email || 'Not provided'}</span>
+                                            <span><strong>State:</strong> {u.district || 'Not provided'}</span>
+                                            <span><strong>District:</strong> {u.localDistrict || 'Not provided'}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 

@@ -7,7 +7,7 @@ const VideoRecorder = ({ onRecordingComplete }) => {
     const [recording, setRecording] = useState(false);
     const [recordedBlob, setRecordedBlob] = useState(null);
     const [stream, setStream] = useState(null);
-    const [timeLeft, setTimeLeft] = useState(5);
+    const [timeLeft, setTimeLeft] = useState(10);
 
     useEffect(() => {
         return () => {
@@ -51,7 +51,7 @@ const VideoRecorder = ({ onRecordingComplete }) => {
 
         mediaRecorder.start();
         setRecording(true);
-        setTimeLeft(5);
+        setTimeLeft(10);
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
@@ -74,7 +74,7 @@ const VideoRecorder = ({ onRecordingComplete }) => {
 
     const reset = () => {
         setRecordedBlob(null);
-        setTimeLeft(5);
+        setTimeLeft(10);
     };
 
     return (
@@ -110,7 +110,7 @@ const VideoRecorder = ({ onRecordingComplete }) => {
                             onClick={startRecording}
                             className={`btn ${recording ? 'bg-gray-400' : 'btn-primary'} px-8 flex items-center space-x-2`}
                         >
-                            <span>{recording ? 'Recording...' : 'Start 5s Recording'}</span>
+                            <span>{recording ? 'Recording...' : 'Start 10s Recording'}</span>
                         </button>
                     ) : (
                         <div className="flex flex-col items-center space-y-2">
