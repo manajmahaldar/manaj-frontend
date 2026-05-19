@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
-import { setApiToken, clearApiToken, registerAuthCallbacks } from '../utils/api';
+import api, { setApiToken, clearApiToken, registerAuthCallbacks } from '../utils/api';
 import * as authService from '../services/auth.service.js';
 
 export const AuthContext = createContext();
@@ -13,6 +13,16 @@ export const AuthProvider = ({ children }) => {
         const token = await authService.silentRefresh();
         if (token) {
             setApiToken(token);
+            // Fetch updated user details from database to keep localState/localStorage sync'd
+            try {
+                const res = await api.get('/users/profile');
+                if (res.data) {
+                    setUser(res.data);
+                    localStorage.setItem('user', JSON.stringify(res.data));
+                }
+            } catch (err) {
+                console.error('Failed to sync user profile from server:', err);
+            }
         } else {
             clearApiToken();
             setUser(null);

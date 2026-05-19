@@ -16,6 +16,7 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
     const [users, setUsers] = useState([]);
     const [pendingUsers, setPendingUsers] = useState([]);
+    const [pendingRegistrationsCount, setPendingRegistrationsCount] = useState(0);
     const [pendingListings, setPendingListings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [rejectionReason, setRejectionReason] = useState("");
@@ -39,7 +40,9 @@ const AdminDashboard = () => {
             setStats(statsRes.data);
             setUsers(usersRes.data);
             setPendingListings(pendingRes.data);
-            setPendingUsers(pendingUsersRes.data || []);
+            // New API returns { users: [...], pendingRegistrationsCount: N }
+            setPendingUsers(pendingUsersRes.data?.users || []);
+            setPendingRegistrationsCount(pendingUsersRes.data?.pendingRegistrationsCount || 0);
         } catch (err) {
             toast.error(t.loadFail);
         } finally {
@@ -170,7 +173,14 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                         <h2 className="text-2xl font-black text-gray-900 mb-2">Pending Verifications</h2>
-                        <p className="text-gray-500 font-bold">{formatDigit(pendingUsers.length)} Users Waiting</p>
+                        <p className="text-gray-500 font-bold">
+                            <span className="text-blue-600">{formatDigit(pendingUsers.length)}</span> submitted docs &amp; awaiting review
+                        </p>
+                        {pendingRegistrationsCount > 0 && (
+                            <p className="text-orange-500 font-bold text-sm mt-1">
+                                {formatDigit(pendingRegistrationsCount)} registered but haven't submitted documents yet
+                            </p>
+                        )}
                     </div>
                     <Link to="/admin/dashboard/user-verification" className="text-primary font-black hover:underline underline-offset-8">Verify Users Now</Link>
                 </div>
@@ -185,10 +195,22 @@ const AdminDashboard = () => {
                 <p className="text-gray-500 font-medium">Review submitted Aadhaar cards and live videos to grant access.</p>
             </header>
 
+            {pendingRegistrationsCount > 0 && (
+                <div className="bg-orange-50 border border-orange-100 rounded-[2rem] p-6 flex items-start gap-4">
+                    <AlertCircle className="text-orange-500 shrink-0 mt-1" size={22} />
+                    <div>
+                        <p className="font-black text-orange-900 text-sm">{formatDigit(pendingRegistrationsCount)} user(s) registered but haven't submitted verification documents yet.</p>
+                        <p className="text-orange-700 text-xs mt-1">They will appear here once they upload their Aadhaar card and record a verification video on the <strong>/verification</strong> page.</p>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 gap-8">
                 {pendingUsers.length === 0 ? (
                     <div className="py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100 text-center">
-                        <p className="text-gray-400 font-bold">No pending verifications found.</p>
+                        <ShieldCheck size={48} className="text-gray-200 mx-auto mb-4" />
+                        <p className="text-gray-400 font-bold text-lg">No verification documents submitted yet.</p>
+                        <p className="text-gray-300 font-medium text-sm mt-2">Users must complete the verification form at <strong>/verification</strong> to appear here.</p>
                     </div>
                 ) : (
                     pendingUsers.map(u => (
@@ -251,20 +273,32 @@ const AdminDashboard = () => {
                             {/* Aadhaar Card */}
                             <div className="space-y-4">
                                 <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Aadhaar Card</h4>
-                                <div className="rounded-[2rem] overflow-hidden border-4 border-gray-50 shadow-xl group cursor-pointer relative">
-                                    <img src={u.aadhaarCard} alt="Aadhaar" className="w-full aspect-video object-cover transition-transform group-hover:scale-110 duration-500" />
-                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <a href={u.aadhaarCard} target="_blank" rel="noreferrer" className="text-white font-black underline">View Full Size</a>
+                                {u.aadhaarCard ? (
+                                    <div className="rounded-[2rem] overflow-hidden border-4 border-gray-50 shadow-xl group cursor-pointer relative">
+                                        <img src={u.aadhaarCard} alt="Aadhaar" className="w-full aspect-video object-cover transition-transform group-hover:scale-110 duration-500" />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <a href={u.aadhaarCard} target="_blank" rel="noreferrer" className="text-white font-black underline">View Full Size</a>
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="rounded-[2rem] border-4 border-dashed border-gray-200 aspect-video flex items-center justify-center bg-gray-50">
+                                        <p className="text-gray-400 font-bold text-sm">Aadhaar not submitted</p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Video Verification */}
                             <div className="space-y-4">
                                 <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Verification Video</h4>
-                                <div className="rounded-[2rem] overflow-hidden border-4 border-gray-50 shadow-xl bg-black aspect-video">
-                                    <video src={u.verificationVideo} controls className="w-full h-full object-contain" />
-                                </div>
+                                {u.verificationVideo ? (
+                                    <div className="rounded-[2rem] overflow-hidden border-4 border-gray-50 shadow-xl bg-black aspect-video">
+                                        <video src={u.verificationVideo} controls className="w-full h-full object-contain" />
+                                    </div>
+                                ) : (
+                                    <div className="rounded-[2rem] border-4 border-dashed border-gray-200 aspect-video flex items-center justify-center bg-gray-50">
+                                        <p className="text-gray-400 font-bold text-sm">Video not submitted</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))

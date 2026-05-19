@@ -11,6 +11,7 @@ const Verification = () => {
     const { user, updateUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const [aadhaarFile, setAadhaarFile] = useState(null);
     const [aadhaarPreview, setAadhaarPreview] = useState(null);
     const [videoBlob, setVideoBlob] = useState(null);
@@ -100,6 +101,7 @@ const Verification = () => {
             setLoading(true);
             const res = await api.put('/users/verify-profile', data);
             updateUser(res.data.user);
+            setSubmitted(true); // immediately show pending screen
             toast.success("Verification submitted successfully! Please wait for admin approval.");
         } catch (err) {
             toast.error(err.response?.data?.msg || "Submission failed");
@@ -110,7 +112,7 @@ const Verification = () => {
 
     if (!user) return null;
 
-    if (user.accountStatus === 'pending' && user.aadhaarCard && !user.verificationRejectedReason) {
+    if (submitted || (user.accountStatus === 'pending' && user.aadhaarCard && !user.verificationRejectedReason)) {
         return (
             <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
                 <div className="bg-white p-12 rounded-[3rem] shadow-2xl max-w-2xl w-full text-center space-y-6 border border-gray-100">
