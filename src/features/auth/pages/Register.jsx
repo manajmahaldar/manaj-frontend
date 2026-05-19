@@ -7,6 +7,7 @@ import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 
 import { getDashboardPath } from '../../../utils/roleUtils';
+import { stateDistricts } from '../../../utils/districtsData';
 
 const Register = () => {
     const { t } = useLanguage();
@@ -17,12 +18,15 @@ const Register = () => {
         password: '',
         confirmPassword: '',
         district: '',
+        localDistrict: '',
+        policeStation: '',
         role: 'farmer'
     });
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const districts = t.districtsList;
+    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
+    const districts = t.districtsList || [];
 
     const handleSuccessRedirect = (res) => {
         const user = res.data.user;
@@ -121,17 +125,32 @@ const Register = () => {
                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.district}</label>
-                        <select 
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                            value={formData.district}
-                            onChange={(e) => setFormData({...formData, district: e.target.value})}
-                            required
-                        >
-                            <option value="">{t.selectDistrict}</option>
-                            {districts.map(d => <option key={d} value={d}>{d}</option>)}
-                        </select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.district}</label>
+                            <select 
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none h-[50px]"
+                                value={formData.district}
+                                onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
+                                required
+                            >
+                                <option value="">{t.selectDistrict || t.selectBtn}</option>
+                                {districtsEn.map((d, index) => <option key={d} value={d}>{districts[index]}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.localDistrict || 'District'}</label>
+                            <select 
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none h-[50px]"
+                                value={formData.localDistrict}
+                                onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
+                                required
+                                disabled={!formData.district}
+                            >
+                                <option value="">{t.selectBtn || 'Select'}</option>
+                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t.yourRole}</label>

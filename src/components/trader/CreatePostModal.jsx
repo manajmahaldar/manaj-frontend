@@ -25,7 +25,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
         setPhotos(e.target.files);
     };
 
-    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha"];
+    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
     const districts = t.districtsList || [];
 
     const categories = [
@@ -45,11 +45,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
         Array.from(photos).forEach(photo => data.append('photos', photo));
 
         try {
-            await api.post('/posts', data, {
-                headers: { 
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await api.post('/posts', data);
             toast.success(t.postSubmitSuccess);
             onSuccess();
             onClose();

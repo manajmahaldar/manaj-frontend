@@ -17,5 +17,8 @@ export const INDIAN_STATES_DISTRICTS = {
     "Odisha": [
         "Khurda (Bhubaneswar)", "Cuttack", "Sundargarh (Rourkela)", "Puri", "Balasore",
         "Sambalpur", "Ganjam (Berhampur)", "Bhadrak"
+    ],
+    "Bihar": [
+        "Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Darbhanga", "Purnia", "Arrah", "Begusarai", "Katihar", "Munger", "Nalanda", "Samastipur", "Rohtas"
     ]
 };

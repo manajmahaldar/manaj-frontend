@@ -3,7 +3,7 @@ import api from '../../utils/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
     User as UserIcon, Package, MessageSquare, ShieldCheck, 
-    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2
+    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2, Eye
 } from 'lucide-react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -20,6 +20,7 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [rejectionReason, setRejectionReason] = useState("");
     const [rejectingUserId, setRejectingUserId] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const location = useLocation();
 
     useEffect(() => {
@@ -221,6 +222,7 @@ const AdminDashboard = () => {
                                             <span><strong>Email:</strong> {u.email || 'Not provided'}</span>
                                             <span><strong>State:</strong> {u.district || 'Not provided'}</span>
                                             <span><strong>District:</strong> {u.localDistrict || 'Not provided'}</span>
+                                            <span><strong>Police Station:</strong> {u.policeStation || 'Not provided'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -342,6 +344,9 @@ const AdminDashboard = () => {
                                             {/* For active/suspended users — verify and toggle status */}
                                             {u.accountStatus !== 'pending' && (
                                                 <>
+                                                    <button onClick={() => setSelectedUser(u)} className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-200 transition-all shadow-sm text-xs font-bold" title="View Details">
+                                                        <Eye size={14} /> {t.view || 'View'}
+                                                    </button>
                                                     {!u.verifiedStatus && u.role !== 'admin' && (
                                                         <button onClick={() => handleVerifyUser(u._id)} className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm text-xs font-bold">
                                                             <Check size={14} /> {t.verify}
@@ -367,6 +372,69 @@ const AdminDashboard = () => {
                     </table>
                 </div>
             </div>
+
+            {/* User Details Modal */}
+            {selectedUser && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+                    <div className="bg-white rounded-[3rem] shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-in fade-in zoom-in-95">
+                        <div className="p-8 sm:p-12 space-y-10">
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-24 h-24 rounded-3xl bg-gray-100 flex items-center justify-center overflow-hidden ring-4 ring-gray-50 shadow-lg">
+                                        {selectedUser.profilePicture ? <img src={selectedUser.profilePicture} className="w-full h-full object-cover" alt={`${selectedUser.name}'s profile`} /> : <UserIcon size={40} className="text-gray-300" />}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-3xl font-black text-gray-900">{selectedUser.name}</h3>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-gray-500 font-bold uppercase tracking-widest text-sm">{selectedUser.role}</span>
+                                            {selectedUser.verifiedStatus && <ShieldCheck size={18} className="text-primary" />}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedUser(null)} className="p-3 bg-gray-50 rounded-2xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Contact & Location</h4>
+                                    <div className="bg-gray-50 p-6 rounded-[2rem] space-y-3 font-medium text-gray-600">
+                                        <p><strong>Phone:</strong> {selectedUser.phone || 'N/A'}</p>
+                                        <p><strong>Email:</strong> {selectedUser.email || 'N/A'}</p>
+                                        <p><strong>State:</strong> {selectedUser.district || 'N/A'}</p>
+                                        <p><strong>District:</strong> {selectedUser.localDistrict || 'N/A'}</p>
+                                        <p><strong>Police Station:</strong> {selectedUser.policeStation || 'N/A'}</p>
+                                        <p><strong>Status:</strong> <span className="capitalize">{selectedUser.accountStatus}</span></p>
+                                        <p><strong>Joined:</strong> {new Date(selectedUser.createdAt).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                
+                                {selectedUser.aadhaarCard && (
+                                    <div className="space-y-4">
+                                        <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Aadhaar Card</h4>
+                                        <div className="rounded-[2rem] overflow-hidden shadow-lg border-4 border-gray-50 relative group cursor-pointer h-[200px]">
+                                            <img src={selectedUser.aadhaarCard} alt="Aadhaar" className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <a href={selectedUser.aadhaarCard} target="_blank" rel="noreferrer" className="text-white font-black underline">View Full Size</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {selectedUser.verificationVideo && (
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Verification Video</h4>
+                                    <div className="rounded-[2rem] overflow-hidden shadow-lg border-4 border-gray-50 bg-black max-h-[400px]">
+                                        <video src={selectedUser.verificationVideo} controls className="w-full h-full object-contain" />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 

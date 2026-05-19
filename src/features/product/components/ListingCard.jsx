@@ -129,13 +129,17 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                 <div className="grid grid-cols-2 gap-2 text-xs font-medium text-gray-500">
                     <div 
                         className="flex items-center gap-1.5 bg-gray-50 p-2 rounded-lg"
-                        title={item.localDistrict ? `${item.localDistrict}, ${t.districts[item.district] || item.district}` : (t.districts[item.district] || item.district)}
+                        title={item.policeStation 
+                            ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts[item.district] || item.district} (PS: ${item.policeStation})` 
+                            : (item.localDistrict ? `${item.localDistrict}, ${t.districts[item.district] || item.district}` : (t.districts[item.district] || item.district))}
                     >
                         <MapPin size={14} className="text-primary flex-shrink-0" />
                         <span className="truncate">
-                            {item.localDistrict 
-                                ? `${item.localDistrict}, ${t.districts[item.district] || item.district}` 
-                                : (t.districts[item.district] || item.district)}
+                            {item.policeStation 
+                                ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts[item.district] || item.district} (PS: ${item.policeStation})` 
+                                : (item.localDistrict 
+                                    ? `${item.localDistrict}, ${t.districts[item.district] || item.district}` 
+                                    : (t.districts[item.district] || item.district))}
                         </span>
                     </div>
                     <div className="flex items-center gap-1.5 bg-gray-50 p-2 rounded-lg">

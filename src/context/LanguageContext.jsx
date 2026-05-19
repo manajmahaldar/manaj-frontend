@@ -51,6 +51,7 @@ export const LanguageProvider = ({ children }) => {
         let newLang;
         if (language === 'bn') newLang = 'en';
         else if (language === 'en') newLang = 'hi';
+        else if (language === 'hi') newLang = 'or';
         else newLang = 'bn';
         
         setLanguage(newLang);
@@ -68,12 +69,20 @@ export const LanguageProvider = ({ children }) => {
     }, [language, translations]);
 
     const formatDigit = (num) => {
-        if (language !== 'bn') return num;
-        const numbers = {
-            '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-            '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'
-        };
-        return String(num).split('').map(char => numbers[char] || char).join('');
+        if (language === 'bn') {
+            const numbers = {
+                '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
+                '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'
+            };
+            return String(num).split('').map(char => numbers[char] || char).join('');
+        } else if (language === 'or') {
+            const numbers = {
+                '0': '୦', '1': '୧', '2': '୨', '3': '୩', '4': '୪',
+                '5': '୫', '6': '୬', '7': '୭', '8': '୮', '9': '୯'
+            };
+            return String(num).split('').map(char => numbers[char] || char).join('');
+        }
+        return num;
     };
 
     // Prevent rendering children until at least the initial language is loaded

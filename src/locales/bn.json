@@ -229,13 +229,17 @@
   "loginFail": "লগইন ব্যর্থ হয়েছে",
   "registerSuccess": "রেজিস্ট্রেশন সফল হয়েছে!",
   "registerFail": "রেজিস্ট্রেশন ব্যর্থ হয়েছে",
+  "localDistrict": "জেলা",
+  "policeStation": "থানা / পুলিশ স্টেশন",
+  "policeStationPlaceholder": "থানা লিখুন",
   "or": "অথবা",
   "googleLogin": "গুগল দিয়ে লগইন করুন",
   "districtsList": [
     "পশ্চিমবঙ্গ",
     "ঝাড়খণ্ড",
     "অসম",
-    "ওড়িশা"
+    "ওড়িশা",
+    "বিহার"
   ],
   "searchHint": "কি খুঁজতে চান? (যেমন: রুই মাছ, পোণা...)",
   "popularShort": "জনপ্রিয়:",
@@ -297,7 +301,8 @@
     "West Bengal": "পশ্চিমবঙ্গ",
     "Jharkhand": "ঝাড়খণ্ড",
     "Assam": "অসম",
-    "Odisha": "ওড়িশা"
+    "Odisha": "ওড়িশা",
+    "Bihar": "বিহার"
   },
   "categories": {
     "Fish": "মাছ",

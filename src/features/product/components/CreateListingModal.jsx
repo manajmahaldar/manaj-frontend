@@ -15,6 +15,7 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
         price: '',
         district: '',
         localDistrict: '',
+        policeStation: '',
         description: '',
         phoneNumber: '',
         quantity: '',
@@ -35,13 +36,20 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                 : allCategories;
 
     useEffect(() => {
-        if (categories.length > 0 && !categories.includes(formData.category)) {
-            setFormData(prev => ({ ...prev, category: categories[0] }));
+        if (isOpen) {
+            setFormData(prev => ({
+                ...prev,
+                category: categories[0] || 'Fish',
+                district: user?.district || '',
+                localDistrict: user?.localDistrict || '',
+                policeStation: user?.policeStation || '',
+                phoneNumber: user?.phone || ''
+            }));
         }
-    }, [user, isOpen]);
+    }, [isOpen, user, categories]);
 
     const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
-    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha"];
+    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
 
     const handlePhotoChange = async (e) => {
         const files = Array.from(e.target.files);
@@ -93,11 +101,7 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
         Array.from(photos).forEach(photo => data.append('photos', photo));
 
         try {
-            await api.post('/listings', data, {
-                headers: { 
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await api.post('/listings', data);
             toast.success(t.listingSubmitSuccess);
             onSuccess();
             onClose();
@@ -188,7 +192,7 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.district}</label>
                             <select 
@@ -215,6 +219,19 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                                 <option value="">{t.selectBtn}</option>
                                 {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-sm font-bold text-gray-700">{t.policeStation}</label>
+                            <input 
+                                type="text" required
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
+                                placeholder={t.policeStationPlaceholder}
+                                value={formData.policeStation}
+                                onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
+                            />
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.mobileNumberLabel}</label>

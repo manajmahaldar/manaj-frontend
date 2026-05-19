@@ -23,7 +23,8 @@ const Verification = () => {
         email: user?.email || '',
         phone: user?.phone || '',
         district: user?.district || '', // stores State
-        localDistrict: user?.localDistrict || '' // stores District
+        localDistrict: user?.localDistrict || '', // stores District
+        policeStation: user?.policeStation || ''
     });
 
     useEffect(() => {
@@ -89,6 +90,7 @@ const Verification = () => {
         data.append('phone', normalized);
         data.append('district', formData.district);
         data.append('localDistrict', formData.localDistrict);
+        data.append('policeStation', formData.policeStation);
 
         if (profileFile) data.append('profilePicture', profileFile);
         if (aadhaarFile) data.append('aadhaar', aadhaarFile);
@@ -96,11 +98,7 @@ const Verification = () => {
 
         try {
             setLoading(true);
-            const res = await api.put('/users/verify-profile', data, {
-                headers: { 
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            const res = await api.put('/users/verify-profile', data);
             updateUser(res.data.user);
             toast.success("Verification submitted successfully! Please wait for admin approval.");
         } catch (err) {
@@ -240,36 +238,44 @@ const Verification = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">State</label>
-                                        <select 
-                                            required
-                                            className="w-full px-4 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900 cursor-pointer"
-                                            value={formData.district}
-                                            onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
-                                        >
-                                            <option value="">Select State</option>
-                                            {Object.keys(INDIAN_STATES_DISTRICTS).map(state => (
-                                                <option key={state} value={state}>{state}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">District</label>
-                                        <select 
-                                            required
-                                            disabled={!formData.district}
-                                            className="w-full px-4 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                            value={formData.localDistrict}
-                                            onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
-                                        >
-                                            <option value="">Select District</option>
-                                            {formData.district && INDIAN_STATES_DISTRICTS[formData.district].map(dist => (
-                                                <option key={dist} value={dist}>{dist}</option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                <div>
+                                    <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">State</label>
+                                    <select 
+                                        required
+                                        className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900 cursor-pointer h-[56px]"
+                                        value={formData.district}
+                                        onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
+                                    >
+                                        <option value="">Select State</option>
+                                        {Object.keys(INDIAN_STATES_DISTRICTS).map(state => (
+                                            <option key={state} value={state}>{state}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">District</label>
+                                    <select 
+                                        required
+                                        disabled={!formData.district}
+                                        className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[56px]"
+                                        value={formData.localDistrict}
+                                        onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
+                                    >
+                                        <option value="">Select District</option>
+                                        {formData.district && INDIAN_STATES_DISTRICTS[formData.district].map(dist => (
+                                            <option key={dist} value={dist}>{dist}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Police Station</label>
+                                    <input 
+                                        type="text" required
+                                        placeholder="Enter Police Station"
+                                        className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
+                                        value={formData.policeStation}
+                                        onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
+                                    />
                                 </div>
                             </div>
                         </section>

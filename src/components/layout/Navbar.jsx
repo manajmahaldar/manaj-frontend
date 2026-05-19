@@ -59,7 +59,8 @@ const Navbar = () => {
                                     {[
                                         { code: 'bn', label: 'বাংলা', sub: 'Bengali' },
                                         { code: 'en', label: 'English', sub: 'English' },
-                                        { code: 'hi', label: 'हिंदी', sub: 'Hindi' }
+                                        { code: 'hi', label: 'हिंदी', sub: 'Hindi' },
+                                        { code: 'or', label: 'ଓଡ଼ିଆ', sub: 'Odia' }
                                     ].map((lang) => (
                                         <button
                                             key={lang.code}
@@ -106,7 +107,7 @@ const Navbar = () => {
                             
                             {isLangOpen && (
                                 <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
-                                    {['bn', 'en', 'hi'].map((l) => (
+                                    {['bn', 'en', 'hi', 'or'].map((l) => (
                                         <button
                                             key={l}
                                             onClick={() => {
@@ -115,7 +116,7 @@ const Navbar = () => {
                                             }}
                                             className={`w-full text-left px-4 py-2 text-xs font-bold uppercase tracking-widest ${language === l ? 'bg-blue-50 text-primary' : 'text-gray-500'}`}
                                         >
-                                            {l === 'bn' ? 'বাংলা' : l === 'en' ? 'English' : 'हिंदी'}
+                                            {l === 'bn' ? 'বাংলা' : l === 'en' ? 'English' : l === 'hi' ? 'हिंदी' : 'ଓଡ଼ିଆ'}
                                         </button>
                                     ))}
                                 </div>

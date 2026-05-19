@@ -233,13 +233,17 @@
   "loginFail": "लॉगिन विफल",
   "registerSuccess": "पंजीकरण सफल!",
   "registerFail": "पंजीकरण विफल",
+  "localDistrict": "जिला",
+  "policeStation": "थाना / पुलिस स्टेशन",
+  "policeStationPlaceholder": "पुलिस स्टेशन दर्ज करें",
   "or": "या",
   "googleLogin": "गूगल के साथ जारी रखें",
   "districtsList": [
     "पश्चिम बंगाल",
     "झारखंड",
     "असम",
-    "ओडिशा"
+    "ओडिशा",
+    "बिहार"
   ],
   "searchHint": "आप क्या खोज रहे हैं? (जैसे रोहू, बीज...)",
   "popularShort": "लोकप्रिय:",
@@ -297,7 +301,8 @@
     "West Bengal": "पश्चिम बंगाल",
     "Jharkhand": "झारखंड",
     "Assam": "असम",
-    "Odisha": "ओडिशा"
+    "Odisha": "ओडिशा",
+    "Bihar": "बिहार"
   },
   "categories": {
     "Fish": "मछली",

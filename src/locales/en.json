@@ -233,13 +233,17 @@
   "loginFail": "Login failed",
   "registerSuccess": "Registration successful!",
   "registerFail": "Registration failed",
+  "localDistrict": "District",
+  "policeStation": "Police Station",
+  "policeStationPlaceholder": "Enter Police Station",
   "or": "OR",
   "googleLogin": "Continue with Google",
   "districtsList": [
     "West Bengal",
     "Jharkhand",
     "Assam",
-    "Odisha"
+    "Odisha",
+    "Bihar"
   ],
   "searchHint": "What are you looking for? (e.g. Rohu, Seed...)",
   "popularShort": "Popular:",
@@ -297,7 +301,8 @@
     "West Bengal": "West Bengal",
     "Jharkhand": "Jharkhand",
     "Assam": "Assam",
-    "Odisha": "Odisha"
+    "Odisha": "Odisha",
+    "Bihar": "Bihar"
   },
   "categories": {
     "Fish": "Fish",

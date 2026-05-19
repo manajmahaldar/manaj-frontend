@@ -15,6 +15,7 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
         price: '',
         district: '',
         localDistrict: '',
+        policeStation: '',
         description: '',
         phoneNumber: '',
         quantity: '',
@@ -35,6 +36,7 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
                 : allCategories;
 
     const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
+    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
 
     useEffect(() => {
         if (listing) {
@@ -44,6 +46,7 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
                 price: listing.price || '',
                 district: listing.district || '',
                 localDistrict: listing.localDistrict || '',
+                policeStation: listing.policeStation || '',
                 description: listing.description || '',
                 phoneNumber: listing.phoneNumber || '',
                 quantity: listing.quantity || '',
@@ -104,11 +107,7 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
         }
 
         try {
-            await api.put(`/listings/${listing._id}`, data, {
-                headers: { 
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await api.put(`/listings/${listing._id}`, data);
             toast.success(t.listingUpdateSuccess);
             onSuccess();
             onClose();
@@ -199,7 +198,7 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.district}</label>
                             <select 
@@ -211,7 +210,7 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
                                 required
                             >
                                 <option value="">{t.selectBtn}</option>
-                                {t.districtsList.map(d => <option key={d} value={d}>{d}</option>)}
+                                {districtsEn.map((d, index) => <option key={d} value={d}>{t.districtsList[index]}</option>)}
                             </select>
                         </div>
                         <div className="space-y-1">
@@ -226,6 +225,19 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
                                 <option value="">{t.selectBtn}</option>
                                 {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-sm font-bold text-gray-700">{t.policeStation}</label>
+                            <input 
+                                type="text" required
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
+                                placeholder={t.policeStationPlaceholder}
+                                value={formData.policeStation}
+                                onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
+                            />
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.phone}</label>
