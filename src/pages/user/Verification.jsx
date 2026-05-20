@@ -99,7 +99,9 @@ const Verification = () => {
 
         try {
             setLoading(true);
-            const res = await api.put('/users/verify-profile', data);
+            const res = await api.put('/users/verify-profile', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             updateUser(res.data.user);
             setSubmitted(true); // immediately show pending screen
             toast.success("Verification submitted successfully! Please wait for admin approval.");

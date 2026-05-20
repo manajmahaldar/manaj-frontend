@@ -367,12 +367,17 @@ const AdminDashboard = () => {
                                         <div className="flex justify-end gap-2">
                                             {/* Approve / Reject for pending users — redirect to verification tab */}
                                             {u.accountStatus === 'pending' && (
-                                                <Link
-                                                    to="/admin/dashboard/user-verification"
-                                                    className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                >
-                                                    <ShieldCheck size={14} /> Review Verification
-                                                </Link>
+                                                <>
+                                                    <button onClick={() => setSelectedUser(u)} className="flex items-center gap-1.5 px-3 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-200 transition-all shadow-sm text-xs font-bold" title="View Details">
+                                                        <Eye size={14} /> {t.view || 'View'}
+                                                    </button>
+                                                    <Link
+                                                        to="/admin/dashboard/user-verification"
+                                                        className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm text-xs font-bold"
+                                                    >
+                                                        <ShieldCheck size={14} /> Review Verification
+                                                    </Link>
+                                                </>
                                             )}
 
                                             {/* For active/suspended users — verify and toggle status */}
