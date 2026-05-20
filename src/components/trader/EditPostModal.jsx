@@ -57,7 +57,9 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
         Array.from(photos).forEach(photo => data.append('photos', photo));
 
         try {
-            await api.put(`/posts/${post._id}`, data);
+            await api.put(`/posts/${post._id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             toast.success(t.orderUpdateSuccess);
             onSuccess();
             onClose();

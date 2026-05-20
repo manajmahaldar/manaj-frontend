@@ -45,7 +45,9 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
         Array.from(photos).forEach(photo => data.append('photos', photo));
 
         try {
-            await api.post('/posts', data);
+            await api.post('/posts', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             toast.success(t.postSubmitSuccess);
             onSuccess();
             onClose();

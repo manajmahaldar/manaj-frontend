@@ -107,7 +107,11 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
         }
 
         try {
-            await api.put(`/listings/${listing._id}`, data);
+            await api.put(`/listings/${listing._id}`, data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             toast.success(t.listingUpdateSuccess);
             onSuccess();
             onClose();

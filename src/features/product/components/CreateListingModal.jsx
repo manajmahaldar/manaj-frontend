@@ -101,7 +101,11 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
         Array.from(photos).forEach(photo => data.append('photos', photo));
 
         try {
-            await api.post('/listings', data);
+            await api.post('/listings', data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             toast.success(t.listingSubmitSuccess);
             onSuccess();
             onClose();
