@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useMemo } from 'react';
 import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Upload, Plus } from 'lucide-react';
@@ -25,16 +25,19 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
 
     const allCategories = ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'];
-    
-    // Filter categories based on role
-    const categories = user?.role === 'seller' 
-        ? ['Feed', 'Medicine'] 
-        : user?.role === 'farmer' 
-            ? ['Fingerling'] 
-            : user?.role === 'hatchery'
-                ? ['Spawn', 'Fingerling']
-                : allCategories;
 
+    // Memoised so the array reference only changes when the role changes,
+    // preventing the useEffect below from firing on every render.
+    const categories = useMemo(() => {
+        if (user?.role === 'seller')  return ['Feed', 'Medicine'];
+        if (user?.role === 'farmer')  return ['Fingerling'];
+        if (user?.role === 'hatchery') return ['Spawn', 'Fingerling'];
+        return allCategories;
+    }, [user?.role]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Reset form fields only when the modal opens or the logged-in user changes.
+    // Do NOT include `categories` here — it would cause a reset loop that
+    // overwrites the user's selection on every keystroke / re-render.
     useEffect(() => {
         if (isOpen) {
             setFormData(prev => ({
@@ -46,7 +49,7 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                 phoneNumber: user?.phone || ''
             }));
         }
-    }, [isOpen, user, categories]);
+    }, [isOpen, user]); // ← categories intentionally omitted
 
     const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
     const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
