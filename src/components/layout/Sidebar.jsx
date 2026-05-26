@@ -13,7 +13,9 @@ import {
     ArrowDownRight,
     ArrowUpRight,
     Package,
-    Images
+    Images,
+    Filter,
+    BarChart3
 } from 'lucide-react';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
@@ -79,6 +81,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'Media Library', 
             path: '/admin/dashboard/media', 
             icon: <Images size={20} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: 'Advanced Users', 
+            path: '/admin/dashboard/user-management', 
+            icon: <Filter size={20} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: 'Analytics', 
+            path: '/admin/dashboard/analytics', 
+            icon: <BarChart3 size={20} />, 
             roles: ['admin'] 
         },
         { 

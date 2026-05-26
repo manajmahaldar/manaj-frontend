@@ -3,9 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import api from '../../../utils/api';
 import ListingCard from '../components/ListingCard';
 import BuyingPostCard from '../../../components/trader/BuyingPostCard';
+import { CardSkeleton, PostSkeleton } from '../../../components/common/Skeletons';
 import { Search, Filter, MapPin, X, ShoppingBag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { AuthContext } from '../../../context/AuthContext';
+import SEO from '../../../components/common/SEO';
 
 const Listings = () => {
     const { t, formatDigit, language } = useLanguage();
@@ -77,6 +79,10 @@ const Listings = () => {
 
     return (
         <div className="pb-20 bg-gray-50/30 min-h-screen">
+            <SEO 
+                title={viewType === 'selling' ? t.premiumSales : t.traderDemands}
+                description={viewType === 'selling' ? t.browseVerifiedDesc : t.exploreTraderDesc}
+            />
             {/* Hero Section */}
             <section className="relative bg-gray-900 text-white py-24 md:py-32 px-4 overflow-hidden mb-12">
                 <div 
@@ -223,7 +229,7 @@ const Listings = () => {
             {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {[1,2,3,4,5,6,7,8].map(n => (
-                        <div key={n} className="h-96 bg-gray-50 animate-pulse rounded-[2rem] border border-gray-100"></div>
+                        viewType === 'selling' ? <CardSkeleton key={n} /> : <PostSkeleton key={n} />
                     ))}
                 </div>
             ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (

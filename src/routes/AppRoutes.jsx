@@ -22,15 +22,7 @@ const AdminDashboard   = lazy(() => import('../pages/admin/Dashboard'));
 const DashboardLayout  = lazy(() => import('../components/layout/DashboardLayout'));
 const RoleDashboard    = lazy(() => import('../pages/dashboards/RoleDashboard'));
 
-// Full-screen loading fallback for route transitions
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen bg-white">
-    <div className="flex flex-col items-center gap-3">
-      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-gray-500 text-sm">লোড হচ্ছে...</p>
-    </div>
-  </div>
-);
+import { PageLoaderSkeleton as PageLoader } from '../components/common/Skeletons';
 
 const AppRoutes = () => {
   return (

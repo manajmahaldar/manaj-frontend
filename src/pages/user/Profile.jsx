@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import OptimizedImage from '../../components/common/OptimizedImage';
 
 const Profile = () => {
     const { user, updateUser } = useContext(AuthContext);
@@ -314,7 +315,7 @@ const Profile = () => {
                                 <div className="relative group">
                                     <div className="w-40 h-40 md:w-48 md:h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-gray-100 flex items-center justify-center ring-1 ring-gray-100">
                                         {user.profilePicture ? (
-                                            <img src={user.profilePicture} alt={user.name} className="w-full h-full object-cover" />
+                                            <OptimizedImage src={user.profilePicture} alt={user.name} className="w-full h-full object-cover" />
                                         ) : (
                                             <User size={80} className="text-gray-300" />
                                         )}

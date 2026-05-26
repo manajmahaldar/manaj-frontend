@@ -1,8 +1,9 @@
 import { MapPin, Phone, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../../context/LanguageContext';
 import ContactButtons from '../../../components/common/ContactButtons';
 import OrderModal from './OrderModal';
+import OptimizedImage from '../../../components/common/OptimizedImage';
 
 const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
     const { t, formatDigit, language } = useLanguage();
@@ -75,7 +76,7 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                         className="object-cover w-full h-full group-hover/carousel:scale-105 transition-transform duration-500"
                     />
                 ) : (
-                    <img 
+                    <OptimizedImage 
                         src={media[currentMediaIndex].url} 
                         alt={item.productName}
                         className="object-cover w-full h-full group-hover/carousel:scale-105 transition-transform duration-500"
@@ -189,4 +190,4 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
     );
 };
 
-export default ListingCard;
+export default React.memo(ListingCard);

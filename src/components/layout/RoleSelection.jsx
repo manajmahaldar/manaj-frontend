@@ -1,4 +1,4 @@
-import { Sprout, Store, Search, ArrowRight } from 'lucide-react';
+import { Sprout, Store, Search, ArrowRight, Droplets } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -29,6 +29,14 @@ const RoleSelection = () => {
             color: 'text-orange-600',
             bgColor: 'bg-orange-100',
             link: '/register?role=trader'
+        },
+        {
+            title: t.roleSelection.hatchery || t.hatchery,
+            desc: t.roleSelection.hatcheryDesc || "Sell high-quality fish seed and spawn directly to farmers.",
+            icon: <Droplets size={40} />,
+            color: 'text-teal-600',
+            bgColor: 'bg-teal-100',
+            link: '/register?role=hatchery'
         }
     ];
 
@@ -41,7 +49,7 @@ const RoleSelection = () => {
                 <p className="text-gray-600 font-medium">{t.roleSelection.subtitle}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {roles.map((role, idx) => (
                     <div key={idx} className="bg-white rounded-[2.5rem] p-10 shadow-xl border border-gray-100 hover:border-blue-200 transition-all hover:scale-[1.02] group relative overflow-hidden text-center md:text-left flex flex-col items-center md:items-start">
                         {/* Decorative background element */}

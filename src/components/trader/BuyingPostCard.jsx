@@ -1,7 +1,8 @@
 import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import ContactButtons from '../common/ContactButtons';
+import OptimizedImage from '../common/OptimizedImage';
 
 const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
     const { t, formatDigit, language } = useLanguage();
@@ -32,7 +33,7 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
     return (
         <div className="card p-5 border-l-4 border-green-500 space-y-4 shadow-sm hover:shadow-xl transition-all duration-300 group">
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-4 group/carousel">
-                <img 
+                <OptimizedImage 
                     src={photos[currentImageIndex]} 
                     alt={post.fishName}
                     className="object-cover w-full h-full group-hover/carousel:scale-105 transition-transform duration-500"
@@ -142,4 +143,4 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
 };
 
 
-export default BuyingPostCard;
+export default React.memo(BuyingPostCard);

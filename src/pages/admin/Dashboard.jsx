@@ -3,12 +3,14 @@ import api from '../../utils/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
     User as UserIcon, Package, MessageSquare, ShieldCheck, 
-    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2, Eye
+    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2, Eye, Flag
 } from 'lucide-react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useLanguage } from '../../context/LanguageContext';
 import MediaManager from './MediaManager';
+import UserManagement from './UserManagement';
+import AdminAnalytics from './AdminAnalytics';
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -38,7 +40,8 @@ const AdminDashboard = () => {
                 api.get('/admin/pending-users')
             ]);
             setStats(statsRes.data);
-            setUsers(usersRes.data);
+            // Handle the updated API response which now returns { users: [...], total, page... }
+            setUsers(usersRes.data.users || usersRes.data || []);
             setPendingListings(pendingRes.data);
             // New API returns { users: [...], pendingRegistrationsCount: N }
             setPendingUsers(pendingUsersRes.data?.users || []);
@@ -502,7 +505,7 @@ const AdminDashboard = () => {
                                 </tr>
                             ) : (
                                 pendingListings.map((item) => (
-                                    <tr key={item._id} className="hover:bg-blue-50/30 transition-colors">
+                                    <tr key={item._id} className={`transition-colors ${item.isFlagged ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-blue-50/30'}`}>
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
@@ -514,12 +517,22 @@ const AdminDashboard = () => {
                                                         <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                                                             {item.type === 'listing' ? 'Sale' : 'Buy'}
                                                         </span>
+                                                        {item.isFlagged && (
+                                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
+                                                                <Flag size={10} /> Flagged
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    <div className="text-xs text-gray-400 font-bold tracking-tight">
+                                                    <div className="text-xs text-gray-400 font-bold tracking-tight mt-1">
                                                         {item.category} • {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price || item.buyingPrice)}
                                                         {item.unit ? `/${item.unit}` : ''}
                                                         {item.size ? ` • ${item.size}` : ''}
                                                     </div>
+                                                    {item.isFlagged && (
+                                                        <div className="text-[10px] text-red-600 font-bold tracking-tight mt-1">
+                                                            Reason: {item.fraudReason}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -566,11 +579,13 @@ const AdminDashboard = () => {
     return (
         <div className="w-full">
             <Routes>
-                <Route path="/" element={<UsersView />} />
+                <Route path="/" element={<UserManagement />} />
                 <Route path="/stats" element={<StatsView />} />
                 <Route path="/listings-approval" element={<ListingApprovalsView />} />
                 <Route path="/user-verification" element={<UserVerificationView />} />
                 <Route path="/media" element={<MediaManager />} />
+                <Route path="/user-management" element={<UserManagement />} />
+                <Route path="/analytics" element={<AdminAnalytics />} />
                 <Route path="*" element={<div className="text-center py-20 font-black text-2xl text-gray-300">{t.adminPageNotFound}</div>} />
             </Routes>
         </div>
