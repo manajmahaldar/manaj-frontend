@@ -109,7 +109,7 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                 )}
                 <div className="absolute top-3 left-3 flex gap-2">
                     <span className="bg-white/90 backdrop-blur-md text-primary px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                        {t.categories[item.category] || item.category}
+                        {t.categories?.[item.category] || item.category}
                     </span>
                     {isOwner && item.status !== 'approved' && (
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
@@ -136,16 +136,16 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                     <div 
                         className="flex items-center gap-1.5 bg-gray-50 p-2 rounded-lg"
                         title={item.policeStation 
-                            ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts[item.district] || item.district} (PS: ${item.policeStation})` 
-                            : (item.localDistrict ? `${item.localDistrict}, ${t.districts[item.district] || item.district}` : (t.districts[item.district] || item.district))}
+                            ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts?.[item.district] || item.district} (PS: ${item.policeStation})` 
+                            : (item.localDistrict ? `${item.localDistrict}, ${t.districts?.[item.district] || item.district}` : (t.districts?.[item.district] || item.district))}
                     >
                         <MapPin size={14} className="text-primary flex-shrink-0" />
                         <span className="truncate">
                             {item.policeStation 
-                                ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts[item.district] || item.district} (PS: ${item.policeStation})` 
+                                ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts?.[item.district] || item.district} (PS: ${item.policeStation})` 
                                 : (item.localDistrict 
-                                    ? `${item.localDistrict}, ${t.districts[item.district] || item.district}` 
-                                    : (t.districts[item.district] || item.district))}
+                                    ? `${item.localDistrict}, ${t.districts?.[item.district] || item.district}` 
+                                    : (t.districts?.[item.district] || item.district))}
                         </span>
                     </div>
                     <div className="flex items-center gap-1.5 bg-gray-50 p-2 rounded-lg">

@@ -211,7 +211,7 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
                                 required
                             >
                                 <option value="">{t.selectBtn}</option>
-                                {districtsEn.map((d, index) => <option key={d} value={d}>{t.districtsList[index]}</option>)}
+                                {districtsEn.map((d, index) => <option key={d} value={d}>{t.districtsList?.[index]}</option>)}
                             </select>
                         </div>
                         <div className="space-y-1">

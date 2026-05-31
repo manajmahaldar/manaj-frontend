@@ -172,7 +172,7 @@ const Listings = () => {
                         onChange={(e) => setCategory(e.target.value)}
                     >
                         <option value="">{t.allCategories}</option>
-                        {categoryKeys.map(c => <option key={c} value={c}>{t.categories[c] || c}</option>)}
+                        {categoryKeys.map(c => <option key={c} value={c}>{t.categories?.[c] || c}</option>)}
                     </select>
 
                     {/* District Dropdown */}
@@ -184,7 +184,7 @@ const Listings = () => {
                             onChange={(e) => setDistrict(e.target.value)}
                         >
                             <option value="">{t.allDistricts}</option>
-                            {districtKeys.map(d => <option key={d} value={d}>{t.districts[d] || d}</option>)}
+                            {districtKeys.map(d => <option key={d} value={d}>{t.districts?.[d] || d}</option>)}
                         </select>
                     </div>
 

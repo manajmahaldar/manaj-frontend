@@ -74,7 +74,7 @@ const HomeSearch = () => {
                         >
                             <option value="">{t.allDistricts}</option>
                             {districts.map(d => (
-                                <option key={d} value={d}>{t.districts[d]}</option>
+                                <option key={d} value={d}>{t.districts?.[d] || d}</option>
                             ))}
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">

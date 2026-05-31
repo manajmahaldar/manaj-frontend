@@ -73,7 +73,7 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                             post.category === 'medicine' ? 'bg-blue-100 text-blue-700' :
                             'bg-green-100 text-green-700'
                         }`}>
-                            {t.categories[post.category] || post.category}
+                            {t.categories?.[post.category] || post.category}
                         </span>
                         {isOwner && post.status !== 'approved' && (
                             <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
@@ -116,7 +116,7 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                     <span className="font-bold text-gray-900">{language === 'bn' ? 'টাকা' : '₹'} {formatDigit(post.buyingPrice)}</span>
                 </div>
                 <div className="text-xs text-gray-500 font-bold flex items-center gap-1">
-                    <MapPin size={12} /> {t.districts[post.district] || post.district}
+                    <MapPin size={12} /> {t.districts?.[post.district] || post.district}
                 </div>
             </div>
 
