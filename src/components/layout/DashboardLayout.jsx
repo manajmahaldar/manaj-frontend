@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import Sidebar from './Sidebar';
-import { Menu, X, Home, List, Heart, User, Plus, LogOut } from 'lucide-react';
+import { Home, List, Heart, User, Plus } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }) => {
     const [isListingModalOpen, setIsListingModalOpen] = useState(false);
     const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
-    const { user, logout } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const { t } = useLanguage();
     const location = useLocation();
     const navigate = useNavigate();
@@ -38,14 +38,13 @@ const DashboardLayout = ({ children }) => {
     const handleCreateClick = () => {
         const isUnverified = user.role !== 'admin' && user.accountStatus !== 'active';
         if (isUnverified) {
-            toast.error(user.role === 'trader' 
-                ? "Please complete verification to post requirements" 
+            toast.error(user.role === 'trader'
+                ? "Please complete verification to post requirements"
                 : "Please complete verification to list products"
             );
             navigate('/verification');
             return;
         }
-
         if (user.role === 'trader') {
             setIsPostModalOpen(true);
         } else {
@@ -54,72 +53,47 @@ const DashboardLayout = ({ children }) => {
     };
 
     const handleSuccess = () => {
-        toast.success(user.role === 'trader' 
-            ? "Requirement posted successfully!" 
+        toast.success(user.role === 'trader'
+            ? "Requirement posted successfully!"
             : "Listing submitted successfully!"
         );
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
+        setTimeout(() => { window.location.reload(); }, 1000);
     };
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/login');
-    };
-
-    const renderNavItem = (label, path, icon, isActive) => {
-        return (
-            <Link 
-                to={path}
-                className={`flex flex-col items-center justify-center flex-1 py-1 relative transition-colors duration-200 ${
-                    isActive ? 'text-primary' : 'text-gray-400 hover:text-gray-600'
-                }`}
-            >
-                <div className="transition-transform duration-200 active:scale-95">
-                    {icon}
-                </div>
-                <span className="text-[10px] font-bold mt-1 tracking-wide uppercase">
-                    {label}
-                </span>
-                {isActive ? (
-                    <span 
-                        style={{ 
-                            display: 'block', 
-                            width: '5px', 
-                            height: '5px', 
-                            backgroundColor: '#0066cc', // Main theme primary color
-                            borderRadius: '50%', 
-                            marginTop: '4px',
-                            animation: 'fadeInDot 0.2s ease-out forwards'
-                        }} 
-                    />
-                ) : (
-                    <span style={{ display: 'block', width: '5px', height: '5px', marginTop: '4px', backgroundColor: 'transparent' }} />
-                )}
-            </Link>
-        );
-    };
+    const renderNavItem = (label, path, icon, isActive) => (
+        <Link
+            to={path}
+            className={`flex flex-col items-center justify-center flex-1 min-w-0 h-full transition-colors duration-200 ${
+                isActive ? 'text-primary' : 'text-gray-400 hover:text-gray-600'
+            }`}
+        >
+            <div className="transition-transform duration-200 active:scale-95">
+                {icon}
+            </div>
+            <span className="text-[9px] font-bold mt-1 tracking-wide uppercase truncate max-w-full leading-none">
+                {label}
+            </span>
+            <span style={{
+                display: 'block', width: '4px', height: '4px', marginTop: '3px',
+                backgroundColor: isActive ? '#0066cc' : 'transparent',
+                borderRadius: '50%',
+                transition: 'background-color 0.2s'
+            }} />
+        </Link>
+    );
 
     return (
         <div className="min-h-screen bg-gray-50/50 flex">
-            {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black/40 z-45 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
-                ></div>
+                />
             )}
 
-            {/* Sidebar */}
-            <Sidebar 
-                isOpen={isSidebarOpen} 
-                toggleSidebar={() => setIsSidebarOpen(false)} 
-            />
+            <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(false)} />
 
-            {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 lg:p-12 lg:pb-12 pb-24">
                     <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {children}
@@ -127,69 +101,68 @@ const DashboardLayout = ({ children }) => {
                 </main>
             </div>
 
-            {/* Mobile Bottom Navigation Bar */}
-            <div 
-                className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] px-4 flex items-center justify-around z-40"
-                style={{ 
-                    paddingTop: '8px', 
-                    paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' 
-                }}
+            {/* ── Mobile Bottom Navigation Bar ── */}
+            <style>{`
+                @keyframes fadeInDot {
+                    from { transform: scale(0); opacity: 0; }
+                    to   { transform: scale(1); opacity: 1; }
+                }
+            `}</style>
+
+            {/* Outer wrapper: full-width, sits at bottom, clips nothing */}
+            <nav
+                className="lg:hidden fixed bottom-0 left-0 right-0 z-40"
+                style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             >
-                <style>{`
-                    @keyframes fadeInDot {
-                        from { transform: scale(0); opacity: 0; }
-                        to { transform: scale(1); opacity: 1; }
-                    }
-                `}</style>
+                {/* Thin decorative top-border strip */}
+                <div className="h-px bg-gray-100 w-full" />
 
-                {renderNavItem(t.home || 'Home', dashboardHomePath, <Home size={22} />, isHomeActive)}
-                {renderNavItem(t.listings || 'Listings', listingsPath, <List size={22} />, isListingsActive)}
-                
-                {/* Prominent Center Action Button */}
-                <div className="flex flex-col items-center justify-center flex-1 relative">
-                    <button 
-                        onClick={handleCreateClick}
-                        className="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-2xl shadow-lg shadow-primary/30 -mt-8 border-4 border-white hover:bg-blue-700 active:scale-95 transition-all duration-200"
-                        title={t.newListing || 'Create'}
-                    >
-                        <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center">
-                            <Plus size={18} strokeWidth={3} className="text-white" />
-                        </div>
-                    </button>
-
-                </div>
-
-                {renderNavItem(t.saved || 'Saved', '/profile/saved', <Heart size={22} />, isSavedActive)}
-
-                {/* Logout Button */}
-                <button
-                    onClick={handleLogout}
-                    className="flex flex-col items-center justify-center flex-1 py-1 relative transition-colors duration-200 text-red-400 hover:text-red-600"
+                {/* Bar proper — 60 px tall, white background */}
+                <div
+                    className="bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] flex items-center"
+                    style={{ height: '60px' }}
                 >
-                    <div className="transition-transform duration-200 active:scale-95">
-                        <LogOut size={22} />
-                    </div>
-                    <span className="text-[10px] font-bold mt-1 tracking-wide uppercase">
-                        {t.logout || 'Logout'}
-                    </span>
-                    <span style={{ display: 'block', width: '5px', height: '5px', marginTop: '4px', backgroundColor: 'transparent' }} />
-                </button>
-            </div>
+                    {/* HOME */}
+                    {renderNavItem(t.home || 'Home', dashboardHomePath, <Home size={20} />, isHomeActive)}
 
-            {/* Modals */}
-            <CreateListingModal 
-                isOpen={isListingModalOpen} 
-                onClose={() => setIsListingModalOpen(false)} 
-                onSuccess={handleSuccess} 
+                    {/* LISTINGS */}
+                    {renderNavItem(t.listings || 'Listings', listingsPath, <List size={20} />, isListingsActive)}
+
+                    {/* Center + button — floats 20 px above the bar */}
+                    <div className="flex-1 flex items-center justify-center h-full relative">
+                        <button
+                            onClick={handleCreateClick}
+                            title={t.newListing || 'Create'}
+                            aria-label="Create new listing"
+                            className="absolute flex items-center justify-center bg-primary hover:bg-blue-700 active:scale-95 text-white rounded-[18px] border-4 border-white shadow-xl shadow-primary/40 transition-all duration-200"
+                            style={{ width: '54px', height: '54px', bottom: '14px' }}
+                        >
+                            <div className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center">
+                                <Plus size={16} strokeWidth={3} />
+                            </div>
+                        </button>
+                    </div>
+
+                    {/* SAVED */}
+                    {renderNavItem(t.saved || 'Saved', '/profile/saved', <Heart size={20} />, isSavedActive)}
+
+                    {/* MY PROFILE */}
+                    {renderNavItem(t.profile || 'Profile', '/profile/settings', <User size={20} />, isProfileActive)}
+                </div>
+            </nav>
+
+            <CreateListingModal
+                isOpen={isListingModalOpen}
+                onClose={() => setIsListingModalOpen(false)}
+                onSuccess={handleSuccess}
             />
-            <CreatePostModal 
-                isOpen={isPostModalOpen} 
-                onClose={() => setIsPostModalOpen(false)} 
-                onSuccess={handleSuccess} 
+            <CreatePostModal
+                isOpen={isPostModalOpen}
+                onClose={() => setIsPostModalOpen(false)}
+                onSuccess={handleSuccess}
             />
         </div>
     );
 };
 
-export default DashboardLayout;
 

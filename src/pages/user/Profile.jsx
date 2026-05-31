@@ -10,14 +10,15 @@ import EditProfileModal from '../../components/user/EditProfileModal';
 import { 
     User, MapPin, Phone, BadgeCheck, PlusCircle, Camera, Loader2, 
     Edit, Trash2, ArrowDownRight, ArrowUpRight, Package, ShoppingCart,
-    CheckCircle, Clock, XCircle, Settings, Heart
+    CheckCircle, Clock, XCircle, Settings, Heart, LogOut
 } from 'lucide-react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import OptimizedImage from '../../components/common/OptimizedImage';
 
 const Profile = () => {
-    const { user, updateUser } = useContext(AuthContext);
+    const { user, updateUser, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
     const { t, language, formatDigit } = useLanguage();
     const [myListings, setMyListings] = useState([]);
     const [myPosts, setMyPosts] = useState([]);
@@ -384,6 +385,17 @@ const Profile = () => {
                                 ))}
                             </div>
                         </section>
+
+                        {/* Logout button — mobile only */}
+                        <div className="lg:hidden">
+                            <button
+                                onClick={async () => { await logout(); navigate('/login'); }}
+                                className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition-all active:scale-95"
+                            >
+                                <LogOut size={20} />
+                                {t.logout || 'Logout'}
+                            </button>
+                        </div>
                     </div>
                 } />
             </Routes>
