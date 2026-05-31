@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import Sidebar from './Sidebar';
-import { Menu, X, Home, List, Heart, User, Plus } from 'lucide-react';
+import { Menu, X, Home, List, Heart, User, Plus, LogOut } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }) => {
     const [isListingModalOpen, setIsListingModalOpen] = useState(false);
     const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
-    const { user } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
     const { t } = useLanguage();
     const location = useLocation();
     const navigate = useNavigate();
@@ -61,6 +61,11 @@ const DashboardLayout = ({ children }) => {
         setTimeout(() => {
             window.location.reload();
         }, 1000);
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
     };
 
     const renderNavItem = (label, path, icon, isActive) => {
@@ -114,18 +119,6 @@ const DashboardLayout = ({ children }) => {
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-                {/* Mobile Header */}
-                <header className="lg:hidden bg-white border-b border-gray-100 p-4 flex items-center justify-between sticky top-0 z-30">
-                    <div className="flex items-center gap-2 text-primary font-black text-xl">
-                        <span>DASHBOARD</span>
-                    </div>
-                    <button 
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="p-2 text-gray-600 hover:bg-gray-50 rounded-xl"
-                    >
-                        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
-                </header>
 
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 lg:p-12 lg:pb-12 pb-24">
                     <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -163,13 +156,24 @@ const DashboardLayout = ({ children }) => {
                             <Plus size={18} strokeWidth={3} className="text-white" />
                         </div>
                     </button>
-                    <span className="text-[10px] font-bold mt-1 tracking-wide uppercase text-gray-400">
-                        {user.role === 'trader' ? (t.newRequirement || 'Post') : (t.newListing || 'Sell')}
-                    </span>
+
                 </div>
 
                 {renderNavItem(t.saved || 'Saved', '/profile/saved', <Heart size={22} />, isSavedActive)}
-                {renderNavItem(t.profile || 'Profile', '/profile/settings', <User size={22} />, isProfileActive)}
+
+                {/* Logout Button */}
+                <button
+                    onClick={handleLogout}
+                    className="flex flex-col items-center justify-center flex-1 py-1 relative transition-colors duration-200 text-red-400 hover:text-red-600"
+                >
+                    <div className="transition-transform duration-200 active:scale-95">
+                        <LogOut size={22} />
+                    </div>
+                    <span className="text-[10px] font-bold mt-1 tracking-wide uppercase">
+                        {t.logout || 'Logout'}
+                    </span>
+                    <span style={{ display: 'block', width: '5px', height: '5px', marginTop: '4px', backgroundColor: 'transparent' }} />
+                </button>
             </div>
 
             {/* Modals */}
