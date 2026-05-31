@@ -8,11 +8,12 @@ class GlobalErrorBoundary extends React.Component {
     }
 
     static getDerivedStateFromError(error) {
-        return { hasError: true };
+        return { hasError: true, error };
     }
 
     componentDidCatch(error, errorInfo) {
         console.error("Uncaught error:", error, errorInfo);
+        this.setState({ errorInfo });
     }
 
     render() {
@@ -26,6 +27,14 @@ class GlobalErrorBoundary extends React.Component {
                         <div className="space-y-2">
                             <h2 className="text-2xl font-black text-gray-900">Something went wrong</h2>
                             <p className="text-gray-500 font-medium">We encountered an unexpected error. Don't worry, it's not your fault.</p>
+                            
+                            {/* Displaying error for debugging */}
+                            <div className="bg-red-50 p-4 rounded-xl text-left overflow-auto max-h-48 mt-4 border border-red-100">
+                                <p className="text-red-600 font-bold text-sm mb-2">{this.state.error && this.state.error.toString()}</p>
+                                <pre className="text-red-400 text-xs whitespace-pre-wrap">
+                                    {this.state.errorInfo && this.state.errorInfo.componentStack}
+                                </pre>
+                            </div>
                         </div>
                         <button 
                             onClick={() => window.location.reload()}
