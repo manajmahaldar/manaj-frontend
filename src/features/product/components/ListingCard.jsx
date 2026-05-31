@@ -1,5 +1,6 @@
 import { MapPin, Phone, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import ContactButtons from '../../../components/common/ContactButtons';
 import OrderModal from './OrderModal';
@@ -7,6 +8,7 @@ import OptimizedImage from '../../../components/common/OptimizedImage';
 
 const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
     const { t, formatDigit, language } = useLanguage();
+    const navigate = useNavigate();
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     
@@ -66,7 +68,10 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
     };
 
     return (
-        <div className="card group hover:shadow-xl transition-all duration-300">
+        <div 
+            onClick={() => navigate(`/product/selling/${item._id}`)}
+            className="card group hover:shadow-xl transition-all duration-300 cursor-pointer"
+        >
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-4 group/carousel">
                 {media[currentMediaIndex].type === 'video' ? (
                     <video 
@@ -166,7 +171,7 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                     </div>
                 ) : userRole === 'trader' ? (
                     <button 
-                        onClick={() => setIsOrderModalOpen(true)}
+                        onClick={(e) => { e.stopPropagation(); setIsOrderModalOpen(true); }}
                         className="w-full bg-primary hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
                     >
                         <ShoppingBag size={18} /> {t.orderNow}

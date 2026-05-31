@@ -1,5 +1,10 @@
 {
   "home": "Home",
+  "saved": "Saved",
+  "savedTitle": "Saved Listings",
+  "savedDesc": "Listings you have saved for quick access",
+  "noSavedListings": "No saved listings yet",
+  "saveListingsHint": "Tap the heart icon on any marketplace listing to save it here.",
   "listings": "Listings",
   "buyingPosts": "Buying Posts",
   "knowledge": "Knowledge",

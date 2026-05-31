@@ -1,11 +1,13 @@
 import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import ContactButtons from '../common/ContactButtons';
 import OptimizedImage from '../common/OptimizedImage';
 
 const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
     const { t, formatDigit, language } = useLanguage();
+    const navigate = useNavigate();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const photos = post.photos && post.photos.length > 0 ? post.photos : ['https://images.unsplash.com/photo-1524334228333-0f6db392f8a1?w=800'];
 
@@ -31,7 +33,10 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
     }, [currentImageIndex, photos.length]);
 
     return (
-        <div className="card p-5 border-l-4 border-green-500 space-y-4 shadow-sm hover:shadow-xl transition-all duration-300 group">
+        <div 
+            onClick={() => navigate(`/product/buying/${post._id}`)}
+            className="card p-5 border-l-4 border-green-500 space-y-4 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
+        >
             <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-4 group/carousel">
                 <OptimizedImage 
                     src={photos[currentImageIndex]} 
@@ -118,13 +123,13 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
             {isOwner ? (
                 <div className="pt-2 flex gap-2">
                     <button 
-                        onClick={() => onEdit(post)}
+                        onClick={(e) => { e.stopPropagation(); onEdit(post); }}
                         className="flex-1 flex items-center justify-center gap-2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
                     >
                         <Edit2 size={16} /> {t.edit}
                     </button>
                     <button 
-                        onClick={() => onDelete(post._id)}
+                        onClick={(e) => { e.stopPropagation(); onDelete(post._id); }}
                         className="flex-1 flex items-center justify-center gap-2 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors"
                     >
                         <Trash2 size={16} /> {t.delete}

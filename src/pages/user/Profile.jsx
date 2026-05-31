@@ -10,7 +10,7 @@ import EditProfileModal from '../../components/user/EditProfileModal';
 import { 
     User, MapPin, Phone, BadgeCheck, PlusCircle, Camera, Loader2, 
     Edit, Trash2, ArrowDownRight, ArrowUpRight, Package, ShoppingCart,
-    CheckCircle, Clock, XCircle, Settings
+    CheckCircle, Clock, XCircle, Settings, Heart
 } from 'lucide-react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
@@ -179,6 +179,20 @@ const Profile = () => {
                 )}
             </div>
         </div>
+    );    const SavedView = () => (
+        <div className="space-y-8">
+            <div className="bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 text-center md:text-left flex flex-col items-center md:items-start">
+                <h1 className="text-3xl font-black text-gray-900">{t.savedTitle || "Saved Listings"}</h1>
+                <p className="text-gray-500 font-medium text-center md:text-left">{t.savedDesc || "Listings you have saved for quick access"}</p>
+            </div>
+            <div className="py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100 text-center flex flex-col items-center space-y-4">
+                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                    <Heart size={40} />
+                </div>
+                <p className="text-gray-500 font-bold text-xl">{t.noSavedListings || "No saved listings yet"}</p>
+                <p className="text-gray-400 text-sm max-w-sm">{t.saveListingsHint || "Tap the heart icon on any marketplace listing to save it here."}</p>
+            </div>
+        </div>
     );
 
     const VerificationRequired = ({ title, desc }) => (
@@ -297,6 +311,7 @@ const Profile = () => {
                     )
                 } />
                 <Route path="/my-orders" element={<OrdersView title={t.sentOrders} orders={myOrders} />} />
+                <Route path="/saved" element={<SavedView />} />
                 <Route path="/settings" element={
                     <div className="max-w-4xl mx-auto space-y-8">
                         <section className="bg-white p-8 md:p-12 rounded-[3.5rem] shadow-xl shadow-gray-200/40 border border-gray-100 text-center md:text-left">

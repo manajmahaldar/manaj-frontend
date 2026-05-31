@@ -12,6 +12,7 @@ const ContactButtons = ({ phone, message = "", variant = "colored" }) => {
         <div className="flex gap-2 w-full">
             <a 
                 href={`tel:${phone}`}
+                onClick={(e) => e.stopPropagation()}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all font-bold text-sm shadow-sm active:scale-95 ${
                     isLight 
                     ? 'bg-gray-100 hover:bg-gray-200 text-gray-700' 
@@ -23,6 +24,7 @@ const ContactButtons = ({ phone, message = "", variant = "colored" }) => {
             </a>
             <a 
                 href={whatsappUrl}
+                onClick={(e) => e.stopPropagation()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all font-bold text-sm shadow-sm active:scale-95 ${
