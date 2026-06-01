@@ -36,7 +36,7 @@ const HomeSearch = () => {
                         <input 
                             type="text" 
                             placeholder={t.searchHint}
-                            className="w-full pl-12 pr-4 py-5 bg-gray-50 border-2 border-transparent focus:border-blue-100 focus:bg-white rounded-3xl outline-none font-bold text-gray-900 transition-all placeholder:text-gray-400 placeholder:font-medium text-center md:text-left"
+                            className="w-full pl-12 pr-4 py-5 bg-gray-50 border-2 border-transparent focus:border-blue-100 focus:bg-white rounded-3xl outline-none font-bold text-gray-900 transition-all placeholder:text-gray-400 placeholder:font-medium text-sm md:text-base text-left truncate"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />

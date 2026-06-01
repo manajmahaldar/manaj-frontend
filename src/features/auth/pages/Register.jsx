@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import api from '../../../utils/api';
 import toast from 'react-hot-toast';
@@ -11,6 +11,9 @@ import { stateDistricts } from '../../../utils/districtsData';
 
 const Register = () => {
     const { t } = useLanguage();
+    const [searchParams] = useSearchParams();
+    const initialRole = searchParams.get('role') || 'farmer';
+    
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -20,7 +23,7 @@ const Register = () => {
         district: '',
         localDistrict: '',
         policeStation: '',
-        role: 'farmer'
+        role: initialRole
     });
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
