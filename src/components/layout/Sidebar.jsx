@@ -95,12 +95,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             icon: <BarChart3 size={20} />, 
             roles: ['admin'] 
         },
-        { 
-            name: 'Knowledge Base', 
-            path: '/knowledge', 
-            icon: <FileText size={20} />, 
-            roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
-        },
+
         { 
             name: 'Profile Settings', 
             path: '/profile/settings', 

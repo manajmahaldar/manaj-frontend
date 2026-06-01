@@ -4,6 +4,7 @@ import { Search, PlusCircle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../utils/api';
 import OptimizedImage from '../common/OptimizedImage';
+import HomeSearch from './HomeSearch';
 
 const FALLBACK_VIDEO1 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%2010.59.14%20PM.mp4';
 const FALLBACK_VIDEO2 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%208.03.59%20PM.mp4';
@@ -59,31 +60,16 @@ const Hero = () => {
                             <PlusCircle size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                             {t.postListing}
                         </Link>
-                        <button 
-                            onClick={() => document.getElementById('featured-listings')?.scrollIntoView({ behavior: 'smooth' })}
+                        <Link 
+                            to="/listings"
                             className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-green-600 text-green-700 hover:bg-green-50 rounded-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-600/5 group"
                         >
                             <Search size={20} className="group-hover:scale-125 transition-transform" />
                             {t.browseListings}
-                        </button>
+                        </Link>
                     </div>
 
-                    <div className="flex items-center justify-center lg:justify-start gap-6 pt-6">
-                        <div className="text-center lg:text-left">
-                            <p className="text-2xl font-black text-gray-900">{formatDigit(5000)}+</p>
-                            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{t.activeFarmers}</p>
-                        </div>
-                        <div className="w-px h-10 bg-gray-100"></div>
-                        <div className="text-center lg:text-left">
-                            <p className="text-2xl font-black text-gray-900">{formatDigit(1000)}+</p>
-                            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{t.traders}</p>
-                        </div>
-                        <div className="w-px h-10 bg-gray-100"></div>
-                        <div className="text-center lg:text-left">
-                            <p className="text-2xl font-black text-gray-900">{formatDigit(50)}+</p>
-                            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{t.districtsCovered}</p>
-                        </div>
-                    </div>
+
                 </div>
 
                 {/* Hero Media Section */}
@@ -116,6 +102,10 @@ const Hero = () => {
                         <div className="hidden sm:block absolute -bottom-8 -left-8 md:-bottom-10 md:-left-10 w-12 md:w-16 h-12 md:h-16 bg-green-100/50 rounded-full -z-0 animate-bounce"></div>
                     </div>
                 </div>
+            </div>
+
+            <div className="max-w-6xl mx-auto mt-8 md:mt-12 px-4 relative z-20">
+                <HomeSearch />
             </div>
         </section>
     );

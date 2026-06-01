@@ -49,12 +49,7 @@ const Footer = () => {
                                     {t.contact}
                                 </Link>
                             </li>
-                            <li>
-                                <Link to="/knowledge" className="text-gray-400 hover:text-white transition-colors flex items-center justify-center md:justify-start gap-2 group">
-                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                    {t.knowledge}
-                                </Link>
-                            </li>
+
                         </ul>
                     </div>
 

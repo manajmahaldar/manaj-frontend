@@ -11,7 +11,7 @@ const ResetPassword    = lazy(() => import('../features/auth/pages/ResetPassword
 const Listings         = lazy(() => import('../features/product/pages/Listings'));
 const BuyingPosts      = lazy(() => import('../features/product/pages/BuyingPosts'));
 const ProductDetails   = lazy(() => import('../features/product/pages/ProductDetails'));
-const Knowledge        = lazy(() => import('../pages/public/Knowledge'));
+
 const About            = lazy(() => import('../pages/public/About'));
 const Contact          = lazy(() => import('../pages/public/Contact'));
 const PrivacyPolicy    = lazy(() => import('../pages/public/PrivacyPolicy'));
@@ -37,7 +37,7 @@ const AppRoutes = () => {
         <Route path="/listings"            element={<Listings />} />
         <Route path="/posts"               element={<BuyingPosts />} />
         <Route path="/product/:type/:id"   element={<ProductDetails />} />
-        <Route path="/knowledge"           element={<Knowledge />} />
+
         <Route path="/about"               element={<About />} />
         <Route path="/contact"             element={<Contact />} />
         <Route path="/privacy-policy"      element={<PrivacyPolicy />} />

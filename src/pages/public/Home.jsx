@@ -3,10 +3,10 @@ import { ShoppingBag, ShoppingCart, BookOpen, ShieldCheck } from 'lucide-react';
 import Hero from '../../components/layout/Hero';
 import RoleSelection from '../../components/layout/RoleSelection';
 import FeaturedListings from '../../components/layout/FeaturedListings';
-import HomeSearch from '../../components/layout/HomeSearch';
+
 import PostRequirement from '../../components/layout/PostRequirement';
 import WhyChooseUs from '../../components/layout/WhyChooseUs';
-import KnowledgeTips from '../../components/layout/KnowledgeTips';
+
 import FarmerListings from '../../components/layout/FarmerListings';
 import HatcheryListings from '../../components/layout/HatcheryListings';
 import SellerListings from '../../components/layout/SellerListings';
@@ -21,7 +21,7 @@ const Home = () => {
     const categories = [
         { name: t.listings, icon: <ShoppingBag />, link: '/listings', color: 'bg-blue-500', desc: t.listingsDesc },
         { name: t.buyingPosts, icon: <ShoppingCart />, link: '/posts', color: 'bg-green-500', desc: t.buyingPostsDesc },
-        { name: t.knowledge, icon: <BookOpen />, link: '/knowledge', color: 'bg-orange-500', desc: t.knowledgeDesc },
+
         { name: t.commissionFree, icon: <ShieldCheck />, link: '/about', color: 'bg-purple-500', desc: t.commissionFreeDesc },
     ];
 
@@ -32,7 +32,6 @@ const Home = () => {
                 description="Connect directly with fish farmers, hatchery owners, and suppliers in India. Monaj is a commission-free marketplace for the aquaculture industry."
             />
             <Hero />
-            <HomeSearch />
 
             <RoleSelection />
             <FarmerListings />
@@ -44,7 +43,7 @@ const Home = () => {
 
             <PostRequirement />
             <WhyChooseUs />
-            <KnowledgeTips />
+
 
 
 
