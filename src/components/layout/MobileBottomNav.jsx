@@ -19,7 +19,7 @@ const MobileBottomNav = () => {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-      <div className="flex overflow-x-auto items-center justify-start h-16 px-4 gap-4 scrollbar-hide">
+      <div className="flex items-center justify-around h-14 w-full px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -28,13 +28,13 @@ const MobileBottomNav = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center flex-shrink-0 w-16 h-full transition-colors ${
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
                 isActive ? 'text-primary' : 'text-gray-500'
               }`}
               title={item.name}
             >
-              <Icon size={20} className={isActive ? 'stroke-[2.5]' : 'stroke-2'} />
-              <span className="text-[10px] mt-1 font-medium leading-tight text-center">{item.name}</span>
+              <Icon size={16} className={isActive ? 'stroke-[2]' : 'stroke-1.5'} />
+              <span className="text-[8px] mt-0.5 font-medium leading-none text-center truncate w-full px-0.5">{item.name}</span>
             </Link>
           );
         })}
