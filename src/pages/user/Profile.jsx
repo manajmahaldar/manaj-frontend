@@ -124,6 +124,17 @@ const Profile = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Logout button — mobile only */}
+            <div className="lg:hidden">
+                <button
+                    onClick={async () => { await logout(); navigate('/login'); }}
+                    className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl border border-red-100 transition-all active:scale-95"
+                >
+                    <LogOut size={20} />
+                    {t.logout || 'Logout'}
+                </button>
+            </div>
         </div>
     );
 

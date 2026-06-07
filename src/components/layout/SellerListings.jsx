@@ -39,8 +39,12 @@ const SellerListings = () => {
         return (
             <section className="max-w-7xl mx-auto px-4 py-6 md:py-10">
                 <div className="bg-emerald-50/30 rounded-[3rem] p-6 md:p-16 border border-emerald-100/30">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[1, 2, 3, 4].map(n => <ListingSkeleton key={n} />)}
+                    <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:overflow-visible w-full">
+                        {[1, 2, 3, 4].map(n => (
+                            <div key={n} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
+                                <ListingSkeleton />
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -78,9 +82,9 @@ const SellerListings = () => {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:overflow-visible w-full">
                     {listings.map(listing => (
-                        <div key={listing._id} className="hover:scale-[1.02] transition-transform">
+                        <div key={listing._id} className="flex-shrink-0 w-[85vw] md:w-full snap-start hover:scale-[1.02] transition-transform">
                             <ListingCard item={listing} />
                         </div>
                     ))}

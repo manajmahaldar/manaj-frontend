@@ -2,14 +2,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { User, LogOut, Menu, X, Languages, LayoutDashboard, UserPlus } from 'lucide-react';
+import { Languages, LayoutDashboard } from 'lucide-react';
 import logoImg from '../../assets/logo/logo.png';
 import { getDashboardPath } from '../../utils/roleUtils';
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
     const { t, language, toggleLanguage, changeLanguage } = useLanguage();
-    const [isOpen, setIsOpen] = useState(false);
     const [isLangOpen, setIsLangOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -20,10 +19,6 @@ const Navbar = () => {
 
     const navLinks = [
         { name: t.home, path: '/' },
-        { name: t.listings, path: '/listings' },
-        { name: t.buyingPosts, path: '/posts' },
-
-        { name: t.about, path: '/about' },
     ];
 
     return (
@@ -31,8 +26,8 @@ const Navbar = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16 items-center">
                     <Link to="/" className="flex items-center gap-2">
-                        <img src={logoImg} alt="Logo" className="h-20 w-auto object-contain" />
-                        <span className="text-xl font-bold text-primary">MatsyaLink</span>
+                        <img src={logoImg} alt="Logo" className="h-12 md:h-20 w-auto object-contain" />
+                        <span className="text-lg md:text-xl font-bold text-primary">MatsyaLink</span>
                     </Link>
 
                     {/* Desktop Links */}
@@ -93,7 +88,7 @@ const Navbar = () => {
                         )}
                     </div>
 
-                    {/* Mobile Menu Button */}
+                    {/* Mobile Section */}
                     <div className="md:hidden flex items-center gap-3">
                         {/* Mobile language dropdown */}
                         <div className="relative">
@@ -122,47 +117,22 @@ const Navbar = () => {
                                 </div>
                             )}
                         </div>
-                        <button onClick={() => setIsOpen(!isOpen)} className="text-gray-600">
-                            {isOpen ? <X size={28} /> : <Menu size={28} />}
-                        </button>
+                        {!user ? (
+                            <Link to="/register" className="bg-primary text-white px-4 py-2 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all text-sm">
+                                {t.register}
+                            </Link>
+                        ) : (
+                            <Link 
+                                to={getDashboardPath(user.role)} 
+                                className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-xl font-bold hover:bg-primary hover:text-white transition-all active:scale-95 text-sm"
+                            >
+                                <LayoutDashboard size={16} />
+                                {t.dashboard}
+                            </Link>
+                        )}
                     </div>
                 </div>
             </div>
-
-            {/* Mobile Menu */}
-            {isOpen && (
-                <div className="md:hidden bg-white border-t border-gray-100 py-4 px-4 space-y-4">
-                    {navLinks.map((link) => (
-                        <Link 
-                            key={link.path} 
-                            to={link.path} 
-                            onClick={() => setIsOpen(false)}
-                            className="block text-gray-700 font-medium text-lg"
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
-                    {!user ? (
-                        <Link 
-                            to="/register" 
-                            onClick={() => setIsOpen(false)} 
-                            className="flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold shadow-lg shadow-primary/20"
-                        >
-                            <UserPlus size={18} />
-                            {t.register}
-                        </Link>
-                    ) : (
-                        <Link 
-                            to={getDashboardPath(user.role)} 
-                            onClick={() => setIsOpen(false)} 
-                            className="flex items-center justify-center gap-2 bg-primary/10 text-primary py-3 rounded-xl font-bold border border-primary/20"
-                        >
-                            <LayoutDashboard size={18} />
-                            {t.dashboard}
-                        </Link>
-                    )}
-                </div>
-            )}
         </nav>
     );
 };

@@ -3,6 +3,7 @@ import { ShoppingBag, ShoppingCart, BookOpen, ShieldCheck } from 'lucide-react';
 import Hero from '../../components/layout/Hero';
 import RoleSelection from '../../components/layout/RoleSelection';
 import FeaturedListings from '../../components/layout/FeaturedListings';
+import HomeListings from '../../components/layout/HomeListings';
 
 import PostRequirement from '../../components/layout/PostRequirement';
 import WhyChooseUs from '../../components/layout/WhyChooseUs';
@@ -34,6 +35,7 @@ const Home = () => {
             <Hero />
 
             <RoleSelection />
+            <HomeListings />
             <FarmerListings />
             <SellerListings />
             <HatcheryListings />

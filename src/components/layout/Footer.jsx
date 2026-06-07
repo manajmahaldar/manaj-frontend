@@ -38,6 +38,18 @@ const Footer = () => {
                         <h4 className="text-lg font-black uppercase tracking-widest text-blue-400">{t.company}</h4>
                         <ul className="space-y-4 w-full flex flex-col items-center md:items-start">
                             <li>
+                                <Link to="/listings" className="text-gray-400 hover:text-white transition-colors flex items-center justify-center md:justify-start gap-2 group">
+                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                    {t.listings}
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/posts" className="text-gray-400 hover:text-white transition-colors flex items-center justify-center md:justify-start gap-2 group">
+                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                    {t.buyingPosts}
+                                </Link>
+                            </li>
+                            <li>
                                 <Link to="/about" className="text-gray-400 hover:text-white transition-colors flex items-center justify-center md:justify-start gap-2 group">
                                     <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                     {t.about}
