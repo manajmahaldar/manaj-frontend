@@ -1,61 +1,75 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Search, Mic } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const HomeSearch = () => {
-    const { language, t } = useLanguage();
+    const { language } = useLanguage();
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
-    const [category, setCategory] = useState('');
-    const [district, setDistrict] = useState('');
-
-    const districts = Object.keys(t.districts);
-    const categories = [
-        { id: 'Fish', label: t.category === 'Category' ? 'Fish' : language === 'bn' ? 'মাছ' : 'मछली' },
-        { id: 'Feed', label: t.category === 'Category' ? 'Feed' : language === 'bn' ? 'খাবার' : 'दाना' },
-        { id: 'Medicine', label: t.category === 'Category' ? 'Medicine' : language === 'bn' ? 'ঔষধ' : 'दवा' }
-    ];
 
     const handleSearch = (e) => {
         e.preventDefault();
         const params = new URLSearchParams();
         if (search) params.set('search', search);
-        if (category) params.set('category', category);
-        if (district) params.set('district', district);
         navigate(`/listings?${params.toString()}`);
     };
 
-    return (
-        <div className="w-full relative z-20">
-            <div className="bg-white p-4 md:p-8 rounded-[2.5rem] shadow-2xl border border-blue-50">
-                <form onSubmit={handleSearch} className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
-                    {/* Search Input */}
-                    <div className="flex-1 relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={20} />
-                        <input 
-                            type="text" 
-                            placeholder={t.searchHint}
-                            className="w-full pl-12 pr-4 py-5 bg-gray-50 border-2 border-transparent focus:border-blue-100 focus:bg-white rounded-3xl outline-none font-bold text-gray-900 transition-all placeholder:text-gray-400 placeholder:font-medium text-sm md:text-base text-left truncate"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
+    const startListening = () => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
 
+            // Set language based on app language
+            if (language === 'bn') recognition.lang = 'bn-IN';
+            else if (language === 'hi') recognition.lang = 'hi-IN';
+            else if (language === 'or') recognition.lang = 'or-IN';
+            else recognition.lang = 'en-US';
 
-
-                    {/* Search Button */}
-                    <button 
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-5 rounded-3xl font-black flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-blue-600/20 group uppercase tracking-widest"
-                    >
-                        {t.searchBtn}
-                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                </form>
-            </div>
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                setSearch(transcript);
+                
+                // Auto submit the form
+                const params = new URLSearchParams();
+                params.set('search', transcript);
+                navigate(`/listings?${params.toString()}`);
+            };
             
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+            };
 
+            recognition.start();
+        } else {
+            alert('Microphone search is not supported in this browser.');
+        }
+    };
+
+    return (
+        <div className="w-full max-w-4xl mx-auto relative z-20 mb-8 mt-4">
+            <form onSubmit={handleSearch} className="flex items-center w-full bg-[#f5f6f8] rounded-full p-1.5 shadow-sm border border-gray-100">
+                <div className="pl-5 pr-3 text-gray-400">
+                    <Search size={22} />
+                </div>
+                <input 
+                    type="text" 
+                    placeholder="Search fish, pona, medicine, feed..."
+                    className="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400 text-base md:text-lg py-3"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <button 
+                    type="button" 
+                    onClick={startListening}
+                    className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:shadow-md text-primary transition-all flex-shrink-0"
+                    title="Search by voice"
+                >
+                    <Mic size={22} className="fill-current" />
+                </button>
+            </form>
         </div>
     );
 };

@@ -85,66 +85,7 @@ const HomeListings = () => {
                 </div>
             </div>
 
-            {/* Header and Filters */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
-                <div className="space-y-1">
-                    <h1 className="text-3xl font-black text-gray-900 flex items-center gap-2">
-                        {viewType === 'selling' ? <ShoppingBag className="text-primary" /> : <Search className="text-blue-600" />}
-                        {viewType === 'selling' ? t.forSaleTab.split('(')[0].trim() : t.traderDemands}
-                    </h1>
-                    <p className="text-gray-500 font-medium">
-                        {viewType === 'selling' ? t.sellerListingsSub : t.traderDemandsSub}
-                    </p>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-3">
-                    {/* Search Input */}
-                    <div className="relative flex-1 min-w-[200px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input 
-                            type="text" 
-                            placeholder={t.findProduct} 
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-primary rounded-xl outline-none transition-all font-medium"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
 
-                    {/* Category Dropdown */}
-                    <select 
-                        className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-primary rounded-xl outline-none transition-all font-medium cursor-pointer"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                    >
-                        <option value="">{t.allCategories}</option>
-                        {categoryKeys.map(c => <option key={c} value={c}>{t.categories?.[c] || c}</option>)}
-                    </select>
-
-                    {/* District Dropdown */}
-                    <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <select 
-                            className="pl-9 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-primary rounded-xl outline-none transition-all font-medium cursor-pointer appearance-none min-w-[140px]"
-                            value={district}
-                            onChange={(e) => setDistrict(e.target.value)}
-                        >
-                            <option value="">{t.allDistricts}</option>
-                            {districtKeys.map(d => <option key={d} value={d}>{t.districts?.[d] || d}</option>)}
-                        </select>
-                    </div>
-
-                    {/* Clear Button */}
-                    {(category || search || district) && (
-                        <button 
-                            onClick={clearFilters}
-                            className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                            title={t.clearAllFilters}
-                        >
-                            <X size={20} />
-                        </button>
-                    )}
-                </div>
-            </div>
 
             {/* Listings Grid */}
             {loading ? (
