@@ -22,7 +22,7 @@ const About = () => {
     return (
         <div className="pb-20 bg-gray-50/30">
             {/* 1. Hero Section */}
-            <section className="relative bg-gray-900 text-white py-20 md:py-32 px-4 overflow-hidden">
+            <section className="relative bg-gray-900 text-white py-10 md:py-32 px-4 overflow-hidden">
                 {/* Background Carousel */}
                 {images.map((img, idx) => (
                     <div
@@ -43,17 +43,17 @@ const About = () => {
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
                 <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-green-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4"></div>
                 
-                <div className="max-w-7xl mx-auto relative z-10 text-center space-y-8 px-4">
+                <div className="max-w-7xl mx-auto relative z-10 text-center space-y-3 md:space-y-8 px-4">
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-full text-xs font-bold uppercase tracking-widest animate-fade-in">
                         {t.aboutOurPlatform}
                     </div>
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
+                    <h1 className="text-2xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
                         {t.connectingTitle.split(',')[0]} <br/>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
                             {t.connectingTitle.split(',').slice(1).join(',')}
                         </span>
                     </h1>
-                    <p className="max-w-3xl mx-auto text-lg md:text-xl text-blue-100 font-medium leading-relaxed opacity-90">
+                    <p className="max-w-3xl mx-auto text-sm md:text-xl text-blue-100 font-medium leading-relaxed opacity-90">
                         {t.aboutHeroDesc}
                     </p>
                 </div>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Plus, ShoppingBag, User } from 'lucide-react';
+import { Home, Plus, ShoppingBag, User, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
@@ -11,8 +11,9 @@ const MobileBottomNav = () => {
 
   const navItems = [
     { name: t.home, path: '/', icon: Home },
-    { name: 'Add', path: '/profile/listings', icon: Plus, isProminent: true },
     { name: 'Listings', path: '/listings', icon: ShoppingBag },
+    { name: 'Add', path: '/profile/listings', icon: Plus, isProminent: true },
+    { name: 'Buyers', path: '/posts', icon: ShoppingCart },
     { name: 'Profile', path: '/profile', icon: User },
   ];
 
@@ -42,9 +43,8 @@ const MobileBottomNav = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-                isActive ? 'text-primary' : 'text-gray-500 hover:text-gray-900'
-              }`}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${isActive ? 'text-primary' : 'text-gray-500 hover:text-gray-900'
+                }`}
               title={item.name}
             >
               <Icon size={22} className={isActive ? 'stroke-[2.5]' : 'stroke-[1.5]'} />

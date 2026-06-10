@@ -35,7 +35,7 @@ const BuyingPosts = () => {
     return (
         <div className="pb-20 bg-gray-50/30 min-h-screen">
             {/* Hero Section */}
-            <section className="relative bg-gray-900 text-white py-24 md:py-32 px-4 overflow-hidden mb-12">
+            <section className="relative bg-gray-900 text-white py-10 md:py-24 px-4 overflow-hidden mb-8">
                 <div 
                     className="absolute inset-0 opacity-40"
                     style={{
@@ -47,14 +47,14 @@ const BuyingPosts = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-green-900/60 via-green-950/40 to-gray-900/60"></div>
                 </div>
                 
-                <div className="max-w-7xl mx-auto relative z-10 text-center space-y-6">
-                    <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
+                <div className="max-w-7xl mx-auto relative z-10 text-center space-y-3">
+                    <h1 className="text-2xl md:text-6xl font-black leading-tight tracking-tight">
                         {t.traderBuying} <br/>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
                             {t.requirements}
                         </span>
                     </h1>
-                    <p className="max-w-2xl mx-auto text-lg md:text-xl text-green-100 font-medium leading-relaxed opacity-90">
+                    <p className="max-w-2xl mx-auto text-sm md:text-xl text-green-100 font-medium leading-relaxed opacity-90">
                         {t.connectTradersDesc}
                     </p>
                 </div>

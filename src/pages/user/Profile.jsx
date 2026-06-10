@@ -108,20 +108,18 @@ const Profile = () => {
                 <p className="text-lg text-gray-500 font-medium max-w-2xl text-center md:text-left">{t.dashboardDesc}</p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {[
-                    { label: t.myListings, val: myListings.length, icon: <Package />, col: 'bg-blue-600 shadow-blue-500/20' },
-                    { label: t.buyingRequirements, val: myPosts.length, icon: <PlusCircle />, col: 'bg-green-600 shadow-green-500/20' },
-                    { label: t.sentOrders, val: myOrders.length, icon: <ArrowUpRight />, col: 'bg-purple-600 shadow-purple-500/20' },
-                    { label: t.receivedOrders, val: incomingOrders.length, icon: <ArrowDownRight />, col: 'bg-orange-600 shadow-orange-500/20' },
+                    { label: t.myListings, val: myListings.length, icon: <Package />, col: 'bg-blue-600 shadow-blue-500/20', path: '/profile/listings' },
+                    { label: t.buyingRequirements, val: myPosts.length, icon: <PlusCircle />, col: 'bg-green-600 shadow-green-500/20', path: '/profile/posts' },
                 ].map((stat, i) => (
-                    <div key={i} className={`rounded-[2rem] p-8 text-white ${stat.col} shadow-2xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
+                    <Link key={i} to={stat.path} className={`block rounded-[2rem] p-8 text-white ${stat.col} shadow-2xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
                         <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 transform group-hover:scale-[2] transition-transform duration-500">
                             {stat.icon}
                         </div>
                         <p className="text-sm font-black uppercase tracking-widest opacity-80">{stat.label}</p>
                         <p className="text-5xl font-black mt-4">{formatDigit(stat.val)}</p>
-                    </div>
+                    </Link>
                 ))}
             </div>
 

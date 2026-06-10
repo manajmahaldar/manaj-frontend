@@ -116,7 +116,7 @@ const Listings = () => {
                 description={viewType === 'selling' ? t.browseVerifiedDesc : t.exploreTraderDesc}
             />
             {/* Hero Section */}
-            <section className="relative bg-gray-900 text-white py-24 md:py-32 px-4 overflow-hidden mb-12">
+            <section className="relative bg-gray-900 text-white py-10 md:py-32 px-4 overflow-hidden mb-8">
                 <div 
                     className="absolute inset-0 opacity-40"
                     style={{
@@ -128,14 +128,14 @@ const Listings = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-blue-950/40 to-gray-900/60"></div>
                 </div>
                 
-                <div className="max-w-7xl mx-auto relative z-10 text-center space-y-6">
-                    <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
+                <div className="max-w-7xl mx-auto relative z-10 text-center space-y-3">
+                    <h1 className="text-2xl md:text-6xl font-black leading-tight tracking-tight">
                         {viewType === 'selling' ? t.premiumSales : t.traderDemands} <br/>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
                             {t.marketplaceHub}
                         </span>
                     </h1>
-                    <p className="max-w-2xl mx-auto text-lg md:text-xl text-blue-100 font-medium leading-relaxed opacity-90">
+                    <p className="max-w-2xl mx-auto text-sm md:text-xl text-blue-100 font-medium leading-relaxed opacity-90">
                         {viewType === 'selling' 
                             ? t.browseVerifiedDesc
                             : t.exploreTraderDesc
