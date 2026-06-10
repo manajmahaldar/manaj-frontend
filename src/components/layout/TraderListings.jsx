@@ -66,9 +66,9 @@ const TraderListings = () => {
                     </Link>
                 </div>
 
-                <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 md:overflow-visible w-full">
+                <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 pb-4 w-full">
                     {posts.map(post => (
-                        <div key={post._id} className="flex-shrink-0 w-[85vw] md:w-full snap-start hover:scale-[1.02] transition-transform">
+                        <div key={post._id} className="w-full hover:scale-[1.02] transition-transform">
                             <BuyingPostCard post={post} />
                         </div>
                     ))}

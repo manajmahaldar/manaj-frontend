@@ -4,10 +4,11 @@ import api from '../../../utils/api';
 import ListingCard from '../components/ListingCard';
 import BuyingPostCard from '../../../components/trader/BuyingPostCard';
 import { CardSkeleton, PostSkeleton } from '../../../components/common/Skeletons';
-import { Search, Filter, MapPin, X, ShoppingBag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Search, Filter, MapPin, X, ShoppingBag, ArrowUpRight, ArrowDownRight, Mic } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { AuthContext } from '../../../context/AuthContext';
 import SEO from '../../../components/common/SEO';
+import toast from 'react-hot-toast';
 
 const Listings = () => {
     const { t, formatDigit, language } = useLanguage();
@@ -27,6 +28,37 @@ const Listings = () => {
     const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
     const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
     const [page, setPage] = useState(parseInt(searchParams.get('page')) || 1);
+
+    const startListening = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            toast.error(t.voiceSearchNotSupported || 'Voice search is not supported in this browser.');
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = language === 'bn' ? 'bn-BD' : 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+            toast.success(t.listening || 'Listening...', { icon: '🎙️' });
+        };
+
+        recognition.onresult = (event) => {
+            const speechResult = event.results[0][0].transcript;
+            setSearch(speechResult);
+            toast.success(speechResult);
+        };
+
+        recognition.onerror = (event) => {
+            if (event.error !== 'no-speech') {
+                toast.error('Voice search failed. Please try again.');
+            }
+        };
+
+        recognition.start();
+    };
 
     const districtKeys = Object.keys(t.districts);
     const categoryKeys = ['Spawn/Seed', 'Feed', 'Medicine', 'Fish', 'Equipment'];
@@ -141,105 +173,46 @@ const Listings = () => {
                 </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <div className="space-y-1">
-                    <h1 className="text-3xl font-black text-gray-900 flex items-center gap-2">
-                        {viewType === 'selling' ? <ShoppingBag className="text-primary" /> : <Search className="text-blue-600" />}
-                        {viewType === 'selling' ? t.forSaleTab.split('(')[0].trim() : t.traderDemands}
-                    </h1>
-                    <p className="text-gray-500 font-medium">
-                        {viewType === 'selling' ? t.sellerListingsSub : t.traderDemandsSub}
-                    </p>
-                </div>
-                
-                <div className="flex flex-wrap items-center gap-3">
-                    {/* Search Input */}
-                    <div className="relative flex-1 min-w-[200px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input 
-                            type="text" 
-                            placeholder={t.findProduct} 
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-primary rounded-xl outline-none transition-all font-medium"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
 
-                    {/* Category Dropdown */}
-                    <select 
-                        className="px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-primary rounded-xl outline-none transition-all font-medium cursor-pointer"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
+            <div className="flex flex-col md:flex-row items-center gap-3 mb-8 max-w-3xl">
+                <div className="relative flex-1 w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <input 
+                        type="text" 
+                        placeholder={t.findProduct || "Search..."} 
+                        className="w-full pl-12 pr-12 py-4 bg-white border border-gray-200 focus:border-primary rounded-2xl outline-none transition-all font-medium shadow-sm text-gray-900"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <button 
+                        onClick={startListening}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors z-10 p-2 cursor-pointer"
+                        title={t.voiceSearch || "Search by voice"}
                     >
-                        <option value="">{t.allCategories}</option>
-                        {categoryKeys.map(c => <option key={c} value={c}>{t.categories?.[c] || c}</option>)}
-                    </select>
-
-                    {/* District Dropdown */}
-                    <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <select 
-                            className="pl-9 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-primary rounded-xl outline-none transition-all font-medium cursor-pointer appearance-none min-w-[140px]"
-                            value={district}
-                            onChange={(e) => setDistrict(e.target.value)}
-                        >
-                            <option value="">{t.allDistricts}</option>
-                            {districtKeys.map(d => <option key={d} value={d}>{t.districts?.[d] || d}</option>)}
-                        </select>
-                    </div>
-
-                    {/* Price Range */}
-                    <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-transparent">
-                        <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">{language === 'bn' ? 'টাকা' : '₹'}</span>
-                            <input 
-                                type="number" 
-                                placeholder={t.min} 
-                                className="w-20 pl-5 pr-2 py-2 bg-white/50 border-none rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
-                                value={minPrice}
-                                onChange={(e) => setMinPrice(e.target.value)}
-                            />
-                        </div>
-                        <span className="text-gray-300">-</span>
-                        <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs">{language === 'bn' ? 'টাকা' : '₹'}</span>
-                            <input 
-                                type="number" 
-                                placeholder={t.max} 
-                                className="w-20 pl-5 pr-2 py-2 bg-white/50 border-none rounded-lg text-sm outline-none focus:ring-1 focus:ring-primary"
-                                value={maxPrice}
-                                onChange={(e) => setMaxPrice(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Clear Button */}
-                    {(category || search || district || minPrice || maxPrice) && (
-                        <button 
-                            onClick={clearFilters}
-                            className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                            title={t.clearAllFilters}
-                        >
-                            <X size={20} />
-                        </button>
-                    )}
+                        <Mic size={20} />
+                    </button>
                 </div>
+                <button 
+                    className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-md shadow-blue-600/20 hover:bg-blue-700 transition-colors flex items-center justify-center"
+                >
+                    {t.search || "Search"}
+                </button>
             </div>
 
             {loading ? (
-                <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:overflow-visible w-full">
+                <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full">
                     {[1,2,3,4,5,6,7,8].map(n => (
-                        <div key={n} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
+                        <div key={n} className="w-full">
                             {viewType === 'selling' ? <CardSkeleton /> : <PostSkeleton />}
                         </div>
                     ))}
                 </div>
             ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (
                 <div className="space-y-12">
-                    <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:overflow-visible w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {viewType === 'selling' ? (
                             listings.map(item => (
-                                <div key={item._id} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
+                                <div key={item._id} className="w-full">
                                     <ListingCard 
                                         item={item} 
                                         userRole={user?.role} 
@@ -248,7 +221,7 @@ const Listings = () => {
                             ))
                         ) : (
                             buyingPosts.map(post => (
-                                <div key={post._id} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
+                                <div key={post._id} className="w-full">
                                 <BuyingPostCard 
                                     post={post} 
                                 />

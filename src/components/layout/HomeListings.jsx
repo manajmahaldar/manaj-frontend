@@ -89,19 +89,19 @@ const HomeListings = () => {
 
             {/* Listings Grid */}
             {loading ? (
-                <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:overflow-visible w-full">
+                <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full">
                     {[1,2,3,4,5,6,7,8].map(n => (
-                        <div key={n} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
+                        <div key={n} className="w-full">
                             {viewType === 'selling' ? <CardSkeleton /> : <PostSkeleton />}
                         </div>
                     ))}
                 </div>
             ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (
                 <div className="space-y-8">
-                    <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:overflow-visible w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {viewType === 'selling' ? (
                             listings.map(item => (
-                                <div key={item._id} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
+                                <div key={item._id} className="w-full">
                                     <ListingCard 
                                         item={item} 
                                         userRole={user?.role} 
@@ -110,7 +110,7 @@ const HomeListings = () => {
                             ))
                         ) : (
                             buyingPosts.map(post => (
-                                <div key={post._id} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
+                                <div key={post._id} className="w-full">
                                     <BuyingPostCard 
                                         post={post} 
                                     />

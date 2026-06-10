@@ -70,9 +70,9 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
     return (
         <div 
             onClick={() => navigate(`/product/selling/${item._id}`)}
-            className="card group hover:shadow-xl transition-all duration-300 cursor-pointer"
+            className="bg-white rounded-2xl border border-gray-100 p-3 md:p-0 md:border-none md:bg-transparent flex flex-row md:flex-col gap-3 md:gap-0 group hover:shadow-xl transition-all duration-300 cursor-pointer"
         >
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-4 group/carousel">
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-full md:h-auto md:aspect-[4/3] flex-shrink-0 overflow-hidden rounded-xl md:rounded-2xl md:mb-4 bg-gray-50 group/carousel">
                 {media[currentMediaIndex].type === 'video' ? (
                     <video 
                         src={media[currentMediaIndex].url}
@@ -107,8 +107,8 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                         </div>
                     </>
                 )}
-                <div className="absolute top-3 left-3 flex gap-2">
-                    <span className="bg-white/90 backdrop-blur-md text-primary px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                <div className="absolute top-2 left-2 flex flex-col md:flex-row gap-1">
+                    <span className="bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded text-[9px] md:text-xs font-black uppercase shadow-sm max-w-[80px] md:max-w-none truncate">
                         {t.categories?.[item.category] || item.category}
                     </span>
                     {isOwner && item.status !== 'approved' && (
@@ -121,60 +121,63 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                 </div>
             </div>
 
-            <div className="space-y-3 px-2 pb-2">
-                <div className="flex justify-between items-start gap-3">
-                    <h3 className="font-bold text-lg text-gray-900 group-hover:text-primary transition-colors flex-1 min-w-0 break-words line-clamp-2">
+            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5 md:space-y-3 md:px-2 md:pb-2">
+                <div className="flex justify-between items-start gap-2">
+                    <h3 className="font-bold text-sm md:text-lg text-gray-900 group-hover:text-primary transition-colors flex-1 min-w-0 break-words line-clamp-2 md:line-clamp-2">
                         {item.productName}
                     </h3>
                     <div className="flex flex-col items-end flex-shrink-0">
-                        <p className="text-primary font-black text-xl leading-none whitespace-nowrap">{language === 'bn' ? 'টাকা' : '₹'} {formatDigit(item.price)}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">{t.per} {item.unit}</p>
+                        <p className="text-primary font-black text-sm md:text-xl leading-none whitespace-nowrap">{language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}</p>
+                        <p className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase mt-0.5 md:mt-1">{t.per} {item.unit}</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs font-medium text-gray-500">
+                <div className="flex flex-col md:grid md:grid-cols-2 gap-1 md:gap-2 text-[10px] md:text-xs font-medium text-gray-500 mt-1 md:mt-0">
                     <div 
-                        className="flex items-center gap-1.5 bg-gray-50 p-2 rounded-lg"
+                        className="flex items-center gap-1.5 bg-gray-50/50 md:bg-gray-50 p-1 md:p-2 rounded-lg"
                         title={item.policeStation 
                             ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts?.[item.district] || item.district} (PS: ${item.policeStation})` 
                             : (item.localDistrict ? `${item.localDistrict}, ${t.districts?.[item.district] || item.district}` : (t.districts?.[item.district] || item.district))}
                     >
-                        <MapPin size={14} className="text-primary flex-shrink-0" />
+                        <MapPin size={10} className="text-primary flex-shrink-0 hidden md:block" />
+                        <MapPin size={12} className="text-primary flex-shrink-0 md:hidden" />
                         <span className="truncate">
                             {item.policeStation 
-                                ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts?.[item.district] || item.district} (PS: ${item.policeStation})` 
+                                ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts?.[item.district] || item.district}` 
                                 : (item.localDistrict 
                                     ? `${item.localDistrict}, ${t.districts?.[item.district] || item.district}` 
                                     : (t.districts?.[item.district] || item.district))}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-gray-50 p-2 rounded-lg">
+                    <div className="flex items-center gap-1.5 bg-gray-50/50 md:bg-gray-50 p-1 md:p-2 rounded-lg hidden md:flex">
                          <Clock size={14} className="text-primary flex-shrink-0" />
                         <span className="truncate">{formatPostDate(item.createdAt)}</span>
                     </div>
                 </div>
 
+                <div className="mt-auto pt-1 md:pt-0">
+
                 {isOwner ? (
                     <div className="grid grid-cols-2 gap-2 pt-1">
                         <button 
                             onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 md:py-2.5 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm"
                         >
-                            <Edit2 size={16} /> {t.edit}
+                            <Edit2 size={14} /> {t.edit}
                         </button>
                         <button 
                             onClick={(e) => { e.stopPropagation(); onDelete(item._id); }}
-                            className="bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                            className="bg-red-50 hover:bg-red-100 text-red-600 py-1.5 md:py-2.5 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm"
                         >
-                            <Trash2 size={16} /> {t.delete}
+                            <Trash2 size={14} /> {t.delete}
                         </button>
                     </div>
                 ) : userRole === 'trader' ? (
                     <button 
                         onClick={(e) => { e.stopPropagation(); setIsOrderModalOpen(true); }}
-                        className="w-full bg-primary hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+                        className="w-full bg-primary hover:bg-blue-700 text-white py-1.5 md:py-3 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 shadow-sm md:shadow-lg shadow-blue-600/20 text-xs md:text-sm"
                     >
-                        <ShoppingBag size={18} /> {t.orderNow}
+                        <ShoppingBag size={14} /> {t.orderNow}
                     </button>
                 ) : (
                     <ContactButtons 
@@ -183,6 +186,7 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                         variant="light"
                     />
                 )}
+                </div>
             </div>
 
             <OrderModal 
