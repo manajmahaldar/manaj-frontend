@@ -51,11 +51,11 @@ const RoleDashboard = ({ allowedRole }) => {
     }[allowedRole];
 
     const statItems = allowedRole === 'trader' ? [
-        { label: t.buyingRequirements, val: stats?.totalPosts || 0, icon: <PlusCircle />, col: 'bg-green-600 shadow-green-500/20' },
-        { label: t.sentOrders, val: stats?.sentOrders || 0, icon: <ArrowUpRight />, col: 'bg-purple-600 shadow-purple-500/20' },
+        { label: t.buyingRequirements, val: stats?.totalPosts || 0, icon: <PlusCircle />, col: 'bg-green-600 shadow-green-500/20', path: '/profile/posts' },
+        { label: t.sentOrders, val: stats?.sentOrders || 0, icon: <ArrowUpRight />, col: 'bg-purple-600 shadow-purple-500/20', path: '/profile/my-orders' },
     ] : [
-        { label: t.myListings, val: stats?.totalListings || 0, icon: <Package />, col: 'bg-blue-600 shadow-blue-500/20' },
-        { label: t.receivedOrders, val: stats?.receivedOrders || 0, icon: <ArrowDownRight />, col: 'bg-orange-600 shadow-orange-500/20' },
+        { label: t.myListings, val: stats?.totalListings || 0, icon: <Package />, col: 'bg-blue-600 shadow-blue-500/20', path: '/profile/listings' },
+        { label: 'BUYING REQUESTS', val: 'View', icon: <ShoppingCart />, col: 'bg-orange-600 shadow-orange-500/20', path: '/posts' },
     ];
 
     return (
@@ -75,13 +75,13 @@ const RoleDashboard = ({ allowedRole }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {statItems.map((stat, i) => (
-                    <div key={i} className={`rounded-[2rem] p-8 text-white ${stat.col} shadow-2xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
+                    <Link key={i} to={stat.path} className={`block rounded-[2rem] p-8 text-white ${stat.col} shadow-2xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
                         <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 transform group-hover:scale-[2] transition-transform duration-500">
                             {stat.icon}
                         </div>
                         <p className="text-sm font-black uppercase tracking-widest opacity-80">{stat.label}</p>
                         <p className="text-5xl font-black mt-4">{formatDigit(stat.val)}</p>
-                    </div>
+                    </Link>
                 ))}
             </div>
 
