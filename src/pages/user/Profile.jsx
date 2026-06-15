@@ -231,18 +231,15 @@ const Profile = () => {
                         <VerificationRequired title="Verification Needed to Sell" desc="To list your products and sell on our platform, you must first complete the identity verification." />
                     ) : (
                         <div className="space-y-8">
-                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 text-center md:text-left">
-                                <div className="flex flex-col items-center md:items-start">
-                                    <h1 className="text-3xl font-black text-gray-900">{t.myListings}</h1>
-                                    <p className="text-gray-500 font-medium text-center md:text-left">{t.viewManageListings}</p>
-                                </div>
+                            <div className="flex justify-between items-center mb-6">
+                                <h1 className="text-2xl md:text-3xl font-black text-gray-900">{t.myListings}</h1>
                                 {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery') && (
                                     <button 
                                         onClick={() => setIsListingModalOpen(true)}
-                                        className="bg-primary hover:bg-blue-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-primary/25 active:scale-95"
+                                        className="bg-primary hover:bg-blue-700 text-white p-3 rounded-xl flex items-center justify-center transition-all shadow-md shadow-primary/25 active:scale-95"
+                                        title={t.newListing}
                                     >
-                                        <PlusCircle size={20} />
-                                        {t.newListing}
+                                        <PlusCircle size={24} />
                                     </button>
                                 )}
                             </div>
