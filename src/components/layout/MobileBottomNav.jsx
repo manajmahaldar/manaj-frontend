@@ -14,7 +14,7 @@ const MobileBottomNav = () => {
     { name: 'Listings', path: '/listings', icon: ShoppingBag },
     { name: 'Add', path: '/profile/listings', icon: Plus, isProminent: true },
     { name: 'Buyers', path: '/posts', icon: ShoppingCart },
-    { name: 'Profile', path: '/profile', icon: User },
+    { name: 'Profile', path: '/profile/settings', icon: User },
   ];
 
   return (

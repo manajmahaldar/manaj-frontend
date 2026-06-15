@@ -11,6 +11,11 @@ export default defineConfig({
     viteCompression({ algorithm: 'gzip' }),
     VitePWA({ registerType: 'autoUpdate' })
   ],
+  server: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
+  },
   build: {
     // Enable code splitting with manual chunking
     rollupOptions: {
