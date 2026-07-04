@@ -1,80 +1,169 @@
+/**
+ * AuthContext.jsx
+ *
+ * Session Persistence Strategy
+ * ────────────────────────────
+ * 1. On page load: read access token from localStorage and set it in memory.
+ * 2. Hit GET /users/profile with that token.
+ *    ✅ Success   → session restored, no cookie needed (covers 99% of refreshes
+ *                   that happen within the 15-min access-token lifetime).
+ *    🔄 401       → access token expired; attempt httpOnly-cookie silent refresh
+ *                   to get a new one, then retry profile fetch.
+ *    🌐 Network   → keep cached user (offline tolerance).
+ * 3. Only clear the session when:
+ *    • the user explicitly logs out, OR
+ *    • the server returns 401 AND the cookie refresh also fails.
+ *
+ * StrictMode fix
+ * ──────────────
+ * React 18 StrictMode mounts → unmounts → remounts every component in dev.
+ * Without a guard, two concurrent cookie-refresh requests race against the
+ * backend's refresh-token rotation, causing the second request to be rejected
+ * (token already consumed), triggering an unintended logout.
+ * The module-level `_bootstrapped` flag ensures the bootstrap runs exactly
+ * once per page load, regardless of how many times the component mounts.
+ */
 import { createContext, useState, useEffect, useCallback } from 'react';
 import api, { setApiToken, clearApiToken, registerAuthCallbacks } from '../utils/api';
 import * as authService from '../services/auth.service.js';
 
 export const AuthContext = createContext();
 
+// ── Module-level flag: survives StrictMode's double-mount ─────────────────────
+// Reset to false only on a real page reload (module re-evaluation).
+let _bootstrapped = false;
+
 export const AuthProvider = ({ children }) => {
     const [user,    setUser]    = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // ── Silent refresh (no auth header needed — uses httpOnly cookie) ─────────
+    // ── silentRefresh: registered with api.js interceptor ────────────────────
+    // Called automatically by the response interceptor when it encounters a
+    // TOKEN_EXPIRED 401. Returns the new access token (string) or null.
+    // NOTE: does NOT fetch the user profile — that is the caller's responsibility
+    // (avoids recursive interceptor triggers).
     const silentRefresh = useCallback(async () => {
+        console.log('[Auth] Attempting cookie-based silent refresh...');
         const token = await authService.silentRefresh();
+
         if (token) {
+            console.log('[Auth] ✅ Cookie refresh successful — new token obtained.');
             setApiToken(token);
             localStorage.setItem('token', token);
-            // Fetch updated user details from database to keep localState/localStorage sync'd
-            try {
-                const res = await api.get('/users/profile');
-                if (res.data) {
-                    setUser(res.data);
-                    localStorage.setItem('user', JSON.stringify(res.data));
-                }
-            } catch (err) {
-                console.error('Failed to sync user profile from server:', err);
-            }
         } else {
+            console.log('[Auth] ❌ Cookie refresh failed — clearing session.');
             clearApiToken();
             setUser(null);
             localStorage.removeItem('user');
             localStorage.removeItem('token');
         }
+
         return token;
     }, []);
 
-    // ── Logout — invalidates refresh token on server, clears everything ───────
+    // ── logout ─────────────────────────────────────────────────────────────────
     const logout = useCallback(async () => {
+        console.log('[Auth] User logout initiated...');
         await authService.logout();
         clearApiToken();
         setUser(null);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+        console.log('[Auth] ✅ Session cleared.');
     }, []);
 
-    // ── Register callbacks in api.js BEFORE the bootstrap effect ─────────────
+    // Register callbacks so api.js interceptor can call them ──────────────────
     useEffect(() => {
         registerAuthCallbacks(silentRefresh, logout);
     }, [silentRefresh, logout]);
 
-    // ── Bootstrap: restore cached user, then silently refresh access token ────
+    // ── Bootstrap ─────────────────────────────────────────────────────────────
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            try { setUser(JSON.parse(storedUser)); } catch { /* corrupt data */ }
+        // Guard: run exactly once per page load (fixes React 18 StrictMode double-mount)
+        if (_bootstrapped) {
+            console.log('[Auth] Bootstrap already ran — skipping StrictMode re-run.');
+            return;
         }
+        _bootstrapped = true;
 
-        // Attempt silent refresh only if we think user was previously logged in
-        if (storedUser) {
-            silentRefresh().finally(() => setLoading(false));
-        } else {
+        const bootstrap = async () => {
+            console.log('[Auth] 🚀 Initializing authentication state...');
+
+            const storedToken = localStorage.getItem('token');
+            const storedUser  = localStorage.getItem('user');
+
+            console.log('[Auth] Token in localStorage:', storedToken ? '✅ Found' : '❌ Not found');
+
+            // Step 1 — Restore cached user immediately so the UI isn't blank ──
+            if (storedUser) {
+                try {
+                    setUser(JSON.parse(storedUser));
+                    console.log('[Auth] Cached user displayed instantly.');
+                } catch {
+                    console.warn('[Auth] Corrupt user data in localStorage — removing.');
+                    localStorage.removeItem('user');
+                }
+            }
+
+            if (!storedToken) {
+                console.log('[Auth] No stored token — user is not logged in.');
+                setLoading(false);
+                return;
+            }
+
+            // Step 2 — Put the token in memory so the API interceptor can use it
+            setApiToken(storedToken);
+
+            // Step 3 — Validate the stored token by hitting the profile endpoint ──
+            // The response interceptor in utils/api.js will automatically handle a
+            // TOKEN_EXPIRED 401 by calling silentRefresh + retrying, so if refresh
+            // succeeds the try-block receives the retried response transparently.
+            try {
+                console.log('[Auth] Validating token via GET /users/profile...');
+                const res = await api.get('/users/profile');
+                setUser(res.data);
+                localStorage.setItem('user', JSON.stringify(res.data));
+                console.log('[Auth] ✅ Token valid. User restored:', res.data?.name ?? res.data?.email ?? 'unknown');
+
+            } catch (err) {
+                const status = err?.response?.status;
+
+                if (status === 401) {
+                    // The interceptor already tried to refresh (and failed), or the
+                    // endpoint returned a plain 401 without TOKEN_EXPIRED code.
+                    // Either way, the session is gone.
+                    console.log('[Auth] ❌ Token invalid (401) — session could not be restored.');
+                    clearApiToken();
+                    setUser(null);
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+
+                } else {
+                    // Non-401 (network error, 500, etc.) → keep cached user.
+                    // The user stays "logged in" and can retry when connectivity returns.
+                    console.warn('[Auth] ⚠️ Network/server error during validation — using cached session.', err.message);
+                }
+            }
+
+            console.log('[Auth] ✅ Authentication initialization complete.');
             setLoading(false);
-        }
+        };
+
+        bootstrap();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ── login — called after a successful POST /api/auth/login ───────────────
-    // @param {{ token: string, user: object }} data
     const login = (data) => {
+        console.log('[Auth] Login — storing session for:', data.user?.name ?? data.user?.email ?? 'unknown');
         setApiToken(data.token);
         setUser(data.user);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
-        // Refresh token is stored as httpOnly cookie by the server automatically
+        // httpOnly refresh-token cookie is set automatically by the server response
     };
 
     // ── updateUser — after profile edits ─────────────────────────────────────
-    // Accepts an object OR an updater function (like useState's setter)
     const updateUser = (updatedUserOrFn) => {
         setUser((prev) => {
             const next =
