@@ -234,7 +234,6 @@
   "loginFail": "লগইন ব্যর্থ হয়েছে",
   "registerSuccess": "রেজিস্ট্রেশন সফল হয়েছে!",
   "registerFail": "রেজিস্ট্রেশন ব্যর্থ হয়েছে",
-  "localDistrict": "জেলা",
   "policeStation": "থানা / পুলিশ স্টেশন",
   "policeStationPlaceholder": "থানা লিখুন",
   "or": "অথবা",
@@ -515,5 +514,10 @@
     ]
   },
   "today": "আজ",
-  "yesterday": "গতকাল"
+  "yesterday": "গতকাল",
+  "navHome": "হোম",
+  "navListings": "লিস্টিং",
+  "navAdd": "যোগ করুন",
+  "navBuyers": "ক্রেতা",
+  "navProfile": "প্রোফাইল"
 }

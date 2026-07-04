@@ -47,7 +47,7 @@
   "verified": "सत्यापित",
   "category": "श्रेणी",
   "district": "राज्य",
-  "localDistrict": "ज़िला",
+  "localDistrict": "जिला",
   "price": "कीमत",
   "quantity": "मात्रा",
   "loginTitle": "लॉगिन",
@@ -238,7 +238,6 @@
   "loginFail": "लॉगिन विफल",
   "registerSuccess": "पंजीकरण सफल!",
   "registerFail": "पंजीकरण विफल",
-  "localDistrict": "जिला",
   "policeStation": "थाना / पुलिस स्टेशन",
   "policeStationPlaceholder": "पुलिस स्टेशन दर्ज करें",
   "or": "या",
@@ -515,5 +514,10 @@
     ]
   },
   "today": "आज",
-  "yesterday": "कल"
+  "yesterday": "कल",
+  "navHome": "होम",
+  "navListings": "लिस्टिंग",
+  "navAdd": "जोड़ें",
+  "navBuyers": "खरीदार",
+  "navProfile": "प्रोफ़ाइल"
 }

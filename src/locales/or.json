@@ -238,7 +238,6 @@
   "loginFail": "ଲଗ୍‌ଇନ୍‌ ବିଫଳ ହେଲା",
   "registerSuccess": "ପଞ୍ଜୀକରଣ ସଫଳ ହେଲା!",
   "registerFail": "ପଞ୍ଜୀକରଣ ବିଫଳ ହେଲା",
-  "localDistrict": "ଜିଲ୍ଲା",
   "policeStation": "ଥାନା",
   "policeStationPlaceholder": "ଥାନା ପ୍ରବେଶ କରନ୍ତୁ",
   "or": "କିମ୍ବା",
@@ -514,5 +513,10 @@
     ]
   },
   "today": "ଆଜି ହିଁ",
-  "yesterday": "ଗତକାଲି"
+  "yesterday": "ଗତକାଲି",
+  "navHome": "ହୋମ୍",
+  "navListings": "ଲିଷ୍ଟିଂ",
+  "navAdd": "ଯୋଡ଼ନ୍ତୁ",
+  "navBuyers": "କ୍ରେତା",
+  "navProfile": "ପ୍ରୋଫାଇଲ୍"
 }

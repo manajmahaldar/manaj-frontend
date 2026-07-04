@@ -63,9 +63,10 @@ export const LanguageProvider = ({ children }) => {
         localStorage.setItem('language', newLang);
     };
 
-    // Provide loaded translations or an empty object if not yet loaded
+    // Provide loaded translations or fallback to any loaded translation, or empty object
     const t = useMemo(() => {
-        return translations[language] || translations['bn'] || {};
+        const fallback = translations['bn'] || Object.values(translations)[0];
+        return translations[language] || fallback || {};
     }, [language, translations]);
 
     const formatDigit = (num) => {
@@ -85,8 +86,8 @@ export const LanguageProvider = ({ children }) => {
         return num;
     };
 
-    // Prevent rendering children until at least the initial language is loaded
-    if (isTranslating && !translations[language] && !translations['bn']) {
+    // Prevent rendering children until at least one language is loaded
+    if (Object.keys(t).length === 0) {
         return null; // Prevents layout shift/empty text before translation loads
     }
 

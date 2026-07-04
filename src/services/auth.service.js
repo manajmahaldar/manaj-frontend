@@ -53,11 +53,21 @@ export const resetPassword = async (token, password) => {
 
 // ─── Silent Refresh ───────────────────────────────────────────────────────────
 // Used by AuthContext on boot — returns new access token string or null
+let refreshPromise = null;
+
 export const silentRefresh = async () => {
-  try {
-    const { data } = await authApi.refreshToken();
-    return data.token ?? null;
-  } catch {
-    return null;
-  }
+  if (refreshPromise) return refreshPromise;
+  
+  refreshPromise = (async () => {
+    try {
+      const { data } = await authApi.refreshToken();
+      return data.token ?? null;
+    } catch {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  
+  return refreshPromise;
 };

@@ -21,7 +21,7 @@ const HomeListings = () => {
     const [search, setSearch] = useState('');
     const [district, setDistrict] = useState('');
 
-    const districtKeys = Object.keys(t.districts);
+    const districtKeys = Object.keys(t.districts || {});
     const categoryKeys = ['Spawn/Seed', 'Feed', 'Medicine', 'Fish', 'Equipment'];
 
     useEffect(() => {

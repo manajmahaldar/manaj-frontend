@@ -60,7 +60,7 @@ const Listings = () => {
         recognition.start();
     };
 
-    const districtKeys = Object.keys(t.districts);
+    const districtKeys = Object.keys(t.districts || {});
     const categoryKeys = ['Spawn/Seed', 'Feed', 'Medicine', 'Fish', 'Equipment'];
 
 

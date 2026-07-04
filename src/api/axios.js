@@ -14,7 +14,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers['x-auth-token'] = token; // Match backend auth middleware
     }
     return config;
   },
@@ -49,7 +49,7 @@ api.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+            originalRequest.headers['x-auth-token'] = token;
             return api(originalRequest);
           })
           .catch((err) => Promise.reject(err));
@@ -68,10 +68,10 @@ api.interceptors.response.use(
 
         const newToken = data.token;
         localStorage.setItem('token', newToken);
-        api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+        api.defaults.headers.common['x-auth-token'] = newToken;
         processQueue(null, newToken);
 
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers['x-auth-token'] = newToken;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);

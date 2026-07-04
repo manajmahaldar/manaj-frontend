@@ -10,11 +10,11 @@ const MobileBottomNav = () => {
   const { user } = useContext(AuthContext);
 
   const navItems = [
-    { name: t.home, path: '/', icon: Home },
-    { name: 'Listings', path: '/listings', icon: ShoppingBag },
-    { name: 'Add', path: '/profile/listings', icon: Plus, isProminent: true },
-    { name: 'Buyers', path: '/posts', icon: ShoppingCart },
-    { name: 'Profile', path: '/profile/settings', icon: User },
+    { name: t.navHome || t.home || 'Home', path: '/', icon: Home },
+    { name: t.navListings || 'Listings', path: '/listings', icon: ShoppingBag },
+    { name: t.navAdd || 'Add', path: '/profile/listings', icon: Plus, isProminent: true },
+    { name: t.navBuyers || 'Buyers', path: '/posts', icon: ShoppingCart },
+    { name: t.navProfile || 'Profile', path: '/profile/settings', icon: User },
   ];
 
   return (

@@ -238,7 +238,6 @@
   "loginFail": "Login failed",
   "registerSuccess": "Registration successful!",
   "registerFail": "Registration failed",
-  "localDistrict": "District",
   "policeStation": "Police Station",
   "policeStationPlaceholder": "Enter Police Station",
   "or": "OR",
@@ -515,5 +514,10 @@
     ]
   },
   "today": "Today",
-  "yesterday": "Yesterday"
+  "yesterday": "Yesterday",
+  "navHome": "Home",
+  "navListings": "Listings",
+  "navAdd": "Add",
+  "navBuyers": "Buyers",
+  "navProfile": "Profile"
 }

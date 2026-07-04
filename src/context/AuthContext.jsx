@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
         const token = await authService.silentRefresh();
         if (token) {
             setApiToken(token);
+            localStorage.setItem('token', token);
             // Fetch updated user details from database to keep localState/localStorage sync'd
             try {
                 const res = await api.get('/users/profile');
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }) => {
             clearApiToken();
             setUser(null);
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
         }
         return token;
     }, []);
@@ -37,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         clearApiToken();
         setUser(null);
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
     }, []);
 
     // ── Register callbacks in api.js BEFORE the bootstrap effect ─────────────
@@ -66,6 +69,7 @@ export const AuthProvider = ({ children }) => {
         setApiToken(data.token);
         setUser(data.user);
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
         // Refresh token is stored as httpOnly cookie by the server automatically
     };
 
