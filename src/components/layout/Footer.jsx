@@ -90,7 +90,7 @@ const Footer = () => {
                         <div className="space-y-4 w-full flex flex-col items-center md:items-start">
                             <div className="flex items-center justify-center md:justify-start gap-3 text-gray-400 hover:text-white transition-colors">
                                 <Phone size={18} className="text-blue-500 flex-shrink-0" />
-                                <span className="font-bold">{formatDigit('+৮৮০ ১৭۰۰۰۰۰۰০০')}</span>
+                                <span className="font-bold">{formatDigit('7432879256')}</span>
                             </div>
                             <div className="flex items-center justify-center md:justify-start gap-3 text-gray-400 hover:text-white transition-colors">
                                 <Mail size={18} className="text-green-500 flex-shrink-0" />
