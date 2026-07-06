@@ -222,7 +222,7 @@ const AdminDashboard = () => {
                             <div className="space-y-6">
                                 <div className="flex items-center gap-6">
                                     <div className="w-20 h-20 rounded-3xl bg-gray-100 flex items-center justify-center overflow-hidden ring-4 ring-white shadow-lg">
-                                        {u.profilePicture ? <img src={u.profilePicture} className="w-full h-full object-cover" alt={`${u.name}'s profile`} /> : <UserIcon size={32} className="text-gray-300" />}
+                                        {u.profilePicture ? <img loading="lazy" src={u.profilePicture} className="w-full h-full object-cover" alt={`${u.name}'s profile`} /> : <UserIcon size={32} className="text-gray-300" />}
                                     </div>
                                     <div>
                                         <h3 className="text-2xl font-black text-gray-900">{u.name}</h3>
@@ -278,7 +278,7 @@ const AdminDashboard = () => {
                                 <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Aadhaar Card</h4>
                                 {u.aadhaarCard ? (
                                     <div className="rounded-[2rem] overflow-hidden border-4 border-gray-50 shadow-xl group cursor-pointer relative">
-                                        <img src={u.aadhaarCard} alt="Aadhaar" className="w-full aspect-video object-cover transition-transform group-hover:scale-110 duration-500" />
+                                        <img loading="lazy" src={u.aadhaarCard} alt="Aadhaar" className="w-full aspect-video object-cover transition-transform group-hover:scale-110 duration-500" />
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <a href={u.aadhaarCard} target="_blank" rel="noreferrer" className="text-white font-black underline">View Full Size</a>
                                         </div>
@@ -334,7 +334,7 @@ const AdminDashboard = () => {
                                     <td className="px-10 py-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
-                                                {u.profilePicture ? <img src={u.profilePicture} className="w-full h-full object-cover" alt={`${u.name}'s profile`} /> : u.name.charAt(0)}
+                                                {u.profilePicture ? <img loading="lazy" src={u.profilePicture} className="w-full h-full object-cover" alt={`${u.name}'s profile`} /> : u.name.charAt(0)}
                                             </div>
                                             <div>
                                                 <div className="font-black text-gray-900 flex items-center gap-2">
@@ -423,7 +423,7 @@ const AdminDashboard = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-6">
                                     <div className="w-24 h-24 rounded-3xl bg-gray-100 flex items-center justify-center overflow-hidden ring-4 ring-gray-50 shadow-lg">
-                                        {selectedUser.profilePicture ? <img src={selectedUser.profilePicture} className="w-full h-full object-cover" alt={`${selectedUser.name}'s profile`} /> : <UserIcon size={40} className="text-gray-300" />}
+                                        {selectedUser.profilePicture ? <img loading="lazy" src={selectedUser.profilePicture} className="w-full h-full object-cover" alt={`${selectedUser.name}'s profile`} /> : <UserIcon size={40} className="text-gray-300" />}
                                     </div>
                                     <div>
                                         <h3 className="text-3xl font-black text-gray-900">{selectedUser.name}</h3>
@@ -456,7 +456,7 @@ const AdminDashboard = () => {
                                     <div className="space-y-4">
                                         <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Aadhaar Card</h4>
                                         <div className="rounded-[2rem] overflow-hidden shadow-lg border-4 border-gray-50 relative group cursor-pointer h-[200px]">
-                                            <img src={selectedUser.aadhaarCard} alt="Aadhaar" className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                                            <img loading="lazy" src={selectedUser.aadhaarCard} alt="Aadhaar" className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
                                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                 <a href={selectedUser.aadhaarCard} target="_blank" rel="noreferrer" className="text-white font-black underline">View Full Size</a>
                                             </div>
@@ -509,7 +509,7 @@ const AdminDashboard = () => {
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
-                                                    {item.photos && item.photos.length > 0 ? <img src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
+                                                    {item.photos && item.photos.length > 0 ? <img loading="lazy" src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
                                                 </div>
                                                 <div>
                                                     <div className="font-black text-gray-900 flex items-center gap-2">

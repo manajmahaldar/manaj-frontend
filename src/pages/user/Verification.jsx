@@ -175,7 +175,7 @@ const Verification = () => {
                             <div className="relative group w-36 h-36">
                                 <div className="w-full h-full rounded-full bg-gray-100 border-4 border-white shadow-xl overflow-hidden ring-4 ring-primary/20 flex items-center justify-center">
                                     {profilePreview ? (
-                                        <img src={profilePreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                                        <img loading="lazy" src={profilePreview} alt="Profile Preview" className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                             <Camera size={48} />
@@ -302,7 +302,7 @@ const Verification = () => {
                                 <div className={`border-4 border-dashed rounded-[2.5rem] p-12 text-center transition-all ${aadhaarPreview ? 'border-primary bg-blue-50/30' : 'border-gray-200 bg-gray-50 group-hover:bg-white group-hover:border-primary'}`}>
                                     {aadhaarPreview ? (
                                         <div className="space-y-4">
-                                            <img src={aadhaarPreview} alt="Aadhaar Preview" className="max-h-64 mx-auto rounded-xl shadow-lg border-4 border-white" />
+                                            <img loading="lazy" src={aadhaarPreview} alt="Aadhaar Preview" className="max-h-64 mx-auto rounded-xl shadow-lg border-4 border-white" />
                                             <p className="text-primary font-bold">Aadhaar card selected!</p>
                                         </div>
                                     ) : (

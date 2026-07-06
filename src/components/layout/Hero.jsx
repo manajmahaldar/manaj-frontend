@@ -4,6 +4,7 @@ import { Search, PlusCircle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../utils/api';
 import OptimizedImage from '../common/OptimizedImage';
+import OptimizedVideo from '../common/OptimizedVideo';
 import HomeSearch from './HomeSearch';
 
 const FALLBACK_VIDEO1 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%2010.59.14%20PM.mp4';
@@ -79,21 +80,29 @@ const Hero = () => {
 
                             {/* Video 1 — Cloudinary URL or local fallback */}
                             <div className="relative bg-gray-100 rounded-xl sm:rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-md sm:shadow-xl ring-1 ring-gray-900/5 group">
-                                <video key={video1Src} src={video1Src} autoPlay loop muted playsInline 
-                                    className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <OptimizedVideo 
+                                    key={video1Src} 
+                                    src={video1Src} 
+                                    priority={true}
+                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-700" 
+                                />
                             </div>
 
                             {/* Video 2 — Cloudinary URL or local fallback */}
                             <div className="relative bg-gray-100 rounded-xl sm:rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-md sm:shadow-xl ring-1 ring-gray-900/5 group">
-                                <video key={video2Src} src={video2Src} autoPlay loop muted playsInline 
-                                    className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <OptimizedVideo 
+                                    key={video2Src} 
+                                    src={video2Src} 
+                                    priority={true}
+                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-700" 
+                                />
                             </div>
 
                             {/* Hero Image — Cloudinary URL or local fallback */}
                             <div className="col-span-2 relative rounded-2xl sm:rounded-3xl md:rounded-[2rem] overflow-hidden shadow-lg sm:shadow-2xl ring-1 ring-gray-900/5 transition-all duration-700 group">
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none"></div>
                                 <OptimizedImage src={heroImageSrc} alt="Fresh Fish Marketplace" priority={true}
-                                    className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    className="w-full aspect-video group-hover:scale-105 transition-transform duration-700" />
                             </div>
 
                         </div>

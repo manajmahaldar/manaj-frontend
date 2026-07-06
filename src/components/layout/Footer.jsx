@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Youtube, MessageCircle, Mail, Phone, MapPin, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
@@ -14,7 +15,7 @@ const Footer = () => {
                     {/* Brand Section */}
                     <div className="space-y-6 text-center md:text-left flex flex-col items-center md:items-start">
                         <Link to="/" className="flex items-center justify-center md:justify-start gap-2">
-                            <img src={logoImg} alt="MatsyaLink Logo" className="h-14 w-auto object-contain" />
+                            <img loading="lazy" src={logoImg} alt="MatsyaLink Logo" className="h-14 w-auto object-contain" />
                             <span className="text-2xl font-black text-white">MatsyaLink</span>
                         </Link>
                         <p className="text-gray-400 font-medium leading-relaxed">
@@ -118,4 +119,4 @@ const Footer = () => {
     );
 };
 
-export default Footer;
+export default memo(Footer);

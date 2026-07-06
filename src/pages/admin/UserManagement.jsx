@@ -214,7 +214,7 @@ const UserManagement = () => {
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                                        {u.profilePicture ? <img src={u.profilePicture} alt="" className="w-full h-full object-cover" /> : <Users size={20} className="text-gray-400" />}
+                                                        {u.profilePicture ? <img loading="lazy" src={u.profilePicture} alt="" className="w-full h-full object-cover" /> : <Users size={20} className="text-gray-400" />}
                                                     </div>
                                                     <div>
                                                         <div className="font-black text-gray-900">{u.name}</div>

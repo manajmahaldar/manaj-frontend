@@ -29,7 +29,7 @@ const UserDetailModal = ({ user, onClose, onApprove, onReject, onSuspend, onDele
                         <div className="flex items-center gap-6">
                             <div className="w-24 h-24 rounded-3xl bg-gray-100 flex items-center justify-center overflow-hidden ring-4 ring-gray-50 shadow-lg shrink-0">
                                 {user.profilePicture ? (
-                                    <img src={user.profilePicture} className="w-full h-full object-cover" alt={`${user.name}'s profile`} />
+                                    <img loading="lazy" src={user.profilePicture} className="w-full h-full object-cover" alt={`${user.name}'s profile`} />
                                 ) : (
                                     <UserIcon size={40} className="text-gray-300" />
                                 )}
@@ -152,7 +152,7 @@ const UserDetailModal = ({ user, onClose, onApprove, onReject, onSuspend, onDele
                                 <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest px-2">Aadhaar Card</h4>
                                 {user.aadhaarCard ? (
                                     <div className="rounded-[2rem] overflow-hidden shadow-lg border-4 border-gray-50 relative group cursor-pointer h-[250px]">
-                                        <img src={user.aadhaarCard} alt="Aadhaar" className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                                        <img loading="lazy" src={user.aadhaarCard} alt="Aadhaar" className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <a href={user.aadhaarCard} target="_blank" rel="noreferrer" className="text-white font-black underline">View Full Size</a>
                                         </div>

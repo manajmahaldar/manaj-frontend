@@ -290,7 +290,7 @@ const MediaManager = () => {
                                                 </div>
                                             </>
                                         ) : (
-                                            <img src={item.url} alt={item.caption} className="w-full h-full object-cover" />
+                                            <img loading="lazy" src={item.url} alt={item.caption} className="w-full h-full object-cover" />
                                         )}
 
                                         {/* Hover overlay */}
@@ -347,7 +347,7 @@ const MediaManager = () => {
                                     {slot.url ? (
                                         slot.type === 'video'
                                             ? <video src={slot.url} className="w-full h-full object-cover" muted autoPlay loop playsInline />
-                                            : <img src={slot.url} alt={slot.label} className="w-full h-full object-cover" />
+                                            : <img loading="lazy" src={slot.url} alt={slot.label} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300 flex-col gap-2">
                                             {slot.type === 'video' ? <Film size={32} /> : <Image size={32} />}
@@ -383,7 +383,7 @@ const MediaManager = () => {
                                         <div className="aspect-video bg-gray-100 overflow-hidden relative">
                                             {item.resourceType === 'video'
                                                 ? <video src={item.url} className="w-full h-full object-cover" muted />
-                                                : <img src={item.url} alt={item.caption} className="w-full h-full object-cover" />}
+                                                : <img loading="lazy" src={item.url} alt={item.caption} className="w-full h-full object-cover" />}
                                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                 <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${item.resourceType === 'video' ? 'bg-purple-500 text-white' : 'bg-blue-500 text-white'}`}>
                                                     {item.resourceType}
@@ -427,7 +427,7 @@ const MediaManager = () => {
                         </button>
                         {preview.resourceType === 'video'
                             ? <video src={preview.url} controls autoPlay className="w-full rounded-2xl shadow-2xl" />
-                            : <img src={preview.url} alt={preview.caption} className="w-full rounded-2xl shadow-2xl" />}
+                            : <img loading="lazy" src={preview.url} alt={preview.caption} className="w-full rounded-2xl shadow-2xl" />}
                         <div className="mt-4 flex items-center justify-between">
                             <div>
                                 <p className="text-white font-bold">{preview.caption || 'Untitled'}</p>

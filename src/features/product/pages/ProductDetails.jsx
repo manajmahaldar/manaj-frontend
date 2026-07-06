@@ -134,7 +134,7 @@ const ProductDetails = () => {
                                                 <div className="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center">▶</div>
                                             </div>
                                         ) : (
-                                            <img src={item.url} alt="thumbnail" className="w-full h-full object-cover" />
+                                            <img loading="lazy" src={item.url} alt="thumbnail" className="w-full h-full object-cover" />
                                         )}
                                     </button>
                                 ))}
@@ -306,7 +306,7 @@ const ProductDetails = () => {
                                     <div className="flex items-center gap-4 bg-gray-50 border border-gray-100 p-4 rounded-2xl">
                                         <div className="w-14 h-14 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
                                             {owner.profilePicture ? (
-                                                <img src={owner.profilePicture} alt={owner.name} className="w-full h-full object-cover" />
+                                                <img loading="lazy" src={owner.profilePicture} alt={owner.name} className="w-full h-full object-cover" />
                                             ) : (
                                                 <span className="text-2xl font-bold text-gray-400">{owner.name?.charAt(0)}</span>
                                             )}
