@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'Buying Demands', 
             path: '/profile/posts', 
             icon: <PlusCircle size={20} />, 
-            roles: ['trader'] 
+            roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
         { 
             name: 'Orders Received', 

@@ -277,15 +277,13 @@ const Profile = () => {
                                     <h1 className="text-3xl font-black text-gray-900">{t.buyingRequirements}</h1>
                                     <p className="text-gray-500 font-medium text-center md:text-left">{t.manageRequirements}</p>
                                 </div>
-                                {(user.role === 'trader' || user.role === 'admin') && (
-                                    <button 
-                                        onClick={() => setIsPostModalOpen(true)}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-green-600/25 active:scale-95"
-                                    >
-                                        <PlusCircle size={20} />
-                                        {t.newRequirement}
-                                    </button>
-                                )}
+                                <button 
+                                    onClick={() => setIsPostModalOpen(true)}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black transition-all shadow-xl shadow-green-600/25 active:scale-95"
+                                >
+                                    <PlusCircle size={20} />
+                                    {t.newRequirement}
+                                </button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {myPosts.map(post => (

@@ -7,6 +7,20 @@
  */
 import axios from 'axios';
 
+const normalizeBaseUrl = (url) => {
+  if (!url || typeof url !== 'string') return 'http://localhost:5000/api';
+  const trimmed = url.trim();
+  if (trimmed.startsWith(':')) {
+    return `http://localhost${trimmed}`;
+  }
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `http://${trimmed}`;
+  }
+  return trimmed.replace(/\/$/, '');
+};
+
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api');
+
 let _token      = null;
 let _refreshFn  = null;
 let _logoutFn   = null;
@@ -22,7 +36,7 @@ export const registerAuthCallbacks = (refreshFn, logoutFn) => {
 };
 
 const api = axios.create({
-    baseURL:         import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+    baseURL:         API_BASE_URL,
     withCredentials: true, // send httpOnly refresh-token cookie automatically
     headers: { 'Content-Type': 'application/json' }
 });

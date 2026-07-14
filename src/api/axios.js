@@ -1,11 +1,25 @@
 import axios from 'axios';
 
+const normalizeBaseUrl = (url) => {
+  if (!url || typeof url !== 'string') return 'http://localhost:5000/api';
+  const trimmed = url.trim();
+  if (trimmed.startsWith(':')) {
+    return `http://localhost${trimmed}`;
+  }
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `http://${trimmed}`;
+  }
+  return trimmed.replace(/\/$/, '');
+};
+
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api');
+
 // ─── Base Instance ────────────────────────────────────────────────────────────
 // NOTE: This instance is used by api/auth.api.js for the raw auth endpoints
 // (login, register, refresh-token, logout).  All other app API calls should
-// go through utils/api.js which carries the in-memory access token.
+// go through utils/api.js which carries its own refresh logic integrated with AuthContext.
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: API_BASE_URL,
   withCredentials: true, // send httpOnly refresh-token cookie automatically
   headers: {
     'Content-Type': 'application/json',
@@ -67,7 +81,7 @@ api.interceptors.response.use(
       try {
         // Attempt to get a new access token via the httpOnly refresh-token cookie
         const { data } = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/refresh-token`,
+          `${API_BASE_URL}/auth/refresh-token`,
           {},
           { withCredentials: true }
         );

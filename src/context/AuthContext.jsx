@@ -94,7 +94,12 @@ export const AuthProvider = ({ children }) => {
 
             console.log('[Auth] Token in localStorage:', storedToken ? '✅ Found' : '❌ Not found');
 
-            // Step 1 — Restore cached user immediately so the UI isn't blank ──
+            if (storedToken) {
+                // Step 1 — Put the token in memory before any protected requests run.
+                setApiToken(storedToken);
+            }
+
+            // Step 2 — Restore cached user immediately so the UI isn't blank.
             if (storedUser) {
                 try {
                     setUser(JSON.parse(storedUser));
@@ -110,9 +115,6 @@ export const AuthProvider = ({ children }) => {
                 setLoading(false);
                 return;
             }
-
-            // Step 2 — Put the token in memory so the API interceptor can use it
-            setApiToken(storedToken);
 
             // Step 3 — Validate the stored token by hitting the profile endpoint ──
             // The response interceptor in utils/api.js will automatically handle a

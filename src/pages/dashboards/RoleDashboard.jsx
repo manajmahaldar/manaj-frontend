@@ -9,7 +9,7 @@ import {
 import { Link } from 'react-router-dom';
 
 const RoleDashboard = ({ allowedRole }) => {
-    const { user } = useContext(AuthContext);
+    const { user, loading: authLoading } = useContext(AuthContext);
     const { t, formatDigit } = useLanguage();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ const RoleDashboard = ({ allowedRole }) => {
             }
         };
 
-        if (user && user.role === allowedRole) {
+        if (user && !authLoading && user.role === allowedRole) {
             fetchStats();
         }
     }, [user, allowedRole]);
