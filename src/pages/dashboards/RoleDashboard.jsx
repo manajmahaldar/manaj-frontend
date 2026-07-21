@@ -50,11 +50,9 @@ const RoleDashboard = ({ allowedRole }) => {
         hatchery: t.hatchery
     }[allowedRole];
 
-    const statItems = allowedRole === 'trader' ? [
-        { label: t.buyingRequirements, val: stats?.totalPosts || 0, icon: <PlusCircle />, col: 'bg-green-600 shadow-green-500/20', path: '/profile/posts' },
-        { label: t.sentOrders, val: stats?.sentOrders || 0, icon: <ArrowUpRight />, col: 'bg-purple-600 shadow-purple-500/20', path: '/profile/my-orders' },
-    ] : [
+    const statItems = [
         { label: t.myListings, val: stats?.totalListings || 0, icon: <Package />, col: 'bg-blue-600 shadow-blue-500/20', path: '/profile/listings' },
+        { label: t.buyingRequirements, val: stats?.totalPosts || 0, icon: <PlusCircle />, col: 'bg-green-600 shadow-green-500/20', path: '/profile/posts' },
         { label: 'BUYING REQUESTS', val: 'View', icon: <ShoppingCart />, col: 'bg-orange-600 shadow-orange-500/20', path: '/posts' },
     ];
 
@@ -75,7 +73,7 @@ const RoleDashboard = ({ allowedRole }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {statItems.map((stat, i) => (
-                    <Link key={i} to={stat.path} className={`block rounded-[2rem] p-8 text-white ${stat.col} shadow-2xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
+                    <Link key={i} to={stat.path} state={stat.state} className={`block rounded-[2rem] p-8 text-white ${stat.col} shadow-2xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
                         <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 transform group-hover:scale-[2] transition-transform duration-500">
                             {stat.icon}
                         </div>
@@ -95,7 +93,7 @@ const RoleDashboard = ({ allowedRole }) => {
                         As a <span className="font-bold text-gray-900">{roleTitle}</span>, you can 
                         {allowedRole === 'trader' ? ' post buying requirements and connect with sellers.' : ' list products specific to your expertise and receive orders from traders.'}
                     </p>
-                    <Link to="/profile" className="inline-block mt-4 text-primary font-black hover:underline">
+                    <Link to="/profile/settings" className="inline-block mt-4 text-primary font-black hover:underline">
                         Go to detailed profile &rarr;
                     </Link>
                 </div>

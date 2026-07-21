@@ -3,6 +3,7 @@ import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Save, Upload } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { stateDistricts } from '../../utils/districtsData';
 
 const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
     const { t, formatDigit } = useLanguage();
@@ -12,6 +13,7 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
         requiredQuantity: '',
         buyingPrice: '',
         district: '',
+        localDistrict: '',
         phoneNumber: ''
     });
     const [photos, setPhotos] = useState([]);
@@ -35,10 +37,14 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
                 requiredQuantity: post.requiredQuantity || '',
                 buyingPrice: post.buyingPrice || '',
                 district: post.district || '',
+                localDistrict: post.localDistrict || '',
                 phoneNumber: post.phoneNumber || ''
             });
         }
     }, [post]);
+
+    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
+    const districts = t.districtsList || [];
 
     const categories = [
         { id: 'fish', label: t.categoryFish, icon: '🐟', placeholder: t.placeholderFishPost },
@@ -154,36 +160,51 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
                             />
                         </div>
                         <div className="space-y-1">
+                            <label className="text-sm font-bold text-gray-700">{t.phone}</label>
+                            <div className="flex border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent bg-white">
+                                <select className="bg-gray-50 border-r border-gray-200 px-3 py-3 outline-none text-gray-700 text-sm font-medium cursor-pointer h-[50px]">
+                                    <option value="+91">🇮🇳 +91</option>
+                                </select>
+                                <input 
+                                    type="tel" required
+                                    maxLength={10}
+                                    className="w-full px-4 py-3 outline-none bg-transparent"
+                                    placeholder="98XXXXXXXX"
+                                    value={formData.phoneNumber}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '');
+                                        if (val.length <= 10) setFormData({...formData, phoneNumber: val});
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.district}</label>
                             <select 
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
                                 value={formData.district}
-                                onChange={(e) => setFormData({...formData, district: e.target.value})}
+                                onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
                                 required
                             >
                                 <option value="">{t.selectBtn}</option>
-                                {t.districtsList.map(d => <option key={d} value={d}>{d}</option>)}
+                                {districtsEn.map((d, index) => <option key={d} value={d}>{districts[index]}</option>)}
                             </select>
                         </div>
-                    </div>
-
-                    <div className="space-y-1">
-                        <label className="text-sm font-bold text-gray-700">{t.phone}</label>
-                        <div className="flex border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent bg-white">
-                            <select className="bg-gray-50 border-r border-gray-200 px-3 py-3 outline-none text-gray-700 text-sm font-medium cursor-pointer h-[50px]">
-                                <option value="+91">🇮🇳 +91</option>
+                        <div className="space-y-1">
+                            <label className="text-sm font-bold text-gray-700">{t.localDistrict || 'District'}</label>
+                            <select 
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
+                                value={formData.localDistrict}
+                                onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
+                                required
+                                disabled={!formData.district}
+                            >
+                                <option value="">{t.selectBtn}</option>
+                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
-                            <input 
-                                type="tel" required
-                                maxLength={10}
-                                className="w-full px-4 py-3 outline-none bg-transparent"
-                                placeholder="98XXXXXXXX"
-                                value={formData.phoneNumber}
-                                onChange={(e) => {
-                                    const val = e.target.value.replace(/\D/g, '');
-                                    if (val.length <= 10) setFormData({...formData, phoneNumber: val});
-                                }}
-                            />
                         </div>
                     </div>
 

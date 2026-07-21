@@ -26,14 +26,8 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
 
     const allCategories = ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'];
 
-    // Memoised so the array reference only changes when the role changes,
-    // preventing the useEffect below from firing on every render.
-    const categories = useMemo(() => {
-        if (user?.role === 'seller')  return ['Feed', 'Medicine'];
-        if (user?.role === 'farmer')  return ['Fingerling'];
-        if (user?.role === 'hatchery') return ['Spawn', 'Fingerling'];
-        return allCategories;
-    }, [user?.role]); // eslint-disable-line react-hooks/exhaustive-deps
+    // All roles can select any category
+    const categories = useMemo(() => allCategories, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Reset form fields only when the modal opens or the logged-in user changes.
     // Do NOT include `categories` here — it would cause a reset loop that

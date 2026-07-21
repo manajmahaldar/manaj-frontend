@@ -12,17 +12,26 @@ import {
     Edit, Trash2, ArrowDownRight, ArrowUpRight, Package, ShoppingCart,
     CheckCircle, Clock, XCircle, Settings, Heart, LogOut
 } from 'lucide-react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import OptimizedImage from '../../components/common/OptimizedImage';
 
 const Profile = () => {
     const { user, updateUser, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const { t, language, formatDigit } = useLanguage();
     const [myListings, setMyListings] = useState([]);
     const [myPosts, setMyPosts] = useState([]);
     const [myOrders, setMyOrders] = useState([]);
+
+    useEffect(() => {
+        if (location.pathname === '/profile/posts' && location.state?.openCreate) {
+            setIsPostModalOpen(true);
+            // Clear the state so it doesn't reopen on refresh or navigating back
+            navigate('/profile/posts', { replace: true, state: {} });
+        }
+    }, [location, navigate]);
     const [incomingOrders, setIncomingOrders] = useState([]);
     
     // UI State
@@ -233,7 +242,7 @@ const Profile = () => {
                         <div className="space-y-8">
                             <div className="flex justify-between items-center mb-6">
                                 <h1 className="text-2xl md:text-3xl font-black text-gray-900">{t.myListings}</h1>
-                                {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery') && (
+                                {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery' || user.role === 'trader') && (
                                     <button 
                                         onClick={() => setIsListingModalOpen(true)}
                                         className="bg-primary hover:bg-blue-700 text-white p-3 rounded-xl flex items-center justify-center transition-all shadow-md shadow-primary/25 active:scale-95"

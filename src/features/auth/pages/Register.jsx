@@ -28,8 +28,8 @@ const Register = () => {
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
-    const districts = t.districtsList || [];
+    const states = Object.keys(stateDistricts);
+    const districts = formData.district ? stateDistricts[formData.district] : [];
 
     const handleSuccessRedirect = (res) => {
         const user = res.data.user;
@@ -52,6 +52,10 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        if (!formData.district || !formData.localDistrict) {
+            return toast.error("Please select state and district.");
+        }
+
         if (formData.password !== formData.confirmPassword) {
             return toast.error("Passwords do not match");
         }
@@ -130,15 +134,15 @@ const Register = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.district}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.state || 'State'}</label>
                             <select 
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none h-[50px]"
                                 value={formData.district}
                                 onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
                                 required
                             >
-                                <option value="">{t.selectDistrict || t.selectBtn}</option>
-                                {districtsEn.map((d, index) => <option key={d} value={d}>{districts[index]}</option>)}
+                                <option value="">{t.selectState || 'Select State'}</option>
+                                {states.map((state) => <option key={state} value={state}>{state}</option>)}
                             </select>
                         </div>
                         <div>
@@ -150,8 +154,8 @@ const Register = () => {
                                 required
                                 disabled={!formData.district}
                             >
-                                <option value="">{t.selectBtn || 'Select'}</option>
-                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
+                                <option value="">{t.selectDistrict || 'Select District'}</option>
+                                {districts.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
                         </div>
                     </div>

@@ -22,7 +22,6 @@ const DashboardLayout = ({ children }) => {
     if (!user) return children;
 
     const getListingPath = (role) => {
-        if (role === 'trader') return '/profile/posts';
         if (role === 'admin') return '/admin/dashboard/listings-approval';
         return '/profile/listings';
     };
@@ -38,25 +37,15 @@ const DashboardLayout = ({ children }) => {
     const handleCreateClick = () => {
         const isUnverified = user.role !== 'admin' && user.accountStatus !== 'active';
         if (isUnverified) {
-            toast.error(user.role === 'trader'
-                ? "Please complete verification to post requirements"
-                : "Please complete verification to list products"
-            );
+            toast.error("Please complete verification to list products or post requirements");
             navigate('/verification');
             return;
         }
-        if (user.role === 'trader') {
-            setIsPostModalOpen(true);
-        } else {
-            setIsListingModalOpen(true);
-        }
+        setIsListingModalOpen(true);
     };
 
     const handleSuccess = () => {
-        toast.success(user.role === 'trader'
-            ? "Requirement posted successfully!"
-            : "Listing submitted successfully!"
-        );
+        toast.success("Listing submitted successfully!");
         setTimeout(() => { window.location.reload(); }, 1000);
     };
 
@@ -94,6 +83,21 @@ const DashboardLayout = ({ children }) => {
             <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(false)} />
 
             <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+                {/* Mobile Top Header */}
+                <header className="lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                    <button 
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="p-2 -ml-2 text-gray-500 hover:text-primary active:scale-95 transition-all"
+                        aria-label="Open menu"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <span className="font-black text-lg text-primary tracking-widest uppercase">MatsyaLink</span>
+                    <div className="w-8" />
+                </header>
+
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 lg:p-12 lg:pb-12 pb-24">
                     <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {children}

@@ -39,7 +39,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'My Listings', 
             path: '/profile/listings', 
             icon: <ShoppingBag size={20} />, 
-            roles: ['farmer', 'seller', 'hatchery'] 
+            roles: ['farmer', 'seller', 'hatchery', 'trader'] 
         },
         { 
             name: 'Buying Demands', 
@@ -51,7 +51,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'Orders Received', 
             path: '/profile/orders-received', 
             icon: <ArrowDownRight size={20} />, 
-            roles: ['farmer', 'seller', 'hatchery'] 
+            roles: ['farmer', 'seller', 'hatchery', 'trader'] 
         },
         { 
             name: 'My Orders', 
@@ -108,7 +108,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
     return (
         <aside className={`fixed inset-y-0 left-0 bg-white border-r border-gray-100 w-64 transform transition-transform duration-300 z-50 lg:relative lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-            <div className="h-full flex flex-col p-6 space-y-8">
+            <div className="h-full flex flex-col p-6 space-y-8 overflow-y-auto min-h-0">
                 <div className="flex items-center gap-2 text-primary font-black text-2xl px-2">
                     <LayoutDashboard size={28} />
                     <span>DASHBOARD</span>

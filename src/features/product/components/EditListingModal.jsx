@@ -25,15 +25,9 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
     const [loading, setLoading] = useState(false);
 
     const allCategories = ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'];
-    
-    // Filter categories based on role
-    const categories = user?.role === 'seller' 
-        ? ['Feed', 'Medicine'] 
-        : user?.role === 'farmer' 
-            ? ['Fingerling'] 
-            : user?.role === 'hatchery'
-                ? ['Spawn', 'Fingerling']
-                : allCategories;
+
+    // All roles can select any category
+    const categories = allCategories;
 
     const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
     const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];

@@ -41,15 +41,15 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
-            <div className="bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200">
-                <div className="p-8 border-b border-gray-100 flex justify-between items-center">
+            <div className="bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+                <div className="p-8 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
                     <h2 className="text-2xl font-black text-gray-900">{t.editProfileTitle}</h2>
                     <button onClick={onClose} className="p-3 hover:bg-gray-100 rounded-2xl transition-all">
                         <X size={24} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1 min-h-0">
                     <div className="space-y-4">
                         <div className="space-y-1">
                             <label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-2">{t.fullNameLabel}</label>

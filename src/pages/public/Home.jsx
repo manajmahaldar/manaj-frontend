@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ShoppingBag, ShoppingCart, BookOpen, ShieldCheck } from 'lucide-react';
 import Hero from '../../components/layout/Hero';
-import RoleSelection from '../../components/layout/RoleSelection';
+
 import FeaturedListings from '../../components/layout/FeaturedListings';
 import HomeListings from '../../components/layout/HomeListings';
 
@@ -29,7 +29,7 @@ const Home = () => {
             />
             <Hero />
 
-            <RoleSelection />
+
             <HomeListings />
             <FarmerListings />
             <SellerListings />

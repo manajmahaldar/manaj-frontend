@@ -23,27 +23,27 @@ export const getDashboardPath = (role) => {
  */
 export const ROLE_PERMISSIONS = {
     farmer: {
-        allowedCategories: ['Fingerling'],
+        allowedCategories: ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'],
         canCreatePosts: false,
         dashboardTitle: 'Farmer Dashboard'
     },
     seller: {
-        allowedCategories: ['Feed', 'Medicine'],
+        allowedCategories: ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'],
         canCreatePosts: false,
         dashboardTitle: 'Seller Dashboard'
     },
     trader: {
-        allowedCategories: [],
+        allowedCategories: ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'],
         canCreatePosts: true,
         dashboardTitle: 'Trader Dashboard'
     },
     hatchery: {
-        allowedCategories: ['Spawn', 'Fingerling'],
+        allowedCategories: ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'],
         canCreatePosts: false,
         dashboardTitle: 'Hatchery Dashboard'
     },
     admin: {
-        allowedCategories: ['Fish'],
+        allowedCategories: ['Fish', 'Spawn', 'Fingerling', 'Feed', 'Medicine', 'Equipment'],
         canCreatePosts: true,
         dashboardTitle: 'Admin Dashboard'
     }
