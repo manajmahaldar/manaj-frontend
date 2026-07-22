@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Phone, Clock, ArrowLeft, ShieldCheck, Ruler, Box, IndianRupee, Building2, Map, Navigation } from 'lucide-react';
+import { MapPin, Phone, Clock, ArrowLeft, ShieldCheck, Ruler, Box, IndianRupee, Building2, Map } from 'lucide-react';
 import api from '../../../utils/api';
 import { useLanguage } from '../../../context/LanguageContext';
 import { AuthContext } from '../../../context/AuthContext';
@@ -68,12 +68,6 @@ const ProductDetails = () => {
         return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     };
 
-    // Build full location string for Google Maps link
-    const locationParts = [
-        product.policeStation,
-        product.localDistrict,
-        product.district,
-    ].filter(Boolean);
 
     return (
         <div className="pb-20 bg-gray-50 min-h-screen">
@@ -193,20 +187,6 @@ const ProductDetails = () => {
                                             {product.policeStation || '—'}
                                         </p>
                                     </div>
-                                </div>
-
-                                {/* Google Maps button */}
-                                <div className="px-6 py-3">
-                                    <a
-                                        href={`https://www.google.com/maps/search/${encodeURIComponent(locationParts.join(', '))}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="flex items-center justify-center gap-2 w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-primary rounded-xl font-bold text-sm transition-colors border border-blue-100"
-                                    >
-                                        <Navigation size={15} />
-                                        {t.viewOnMap || 'View on Google Maps'}
-                                    </a>
                                 </div>
                             </div>
                         </div>

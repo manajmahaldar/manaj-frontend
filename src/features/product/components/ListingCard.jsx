@@ -108,9 +108,11 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                     </>
                 )}
                 <div className="absolute top-2 left-2 flex flex-col md:flex-row gap-1">
-                    <span className="bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded text-[9px] md:text-xs font-black uppercase shadow-sm max-w-[80px] md:max-w-none truncate">
-                        {t.categories?.[item.category] || item.category}
-                    </span>
+                    {item.category !== 'Equipment' && (
+                        <span className="bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded text-[9px] md:text-xs font-black uppercase shadow-sm max-w-[80px] md:max-w-none truncate">
+                            {t.categories?.[item.category] || item.category}
+                        </span>
+                    )}
                     {isOwner && item.status !== 'approved' && (
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
                             item.status === 'pending' ? 'bg-orange-500 text-white' : 'bg-red-500 text-white'
@@ -128,7 +130,9 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                     </h3>
                     <div className="flex flex-col items-end flex-shrink-0">
                         <p className="text-primary font-black text-sm md:text-xl leading-none whitespace-nowrap">{language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}</p>
-                        <p className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase mt-0.5 md:mt-1">{t.per} {item.unit}</p>
+                        {item.category !== 'Equipment' && (
+                            <p className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase mt-0.5 md:mt-1">{t.per} {item.unit}</p>
+                        )}
                     </div>
                 </div>
 

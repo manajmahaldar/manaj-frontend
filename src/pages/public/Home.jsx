@@ -12,6 +12,7 @@ import FarmerListings from '../../components/layout/FarmerListings';
 import HatcheryListings from '../../components/layout/HatcheryListings';
 import SellerListings from '../../components/layout/SellerListings';
 import TraderListings from '../../components/layout/TraderListings';
+import EquipmentListings from '../../components/layout/EquipmentListings';
 
 import SEO from '../../components/common/SEO';
 import { useLanguage } from '../../context/LanguageContext';
@@ -34,6 +35,7 @@ const Home = () => {
             <FarmerListings />
             <SellerListings />
             <HatcheryListings />
+            <EquipmentListings />
             <TraderListings />
 
 

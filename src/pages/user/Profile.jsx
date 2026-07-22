@@ -10,7 +10,7 @@ import EditProfileModal from '../../components/user/EditProfileModal';
 import { 
     User, MapPin, Phone, BadgeCheck, PlusCircle, Camera, Loader2, 
     Edit, Trash2, ArrowDownRight, ArrowUpRight, Package, ShoppingCart,
-    CheckCircle, Clock, XCircle, Settings, Heart, LogOut
+    CheckCircle, Clock, XCircle, Settings, Heart, LogOut, Wrench
 } from 'lucide-react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
@@ -22,6 +22,7 @@ const Profile = () => {
     const location = useLocation();
     const { t, language, formatDigit } = useLanguage();
     const [myListings, setMyListings] = useState([]);
+    const [myEquipment, setMyEquipment] = useState([]);
     const [myPosts, setMyPosts] = useState([]);
     const [myOrders, setMyOrders] = useState([]);
 
@@ -52,13 +53,15 @@ const Profile = () => {
 
     const fetchMyContent = async () => {
         try {
-            const [listingsRes, postsRes, ordersRes, incomingRes] = await Promise.all([
+            const [listingsRes, equipmentRes, postsRes, ordersRes, incomingRes] = await Promise.all([
                 api.get('/listings/my-listings'),
+                api.get('/listings/my-listings?category=Equipment'),
                 api.get('/posts/my-posts'),
                 api.get('/orders/my-orders'),
                 api.get('/orders/incoming')
             ]);
-            setMyListings(listingsRes.data);
+            setMyListings(listingsRes.data.filter(l => l.category !== 'Equipment'));
+            setMyEquipment(equipmentRes.data.filter(l => l.category === 'Equipment'));
             setMyPosts(postsRes.data);
             setMyOrders(ordersRes.data.orders || []);
             setIncomingOrders(incomingRes.data.orders || []);
@@ -242,15 +245,13 @@ const Profile = () => {
                         <div className="space-y-8">
                             <div className="flex justify-between items-center mb-6">
                                 <h1 className="text-2xl md:text-3xl font-black text-gray-900">{t.myListings}</h1>
-                                {(user.role === 'farmer' || user.role === 'seller' || user.role === 'hatchery' || user.role === 'trader') && (
-                                    <button 
-                                        onClick={() => setIsListingModalOpen(true)}
-                                        className="bg-primary hover:bg-blue-700 text-white p-3 rounded-xl flex items-center justify-center transition-all shadow-md shadow-primary/25 active:scale-95"
-                                        title={t.newListing}
-                                    >
-                                        <PlusCircle size={24} />
-                                    </button>
-                                )}
+                                <button 
+                                    onClick={() => setIsListingModalOpen(true)}
+                                    className="bg-primary hover:bg-blue-700 text-white p-3 rounded-xl flex items-center justify-center transition-all shadow-md shadow-primary/25 active:scale-95"
+                                    title={t.newListing}
+                                >
+                                    <PlusCircle size={24} />
+                                </button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                                 {myListings.map(item => (
@@ -271,6 +272,142 @@ const Profile = () => {
                                         </div>
                                         <p className="text-gray-500 font-bold text-xl">{t.noSalesPost}</p>
                                     </div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                } />
+                <Route path="/equipment" element={
+                    isUnverified ? (
+                        <VerificationRequired title="Verification Needed to List Equipment" desc="To list farm equipment and connect with buyers, you must first complete the identity verification." />
+                    ) : (
+                        <div className="space-y-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h1 className="text-2xl md:text-3xl font-black text-gray-900">{t.equipment || 'Farm Equipment'}</h1>
+                                <button 
+                                    onClick={() => {
+                                        setSelectedListing(null);
+                                        setIsListingModalOpen(true);
+                                    }}
+                                    className="bg-amber-600 hover:bg-amber-700 text-white p-3 rounded-xl flex items-center justify-center transition-all shadow-md shadow-amber-600/25 active:scale-95"
+                                    title="Add Equipment"
+                                >
+                                    <PlusCircle size={24} />
+                                </button>
+                            </div>
+                            <div className="space-y-6">
+                                {myEquipment.length === 0 ? (
+                                    <div className="col-span-full py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200 text-center space-y-4">
+                                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300">
+                                            <Wrench size={40} />
+                                        </div>
+                                        <p className="text-gray-500 font-bold text-xl">No equipment listed yet</p>
+                                        <p className="text-gray-400 font-medium">{t.startListing || 'Start listing farm equipment now'}</p>
+                                    </div>
+                                ) : (
+                                    myEquipment.map(item => (
+                                        <div key={item._id} className="bg-white rounded-[2.5rem] shadow-lg border border-gray-100 p-8 space-y-6 hover:shadow-xl transition-all">
+                                            {/* Header with status and actions */}
+                                            <div className="flex justify-between items-start gap-4">
+                                                <div>
+                                                    <h3 className="text-2xl font-black text-gray-900">{item.productName}</h3>
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <span className={`px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest ${
+                                                            item.status === 'pending' ? 'bg-orange-50 text-orange-600' :
+                                                            item.status === 'approved' ? 'bg-green-50 text-green-600' :
+                                                            'bg-red-50 text-red-600'
+                                                        }`}>
+                                                            {item.status === 'pending' ? t.pending : item.status === 'approved' ? t.approved : t.rejected}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={() => { setSelectedListing(item); setIsEditModalOpen(true); }}
+                                                        className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 font-bold text-sm"
+                                                    >
+                                                        <Edit size={16} /> {t.edit}
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteListing(item._id)}
+                                                        className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all flex items-center gap-2 font-bold text-sm"
+                                                    >
+                                                        <Trash2 size={16} /> {t.delete}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Details grid */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {/* Product Name & Price */}
+                                                <div className="space-y-2">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.productName}</p>
+                                                    <p className="text-lg font-bold text-gray-900">{item.productName}</p>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.priceCurrency}</p>
+                                                    <p className="text-lg font-bold text-primary">{language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}</p>
+                                                </div>
+
+                                                {/* Location */}
+                                                <div className="space-y-2">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.stateLabel || 'State'}</p>
+                                                    <p className="text-sm font-bold text-gray-700">{t.districts?.[item.district] || item.district}</p>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.localDistrict || 'District'}</p>
+                                                    <p className="text-sm font-bold text-gray-700">{item.localDistrict}</p>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.policeStation}</p>
+                                                    <p className="text-sm font-bold text-gray-700">{item.policeStation}</p>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.mobileNumberLabel}</p>
+                                                    <p className="text-sm font-bold text-gray-700">{formatDigit(item.phoneNumber)}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Description */}
+                                            {item.description && (
+                                                <div className="space-y-2 pt-4 border-t border-gray-100">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.description || 'Detailed Description'}</p>
+                                                    <p className="text-sm text-gray-700 leading-relaxed">{item.description}</p>
+                                                </div>
+                                            )}
+
+                                            {/* Media Gallery */}
+                                            {(item.photos || item.video) && (
+                                                <div className="space-y-3 pt-4 border-t border-gray-100">
+                                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.media || 'Photos & Videos'}</p>
+                                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                        {item.video && (
+                                                            <div className="relative bg-gray-50 rounded-xl overflow-hidden aspect-square group cursor-pointer">
+                                                                <video src={item.video} className="w-full h-full object-cover" />
+                                                                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all flex items-center justify-center">
+                                                                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                                                                        <span className="text-xs font-bold text-gray-900">Video</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {item.photos?.map((photo, idx) => (
+                                                            <div key={idx} className="bg-gray-50 rounded-xl overflow-hidden aspect-square group cursor-pointer">
+                                                                <OptimizedImage src={photo} alt={`Equipment ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Meta Info */}
+                                            <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400 font-bold">
+                                                <span>{new Date(item.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
+                                                <span>ID: {item._id.substring(0, 8).toUpperCase()}</span>
+                                            </div>
+                                        </div>
+                                    ))
                                 )}
                             </div>
                         </div>

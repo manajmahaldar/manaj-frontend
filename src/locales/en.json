@@ -41,6 +41,8 @@
   "contact": "Contact",
   "callNow": "Call Now",
   "whatsappContact": "WhatsApp",
+  "loginRequiredTitle": "Login Required",
+  "loginRequiredDesc": "Please create an account or log in to contact via Call or WhatsApp.",
   "order": "Order Now",
   "edit": "Edit",
   "delete": "Delete",

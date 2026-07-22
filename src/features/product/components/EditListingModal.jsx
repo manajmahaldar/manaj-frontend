@@ -162,29 +162,31 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex gap-2">
-                            <div className="flex-1 space-y-1">
-                                <label className="text-sm font-bold text-gray-700">{t.quantity} ({t.optional})</label>
-                                <input 
-                                    type="text"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary"
-                                    placeholder={t.egQty}
-                                    value={formData.quantity}
-                                    onChange={(e) => setFormData({...formData, quantity: e.target.value})}
-                                />
+                        {formData.category !== 'Equipment' && (
+                            <div className="flex gap-2">
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-sm font-bold text-gray-700">{t.quantity} ({t.optional})</label>
+                                    <input 
+                                        type="text"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary"
+                                        placeholder={t.egQty}
+                                        value={formData.quantity}
+                                        onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                                    />
+                                </div>
+                                <div className="w-24 space-y-1">
+                                    <label className="text-sm font-bold text-gray-700">{t.unit}</label>
+                                    <select 
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
+                                        value={formData.unit}
+                                        onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                                    >
+                                        {units.map(u => <option key={u} value={u}>{u}</option>)}
+                                    </select>
+                                </div>
                             </div>
-                            <div className="w-24 space-y-1">
-                                <label className="text-sm font-bold text-gray-700">{t.unit}</label>
-                                <select 
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
-                                    value={formData.unit}
-                                    onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                                >
-                                    {units.map(u => <option key={u} value={u}>{u}</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="space-y-1">
+                        )}
+                        <div className={`space-y-1 ${formData.category === 'Equipment' ? 'md:col-span-1' : ''}`}>
                             <label className="text-sm font-bold text-gray-700">{t.priceCurrency}</label>
                             <input 
                                 type="text" required

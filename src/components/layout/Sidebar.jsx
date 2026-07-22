@@ -15,7 +15,8 @@ import {
     Package,
     Images,
     Filter,
-    BarChart3
+    BarChart3,
+    Wrench
 } from 'lucide-react';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
@@ -39,6 +40,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             name: 'My Listings', 
             path: '/profile/listings', 
             icon: <ShoppingBag size={20} />, 
+            roles: ['farmer', 'seller', 'hatchery', 'trader'] 
+        },
+        { 
+            name: 'My Equipment', 
+            path: '/profile/equipment', 
+            icon: <Wrench size={20} />, 
             roles: ['farmer', 'seller', 'hatchery', 'trader'] 
         },
         { 
