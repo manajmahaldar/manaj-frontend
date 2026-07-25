@@ -28,13 +28,13 @@ const Hero = () => {
     return (
         <section className="relative bg-white pt-4 pb-10 sm:pt-6 sm:pb-16 md:pt-10 md:pb-24 px-4 sm:px-6 md:px-8 overflow-hidden">
             {/* Background Decorative Elements */}
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse"></div>
-            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-green-50 rounded-full blur-3xl opacity-50 -z-10 animate-pulse delay-700"></div>
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 animate-gentle-pulse"></div>
+            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-green-50 rounded-full blur-3xl opacity-50 -z-10 animate-gentle-pulse"></div>
 
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 sm:gap-10 lg:gap-20">
                 {/* Text Content */}
                 <div className="flex-1 space-y-8 text-center lg:text-left order-2 lg:order-1">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-bold animate-bounce md:animate-none">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-bold">
                         <span className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -84,7 +84,7 @@ const Hero = () => {
                                     key={video1Src} 
                                     src={video1Src} 
                                     priority={true}
-                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-700" 
+                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-300" 
                                 />
                             </div>
 
@@ -94,21 +94,21 @@ const Hero = () => {
                                     key={video2Src} 
                                     src={video2Src} 
                                     priority={true}
-                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-700" 
+                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-300" 
                                 />
                             </div>
 
                             {/* Hero Image — Cloudinary URL or local fallback */}
-                            <div className="col-span-2 relative rounded-2xl sm:rounded-3xl md:rounded-[2rem] overflow-hidden shadow-lg sm:shadow-2xl ring-1 ring-gray-900/5 transition-all duration-700 group">
+                            <div className="col-span-2 relative rounded-2xl sm:rounded-3xl md:rounded-[2rem] overflow-hidden shadow-lg sm:shadow-2xl ring-1 ring-gray-900/5 transition-all duration-300 group">
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none"></div>
                                 <OptimizedImage src={heroImageSrc} alt="Fresh Fish Marketplace" priority={true}
-                                    className="w-full aspect-video group-hover:scale-105 transition-transform duration-700" />
+                                    className="w-full aspect-video group-hover:scale-105 transition-transform duration-300" />
                             </div>
 
                         </div>
 
-                        <div className="hidden sm:block absolute -top-8 -right-8 md:-top-10 md:-right-10 w-24 md:w-32 h-24 md:h-32 border-[10px] md:border-[15px] border-blue-100/30 rounded-full -z-0 animate-pulse"></div>
-                        <div className="hidden sm:block absolute -bottom-8 -left-8 md:-bottom-10 md:-left-10 w-12 md:w-16 h-12 md:h-16 bg-green-100/50 rounded-full -z-0 animate-bounce"></div>
+                        <div className="hidden sm:block absolute -top-8 -right-8 md:-top-10 md:-right-10 w-24 md:w-32 h-24 md:h-32 border-[10px] md:border-[15px] border-blue-100/30 rounded-full -z-0 animate-gentle-pulse"></div>
+                        <div className="hidden sm:block absolute -bottom-8 -left-8 md:-bottom-10 md:-left-10 w-12 md:w-16 h-12 md:h-16 bg-green-100/50 rounded-full -z-0"></div>
                     </div>
                 </div>
             </div>

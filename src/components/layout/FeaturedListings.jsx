@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo, memo } from 'react';
 import api from '../../utils/api';
 import { ShoppingBag, ShoppingCart, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -7,7 +7,7 @@ import BuyingPostCard from '../trader/BuyingPostCard';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-const FeaturedListings = () => {
+const FeaturedListings = memo(() => {
     const { user } = useContext(AuthContext);
     const { t } = useLanguage();
     const [fishListings, setFishListings] = useState([]);
@@ -23,24 +23,16 @@ const FeaturedListings = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const postsRes = await api.get('/posts').catch(e => {
-                console.error('Buying Posts API failed:', e);
-                return { data: [] };
-            });
-            const listingsRes = await api.get('/listings').catch(e => {
-                console.error('Listings API failed:', e);
-                return { data: [] };
+            const res = await api.get('/listings/home-summary').catch(e => {
+                console.error('Home Summary API failed:', e);
+                return { data: { fishListings: [], feedMedicineListings: [], buyingPosts: [] } };
             });
 
-            const allListings = Array.isArray(listingsRes.data?.listings) ? listingsRes.data.listings : (Array.isArray(listingsRes.data) ? listingsRes.data : []);
-            const allPosts = Array.isArray(postsRes.data?.posts) ? postsRes.data.posts : (Array.isArray(postsRes.data) ? postsRes.data : []);
+            const { fishListings = [], feedMedicineListings = [], buyingPosts = [] } = res.data || {};
 
-            // Get latest 4 fish and spawn/seed listings
-            setFishListings(allListings.filter(l => ['Fish', 'Spawn/Seed', 'মাছ', 'পোনা'].includes(l.category)).reverse().slice(0, 4));
-            // Get latest 4 feed/medicine listings
-            setFeedMedicineListings(allListings.filter(l => ['Feed', 'Medicine', 'ফিড', 'ওষুধ'].includes(l.category)).reverse().slice(0, 4));
-            // Get latest 3 buying posts
-            setBuyingPosts([...allPosts].reverse().slice(0, 3));
+            setFishListings(fishListings.slice(0, 4));
+            setFeedMedicineListings(feedMedicineListings.slice(0, 4));
+            setBuyingPosts(buyingPosts.slice(0, 3));
         } catch (err) {
             console.error('Error in fetchData:', err);
         } finally {
@@ -48,11 +40,11 @@ const FeaturedListings = () => {
         }
     };
 
-    const tabs = [
+    const tabs = useMemo(() => [
         { id: 'fish', label: t.tabFishSeed, icon: <ShoppingBag size={18} /> },
         { id: 'feed', label: t.tabFeedMed, icon: <ShoppingBag size={18} /> },
         { id: 'posts', label: t.tabBuyingPosts, icon: <ShoppingCart size={18} /> },
-    ];
+    ], [t.tabFishSeed, t.tabFeedMed, t.tabBuyingPosts]);
 
     return (
         <section id="featured-listings" className="max-w-7xl mx-auto px-4 py-8 md:py-16">
@@ -70,7 +62,7 @@ const FeaturedListings = () => {
                     </p>
                 </div>
 
-                <div className="flex bg-gray-100/80 p-1.5 rounded-2xl gap-1 self-start md:self-end w-full md:w-auto overflow-x-auto no-scrollbar snap-x">
+                <div className="flex bg-gray-100/80 p-1.5 rounded-2xl gap-1 self-start md:self-end w-full md:w-auto overflow-x-auto no-scrollbar snap-x min-w-0">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
@@ -98,7 +90,7 @@ const FeaturedListings = () => {
                 <div className="space-y-12">
                     <div className="min-h-[400px]">
                         {activeTab === 'fish' && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
                                 {fishListings.length > 0 ? (
                                     fishListings.map(item => (
                                         <ListingCard key={item._id} item={item} userRole={user?.role} />
@@ -110,7 +102,7 @@ const FeaturedListings = () => {
                         )}
 
                         {activeTab === 'feed' && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
                                 {feedMedicineListings.length > 0 ? (
                                     feedMedicineListings.map(item => (
                                         <ListingCard key={item._id} item={item} userRole={user?.role} />
@@ -122,7 +114,7 @@ const FeaturedListings = () => {
                         )}
 
                         {activeTab === 'posts' && (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
                                 {buyingPosts.length > 0 ? (
                                     buyingPosts.map(post => (
                                         <BuyingPostCard key={post._id} post={post} />
@@ -160,5 +152,7 @@ const EmptyState = ({ message, t }) => (
         <p className="text-gray-400 text-sm mt-3 font-medium">{t.noListingsDesc || 'Explore other categories meanwhile!'}</p>
     </div>
 );
+
+FeaturedListings.displayName = 'FeaturedListings';
 
 export default FeaturedListings;

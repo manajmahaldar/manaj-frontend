@@ -1,32 +1,61 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useContext, useState } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import { useContext, useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { AuthContext, AuthActionsContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Languages, LayoutDashboard } from 'lucide-react';
 import logoImg from '../../assets/logo/logo.png';
 import { getDashboardPath } from '../../utils/roleUtils';
+import api from '../../utils/api';
 
 const Navbar = () => {
-    const { user, logout } = useContext(AuthContext);
-    const { t, language, toggleLanguage, changeLanguage } = useLanguage();
+    const { user } = useContext(AuthContext);
+    const { logout } = useContext(AuthActionsContext);
+    const { t, language, changeLanguage } = useLanguage();
     const [isLangOpen, setIsLangOpen] = useState(false);
     const navigate = useNavigate();
+    const langDropdownRef = useRef(null);
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         logout();
         navigate('/login');
-    };
+    }, [logout, navigate]);
 
-    const navLinks = [
+    // Close language dropdown on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
+                setIsLangOpen(false);
+            }
+        };
+        if (isLangOpen) document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [isLangOpen]);
+
+    const navLinks = useMemo(() => [
         { name: t.home, path: '/' },
-    ];
+    ], [t.home]);
+
+    // Prefetch listings/posts data on hover for instant navigation
+    const prefetchListings = useCallback(() => {
+        if (sessionStorage.getItem('prefetch_listings')) return;
+        api.get('/listings?page=1&limit=12').then(res => {
+            sessionStorage.setItem('prefetch_listings', '1');
+        }).catch(() => {});
+    }, []);
+
+    const prefetchPosts = useCallback(() => {
+        if (sessionStorage.getItem('prefetch_posts')) return;
+        api.get('/posts?page=1&limit=12').then(() => {
+            sessionStorage.setItem('prefetch_posts', '1');
+        }).catch(() => {});
+    }, []);
 
     return (
         <nav className="bg-white shadow-sm sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16 items-center">
                     <Link to="/" className="flex items-center gap-2">
-                        <img loading="lazy" src={logoImg} alt="Logo" className="h-12 md:h-20 w-auto object-contain" />
+                        <img loading="eager" fetchpriority="high" src={logoImg} alt="Logo" className="h-12 md:h-20 w-auto object-contain" />
                         <span className="text-lg md:text-xl font-bold text-primary">MatsyaLink</span>
                     </Link>
 
@@ -37,9 +66,11 @@ const Navbar = () => {
                                 {link.name}
                             </Link>
                         ))}
+                        <Link to="/listings" onMouseEnter={prefetchListings} className="text-gray-600 hover:text-primary font-medium">{t.listings}</Link>
+                        <Link to="/posts" onMouseEnter={prefetchPosts} className="text-gray-600 hover:text-primary font-medium">{t.buyingPosts}</Link>
 
                         {/* Language Dropdown */}
-                        <div className="relative">
+                        <div className="relative" ref={langDropdownRef}>
                             <button
                                 onClick={() => setIsLangOpen(!isLangOpen)}
                                 className="flex items-center gap-2 px-3 py-1.5 border-2 border-primary/20 hover:border-primary text-primary rounded-xl font-bold text-sm transition-all hover:bg-primary/5 active:scale-95"

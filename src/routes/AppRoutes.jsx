@@ -2,6 +2,10 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute, RoleRoute } from '../features/auth/components';
 
+import CookieConsentBanner from '../components/common/CookieConsentBanner';
+import { PageLoaderSkeleton as PageLoader } from '../components/common/Skeletons';
+import { DataDeletionPolicy, RefundPolicy, ShippingPolicy, CommunityGuidelines, SecurityNotice } from '../pages/legal/OtherLegalPages';
+
 // Lazy-load all pages
 const Home             = lazy(() => import('../pages/public/Home'));
 const Login            = lazy(() => import('../features/auth/pages/Login'));
@@ -22,31 +26,54 @@ const AdminLogin       = lazy(() => import('../pages/admin/AdminLogin'));
 const AdminDashboard   = lazy(() => import('../pages/admin/Dashboard'));
 const DashboardLayout  = lazy(() => import('../components/layout/DashboardLayout'));
 const RoleDashboard    = lazy(() => import('../pages/dashboards/RoleDashboard'));
-
-import { PageLoaderSkeleton as PageLoader } from '../components/common/Skeletons';
+const CookiePolicy        = lazy(() => import('../pages/legal/CookiePolicy'));
+const GrievanceRedressal  = lazy(() => import('../pages/legal/GrievanceRedressal'));
+const PrivacyCenter       = lazy(() => import('../pages/user/PrivacyCenter'));
+const LearningHub         = lazy(() => import('../features/learning/pages/LearningHub'));
 
 const AppRoutes = () => {
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        <Route path="/"                    element={<Home />} />
-        <Route path="/login"               element={<Login />} />
-        <Route path="/register"            element={<Register />} />
-        <Route path="/forgot-password"     element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/listings"            element={<Listings />} />
-        <Route path="/posts"               element={<BuyingPosts />} />
-        <Route path="/product/:type/:id"   element={<ProductDetails />} />
+    <>
+      <CookieConsentBanner />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/"                    element={<Home />} />
+          <Route path="/login"               element={<Login />} />
+          <Route path="/register"            element={<Register />} />
+          <Route path="/forgot-password"     element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/listings"            element={<Listings />} />
+          <Route path="/posts"               element={<BuyingPosts />} />
+          <Route path="/product/:type/:id"   element={<ProductDetails />} />
 
-        <Route path="/about"               element={<About />} />
-        <Route path="/contact"             element={<Contact />} />
-        <Route path="/privacy-policy"      element={<PrivacyPolicy />} />
-        <Route path="/terms"               element={<Terms />} />
+          <Route path="/about"               element={<About />} />
+          <Route path="/contact"             element={<Contact />} />
+          <Route path="/privacy-policy"      element={<PrivacyPolicy />} />
+          <Route path="/terms"               element={<Terms />} />
+          <Route path="/cookie-policy"       element={<CookiePolicy />} />
+          <Route path="/grievance"           element={<GrievanceRedressal />} />
+          <Route path="/data-deletion-policy" element={<DataDeletionPolicy />} />
+          <Route path="/refund-policy"        element={<RefundPolicy />} />
+          <Route path="/shipping-policy"     element={<ShippingPolicy />} />
+          <Route path="/community-guidelines" element={<CommunityGuidelines />} />
+          <Route path="/security-notice"     element={<SecurityNotice />} />
+
+          <Route path="/privacy-center" element={
+            <ProtectedRoute>
+              <DashboardLayout><PrivacyCenter /></DashboardLayout>
+            </ProtectedRoute>
+          } />
 
         {/* General Profile (Dashboard Overview) */}
         <Route path="/profile/*" element={
           <ProtectedRoute>
             <DashboardLayout><Profile /></DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/learning/*" element={
+          <ProtectedRoute>
+            <DashboardLayout><LearningHub /></DashboardLayout>
           </ProtectedRoute>
         } />
 
@@ -95,6 +122,7 @@ const AppRoutes = () => {
         } />
       </Routes>
     </Suspense>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import { createContext, useContext, useState, useMemo, useEffect, useCallback } from 'react';
 
 export const LanguageContext = createContext();
 
@@ -47,7 +47,7 @@ export const LanguageProvider = ({ children }) => {
         document.documentElement.lang = language;
     }, [language]);
 
-    const toggleLanguage = () => {
+    const toggleLanguage = useCallback(() => {
         let newLang;
         if (language === 'bn') newLang = 'en';
         else if (language === 'en') newLang = 'hi';
@@ -56,12 +56,12 @@ export const LanguageProvider = ({ children }) => {
         
         setLanguage(newLang);
         localStorage.setItem('language', newLang);
-    };
+    }, [language]);
 
-    const changeLanguage = (newLang) => {
+    const changeLanguage = useCallback((newLang) => {
         setLanguage(newLang);
         localStorage.setItem('language', newLang);
-    };
+    }, []);
 
     // Provide loaded translations or fallback to any loaded translation, or empty object
     const t = useMemo(() => {
@@ -69,7 +69,7 @@ export const LanguageProvider = ({ children }) => {
         return translations[language] || fallback || {};
     }, [language, translations]);
 
-    const formatDigit = (num) => {
+    const formatDigit = useCallback((num) => {
         if (language === 'bn') {
             const numbers = {
                 '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
@@ -84,7 +84,7 @@ export const LanguageProvider = ({ children }) => {
             return String(num).split('').map(char => numbers[char] || char).join('');
         }
         return num;
-    };
+    }, [language]);
 
     // Prevent rendering children until at least one language is loaded
     if (Object.keys(t).length === 0) {

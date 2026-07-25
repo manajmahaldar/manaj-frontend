@@ -1,5 +1,5 @@
 import { MapPin, Phone, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import ContactButtons from '../../../components/common/ContactButtons';
@@ -11,36 +11,51 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
     const navigate = useNavigate();
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-    
-    const media = [];
-    if (item.video) media.push({ type: 'video', url: item.video });
-    if (item.photos && item.photos.length > 0) {
-        item.photos.forEach(p => media.push({ type: 'image', url: p }));
-    }
-    if (media.length === 0) {
-        media.push({ type: 'image', url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800' });
-    }
+    const [isVisible, setIsVisible] = useState(false);
+    const cardRef = useRef(null);
 
-    const nextMedia = (e) => {
+    const media = useMemo(() => {
+        const list = [];
+        if (item.video) list.push({ type: 'video', url: item.video });
+        if (item.photos && item.photos.length > 0) {
+            item.photos.forEach(p => list.push({ type: 'image', url: p }));
+        }
+        if (list.length === 0) {
+            list.push({ type: 'image', url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800' });
+        }
+        return list;
+    }, [item.video, item.photos]);
+
+    const nextMedia = useCallback((e) => {
         if (e) e.stopPropagation();
         setCurrentMediaIndex((prev) => (prev + 1) % media.length);
-    };
+    }, [media.length]);
 
-    const prevMedia = (e) => {
+    const prevMedia = useCallback((e) => {
         if (e) e.stopPropagation();
         setCurrentMediaIndex((prev) => (prev - 1 + media.length) % media.length);
-    };
+    }, [media.length]);
+
+    // Pause slideshow when component is not in viewport
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsVisible(entry.isIntersecting),
+            { threshold: 0.1 }
+        );
+        if (cardRef.current) observer.observe(cardRef.current);
+        return () => observer.disconnect();
+    }, []);
 
     useEffect(() => {
-        if (media.length <= 1) return;
-        if (media[currentMediaIndex].type === 'video') return; // let the video onEnded handle it
+        if (media.length <= 1 || !isVisible) return;
+        if (media[currentMediaIndex]?.type === 'video') return;
 
         const timer = setInterval(() => {
             setCurrentMediaIndex((prev) => (prev + 1) % media.length);
         }, 3000);
 
         return () => clearInterval(timer);
-    }, [currentMediaIndex, media.length]);
+    }, [currentMediaIndex, media, isVisible]);
 
     const formatPostDate = (dateString) => {
         if (!dateString) return '';
@@ -69,6 +84,7 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
 
     return (
         <div 
+            ref={cardRef}
             onClick={() => navigate(`/product/selling/${item._id}`)}
             className="bg-white rounded-2xl border border-gray-100 p-3 md:p-0 md:border-none md:bg-transparent flex flex-row md:flex-col gap-3 md:gap-0 group hover:shadow-xl transition-all duration-300 cursor-pointer"
         >

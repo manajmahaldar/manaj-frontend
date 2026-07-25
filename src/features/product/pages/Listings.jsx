@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../../utils/api';
 import ListingCard from '../components/ListingCard';
@@ -76,7 +76,7 @@ const Listings = () => {
             if (maxPrice) params.maxPrice = maxPrice;
             if (page > 1) params.page = page;
             setSearchParams(params);
-        }, 500);
+        }, 300);
 
         return () => clearTimeout(timer);
     }, [viewType, category, district, search, minPrice, maxPrice, page]);
@@ -100,12 +100,27 @@ const Listings = () => {
         }
     };
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setCategory('');
         setSearch('');
         setDistrict('');
         setMinPrice('');
         setMaxPrice('');
+        setPage(1);
+    }, []);
+
+    const handleCategoryChange = (newCat) => {
+        setCategory(newCat);
+        setPage(1);
+    };
+
+    const handleDistrictChange = (newDist) => {
+        setDistrict(newDist);
+        setPage(1);
+    };
+
+    const handleViewTypeChange = (newType) => {
+        setViewType(newType);
         setPage(1);
     };
 
@@ -146,10 +161,10 @@ const Listings = () => {
 
             <div className="max-w-7xl mx-auto px-4 space-y-8">
             {/* View Statistics & Tabs */}
-            <div className="flex flex-col md:flex-row gap-6">
-                <div className="flex-1 flex bg-white p-2 rounded-[2rem] shadow-sm border border-gray-100">
+            <div className="flex flex-col md:flex-row gap-6 min-w-0">
+                <div className="flex-1 flex bg-white p-2 rounded-[2rem] shadow-sm border border-gray-100 min-w-0">
                     <button 
-                        onClick={() => setViewType('selling')}
+                        onClick={() => handleViewTypeChange('selling')}
                         className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-[1.5rem] font-black transition-all ${
                             viewType === 'selling' 
                             ? 'bg-primary text-white shadow-lg shadow-primary/25' 
@@ -160,7 +175,7 @@ const Listings = () => {
                         {t.forSaleTab}
                     </button>
                     <button 
-                        onClick={() => setViewType('buying')}
+                        onClick={() => handleViewTypeChange('buying')}
                         className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-[1.5rem] font-black transition-all ${
                             viewType === 'buying' 
                             ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 

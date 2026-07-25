@@ -1,5 +1,5 @@
 import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import ContactButtons from '../common/ContactButtons';
@@ -9,31 +9,48 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
     const { t, formatDigit, language } = useLanguage();
     const navigate = useNavigate();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const photos = post.photos && post.photos.length > 0 ? post.photos : ['https://images.unsplash.com/photo-1524334228333-0f6db392f8a1?w=800'];
+    const [isVisible, setIsVisible] = useState(false);
+    const cardRef = useRef(null);
 
+    const photos = useMemo(() => {
+        return post.photos && post.photos.length > 0
+            ? post.photos
+            : ['https://images.unsplash.com/photo-1524334228333-0f6db392f8a1?w=800'];
+    }, [post.photos]);
 
-    const nextImage = (e) => {
+    const nextImage = useCallback((e) => {
         if (e) e.stopPropagation();
         setCurrentImageIndex((prev) => (prev + 1) % photos.length);
-    };
+    }, [photos.length]);
 
-    const prevImage = (e) => {
+    const prevImage = useCallback((e) => {
         if (e) e.stopPropagation();
         setCurrentImageIndex((prev) => (prev - 1 + photos.length) % photos.length);
-    };
+    }, [photos.length]);
+
+    // IntersectionObserver to pause slideshow when off-screen
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsVisible(entry.isIntersecting),
+            { threshold: 0.1 }
+        );
+        if (cardRef.current) observer.observe(cardRef.current);
+        return () => observer.disconnect();
+    }, []);
 
     useEffect(() => {
-        if (photos.length <= 1) return;
+        if (photos.length <= 1 || !isVisible) return;
 
         const timer = setInterval(() => {
             setCurrentImageIndex((prev) => (prev + 1) % photos.length);
         }, 3000);
 
         return () => clearInterval(timer);
-    }, [currentImageIndex, photos.length]);
+    }, [currentImageIndex, photos.length, isVisible]);
 
     return (
         <div 
+            ref={cardRef}
             onClick={() => navigate(`/product/buying/${post._id}`)}
             className="bg-white rounded-2xl border border-gray-100 p-3 md:p-5 md:border-l-4 md:border-l-green-500 flex flex-row md:flex-col gap-3 md:gap-4 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
         >

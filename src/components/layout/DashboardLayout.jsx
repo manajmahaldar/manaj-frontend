@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import { Home, List, Heart, User, Plus } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -34,7 +34,7 @@ const DashboardLayout = ({ children }) => {
     const isSavedActive = location.pathname === '/profile/saved';
     const isProfileActive = location.pathname === '/profile/settings';
 
-    const handleCreateClick = () => {
+    const handleCreateClick = useCallback(() => {
         const isUnverified = user.role !== 'admin' && user.accountStatus !== 'active';
         if (isUnverified) {
             toast.error("Please complete verification to list products or post requirements");
@@ -42,12 +42,12 @@ const DashboardLayout = ({ children }) => {
             return;
         }
         setIsListingModalOpen(true);
-    };
+    }, [user, navigate]);
 
-    const handleSuccess = () => {
+    const handleSuccess = useCallback(() => {
         toast.success("Listing submitted successfully!");
-        setTimeout(() => { window.location.reload(); }, 1000);
-    };
+        navigate(0);
+    }, [navigate]);
 
     const renderNavItem = (label, path, icon, isActive) => (
         <Link
@@ -99,19 +99,13 @@ const DashboardLayout = ({ children }) => {
                 </header>
 
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 lg:p-12 lg:pb-12 pb-24">
-                    <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
                         {children}
                     </div>
                 </main>
             </div>
 
-            {/* ── Mobile Bottom Navigation Bar ── */}
-            <style>{`
-                @keyframes fadeInDot {
-                    from { transform: scale(0); opacity: 0; }
-                    to   { transform: scale(1); opacity: 1; }
-                }
-            `}</style>
+
 
             {/* Outer wrapper: full-width, sits at bottom, clips nothing */}
             <nav

@@ -53,16 +53,16 @@ const Profile = () => {
 
     const fetchMyContent = async () => {
         try {
-            const [listingsRes, equipmentRes, postsRes, ordersRes, incomingRes] = await Promise.all([
+            const [listingsRes, postsRes, ordersRes, incomingRes] = await Promise.all([
                 api.get('/listings/my-listings'),
-                api.get('/listings/my-listings?category=Equipment'),
                 api.get('/posts/my-posts'),
                 api.get('/orders/my-orders'),
                 api.get('/orders/incoming')
             ]);
-            setMyListings(listingsRes.data.filter(l => l.category !== 'Equipment'));
-            setMyEquipment(equipmentRes.data.filter(l => l.category === 'Equipment'));
-            setMyPosts(postsRes.data);
+            const allListings = listingsRes.data || [];
+            setMyListings(allListings.filter(l => l.category !== 'Equipment'));
+            setMyEquipment(allListings.filter(l => l.category === 'Equipment'));
+            setMyPosts(postsRes.data || []);
             setMyOrders(ordersRes.data.orders || []);
             setIncomingOrders(incomingRes.data.orders || []);
         } catch (err) {

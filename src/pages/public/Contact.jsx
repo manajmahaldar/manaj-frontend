@@ -26,14 +26,14 @@ const Contact = () => {
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100 space-y-8">
                             <h3 className="text-2xl font-black text-gray-900 border-b border-gray-50 pb-4">{t.contactInfo}</h3>
-                            
+
                             <div className="flex items-start gap-4 group">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-sm">
                                     <Phone size={24} />
                                 </div>
                                 <div>
                                     <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t.callUs}</p>
-                                    <p className="text-lg font-black text-gray-900">{formatDigit('+91 9593013549')}</p>
+                                    <p className="text-lg font-black text-gray-900">{formatDigit('+91 7432879256')}</p>
                                     <p className="text-sm text-gray-500 font-medium">{t.officeHours}</p>
                                 </div>
                             </div>
@@ -77,12 +77,12 @@ const Contact = () => {
                     <div className="lg:col-span-2">
                         <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-2xl border border-gray-100">
                             <h3 className="text-3xl font-black text-gray-900 mb-8">{t.sendMessage}</h3>
-                            
+
                             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-500 ml-1">{t.yourName}</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         required
                                         className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-blue-100 focus:bg-white rounded-2xl outline-none font-bold text-gray-900 transition-all"
                                         placeholder={t.namePlaceholder}
@@ -90,16 +90,16 @@ const Contact = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-500 ml-1">{t.yourPhone}</label>
-                                    <input 
-                                        type="tel" 
+                                    <input
+                                        type="tel"
                                         required
                                         className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-blue-100 focus:bg-white rounded-2xl outline-none font-bold text-gray-900 transition-all"
-                                        placeholder={formatDigit('+91 95930...')}
+                                        placeholder={formatDigit('+91 ...')}
                                     />
                                 </div>
                                 <div className="md:col-span-2 space-y-2">
                                     <label className="text-sm font-bold text-gray-500 ml-1">{t.message}</label>
-                                    <textarea 
+                                    <textarea
                                         required
                                         rows="5"
                                         className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-blue-100 focus:bg-white rounded-2xl outline-none font-bold text-gray-900 transition-all"
@@ -107,7 +107,7 @@ const Contact = () => {
                                     ></textarea>
                                 </div>
                                 <div className="md:col-span-2 pt-4">
-                                    <button 
+                                    <button
                                         type="submit"
                                         className="w-full md:w-auto px-12 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-blue-600/20 group"
                                     >

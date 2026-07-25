@@ -1,10 +1,11 @@
 import { ShieldCheck, Phone, BadgeCheck, Zap } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useMemo, memo } from 'react';
 
-const WhyChooseUs = () => {
+const WhyChooseUs = memo(() => {
     const { t, language } = useLanguage();
 
-    const features = [
+    const features = useMemo(() => [
         {
             icon: <ShieldCheck size={36} />,
             title: t.featNoCommTitle,
@@ -41,7 +42,7 @@ const WhyChooseUs = () => {
             ring: 'ring-orange-100',
             gradient: 'from-orange-500/10 to-transparent',
         },
-    ];
+    ], [t.featNoCommTitle, t.featNoCommDesc, t.featDirectTitle, t.featDirectDesc, t.featVerifiedTitle, t.featVerifiedDesc, t.featFastTitle, t.featFastDesc]);
 
     return (
         <section className="max-w-7xl mx-auto px-4 py-4 md:py-8">
@@ -70,7 +71,7 @@ const WhyChooseUs = () => {
                         className={`relative bg-white rounded-[2.5rem] p-8 shadow-lg border ring-1 ${feat.ring} hover:shadow-2xl transition-all hover:scale-[1.03] group overflow-hidden text-center md:text-left flex flex-col items-center md:items-start`}
                     >
                         {/* Background gradient blob */}
-                        <div className={`absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br ${feat.gradient} rounded-full opacity-60 group-hover:scale-150 transition-transform duration-700`}></div>
+                        <div className={`absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br ${feat.gradient} rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300`}></div>
 
                         {/* Icon */}
                         <div className={`relative z-10 ${feat.bgColor} ${feat.color} w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-lg group-hover:rotate-6 transition-transform mx-auto md:mx-0`}>
@@ -88,5 +89,7 @@ const WhyChooseUs = () => {
         </section>
     );
 };
+
+WhyChooseUs.displayName = 'WhyChooseUs';
 
 export default WhyChooseUs;

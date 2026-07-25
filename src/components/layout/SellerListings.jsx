@@ -84,7 +84,7 @@ const SellerListings = () => {
 
                 <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full">
                     {listings.map(listing => (
-                        <div key={listing._id} className="w-full hover:scale-[1.02] transition-transform">
+                        <div key={listing._id} className="w-full">
                             <ListingCard item={listing} />
                         </div>
                     ))}

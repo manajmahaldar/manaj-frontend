@@ -2,12 +2,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
     LayoutDashboard, 
     ShoppingBag, 
-    Search, 
     User, 
     Settings, 
     Users, 
     ShieldCheck, 
-    FileText,
     LogOut,
     PlusCircle,
     ArrowDownRight,
@@ -16,20 +14,29 @@ import {
     Images,
     Filter,
     BarChart3,
-    Wrench
+    Wrench,
+    GraduationCap,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
-import { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-
+import { useState, useContext, useMemo, useCallback, memo } from 'react';
+import { AuthContext, AuthActionsContext } from '../../context/AuthContext';
 import { getDashboardPath } from '../../utils/roleUtils';
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
-    const { user, logout } = useContext(AuthContext);
+const Sidebar = memo(({ isOpen, toggleSidebar }) => {
+    const { user } = useContext(AuthContext);
+    const { logout } = useContext(AuthActionsContext);
+    const [isLearningHubOpen, setIsLearningHubOpen] = useState(false);
     const location = useLocation();
 
     if (!user) return null;
 
-    const navItems = [
+    // Prefetch the Learning Hub chunk on hover
+    const prefetchLearningHub = useCallback(() => {
+        import('../../features/learning/pages/LearningHub').catch(() => {});
+    }, []);
+
+    const navItems = useMemo(() => [
         { 
             name: 'Dashboard', 
             path: getDashboardPath(user.role), 
@@ -109,9 +116,17 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             icon: <Settings size={20} />, 
             roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
-    ];
+    ], [user.role]);
 
-    const filteredItems = navItems.filter(item => item.roles.includes(user.role));
+    const filteredItems = useMemo(
+        () => navItems.filter(item => item.roles.includes(user.role)),
+        [navItems, user.role]
+    );
+
+    const handleLearningHubToggle = useCallback(
+        () => setIsLearningHubOpen(prev => !prev),
+        []
+    );
 
     return (
         <aside className={`fixed inset-y-0 left-0 bg-white border-r border-gray-100 w-64 transform transition-transform duration-300 z-50 lg:relative lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -137,6 +152,68 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                             <span>{item.name}</span>
                         </Link>
                     ))}
+
+                    {/* Learning Hub Collapsible Dropdown */}
+                    <div className="space-y-1">
+                        <button
+                            onClick={handleLearningHubToggle}
+                            onMouseEnter={prefetchLearningHub}
+                            className={`flex items-center justify-between w-full px-4 py-3 rounded-2xl font-bold transition-all text-gray-500 hover:bg-gray-50 hover:text-gray-900 ${
+                                location.pathname.startsWith('/learning') ? 'bg-blue-50/50 text-primary' : ''
+                            }`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <GraduationCap size={20} />
+                                <span>Learning Hub</span>
+                            </div>
+                            {isLearningHubOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+
+                        {isLearningHubOpen && (
+                            <div className="pl-6 space-y-1 mt-1 transition-all duration-300">
+                                {[
+                                    { name: 'Home', path: '/learning' },
+                                    { name: 'Categories', path: '/learning/categories' },
+                                    { name: 'Videos', path: '/learning/videos' },
+                                    { name: 'Articles', path: '/learning/articles' },
+                                    { name: 'Blogs', path: '/learning/blogs' },
+                                    { name: 'PDF Library', path: '/learning/pdfs' },
+                                    { name: 'Government Schemes', path: '/learning/schemes' },
+                                    { name: 'Training Programs', path: '/learning/trainings' },
+                                    { name: 'Webinars', path: '/learning/webinars' },
+                                    { name: 'Quizzes', path: '/learning/quizzes' },
+                                    { name: 'Certificates', path: '/learning/certificates' },
+                                    { name: 'Bookmarks', path: '/learning/bookmarks' },
+                                    { name: 'Recently Viewed', path: '/learning/recent' },
+                                    { name: 'My Progress', path: '/learning/progress' }
+                                ].map((sub) => (
+                                    <Link
+                                        key={sub.path}
+                                        to={sub.path}
+                                        onClick={toggleSidebar}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
+                                            location.pathname === sub.path
+                                                ? 'text-primary bg-blue-50/80 font-black'
+                                                : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                        {sub.name}
+                                    </Link>
+                                ))}
+                                {user.role === 'admin' && (
+                                    <Link
+                                        to="/learning/admin"
+                                        onClick={toggleSidebar}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-accent hover:bg-orange-50 transition-colors`}
+                                    >
+                                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                        CMS Dashboard
+                                    </Link>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </nav>
 
                 <div className="pt-6 border-t border-gray-100">
@@ -161,6 +238,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </div>
         </aside>
     );
-};
+});
+
+Sidebar.displayName = 'Sidebar';
 
 export default Sidebar;

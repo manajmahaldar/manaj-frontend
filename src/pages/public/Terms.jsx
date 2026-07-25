@@ -1,50 +1,66 @@
-import { useLanguage } from '../../context/LanguageContext';
+import React from 'react';
+import { Scale, ShieldAlert, CheckCircle2, UserCheck, AlertTriangle, FileText } from 'lucide-react';
 
 const Terms = () => {
-    const { t, formatDigit, language } = useLanguage();
-
-
     return (
-        <div className="pb-20">
-            {/* Header */}
-            <div className="bg-primary text-white py-20 px-4 text-center">
-                <h1 className="text-4xl font-black mb-4 uppercase tracking-tight">{t.termsConditions}</h1>
-                <p className="max-w-2xl mx-auto text-lg opacity-90 font-medium">
-                    {t.termsHeroDesc}
-                </p>
+        <div className="bg-gray-50 min-h-screen pb-20">
+            {/* Hero Header */}
+            <div className="bg-gradient-to-r from-gray-900 to-blue-950 text-white py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-5xl mx-auto space-y-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold uppercase tracking-wider border border-emerald-400/30">
+                        <Scale size={14} /> Legally Binding Agreement
+                    </div>
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tight">Terms & Conditions</h1>
+                    <p className="text-gray-300 text-sm font-medium">Version 2.0.0 • Last Updated: January 1, 2026</p>
+                </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-4 mt-16 space-y-12">
-                <section className="space-y-4">
-                    <h2 className="text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-4">{t.userAccount}</h2>
-                    <p className="text-gray-600 leading-relaxed font-medium">
-                        {t.userAccountDesc}
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
+                {/* Section 1 */}
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                    <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                        <UserCheck className="text-blue-600" size={20} /> 1. User Eligibility & Registration
+                    </h2>
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                        By creating an account on MatsyaLink, you represent that you are at least 18 years of age and legally competent under the Indian Contract Act, 1872. You agree to provide accurate, complete registration details and maintain the security of your credentials.
                     </p>
-                </section>
+                </div>
 
-                <section className="space-y-4">
-                    <h2 className="text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-4">{t.listingAd}</h2>
-                    <p className="text-gray-600 leading-relaxed font-medium">
-                        {t.listingAdDesc}
+                {/* Section 2 */}
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                    <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                        <Scale className="text-blue-600" size={20} /> 2. Marketplace & Role Responsibilities
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-medium">
+                        <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                            <h3 className="font-extrabold text-blue-900 text-sm mb-1">Fish Farmers & Hatcheries</h3>
+                            <p className="text-gray-600 leading-relaxed">Must ensure accurate representation of fish species, seed size (lines per kg), health status, pricing, and upload authentic 10-second verification videos.</p>
+                        </div>
+                        <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                            <h3 className="font-extrabold text-emerald-900 text-sm mb-1">Traders & Feed Sellers</h3>
+                            <p className="text-gray-600 leading-relaxed">Must honor posted buying prices, verify quality upon pickup, and ensure feed/medicine complies with FSSAI & fisheries regulatory standards.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 3 */}
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                    <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                        <AlertTriangle className="text-amber-500" size={20} /> 3. Prohibited Activities & Account Action
+                    </h2>
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                        Users are strictly prohibited from posting fraudulent listings, misrepresenting seed quality, engaging in price manipulation, or uploading illegal/unauthorized media. Violation will lead to immediate account suspension and referral to law enforcement under IT Act Section 66D.
                     </p>
-                </section>
+                </div>
 
-                <section className="space-y-4">
-                    <h2 className="text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-4">{t.transactionPayment}</h2>
-                    <p className="text-gray-600 leading-relaxed font-medium">
-                        {t.transactionPaymentDesc}
+                {/* Section 4 */}
+                <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                    <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                        <ShieldAlert className="text-blue-600" size={20} /> 4. Limitation of Liability & Dispute Resolution
+                    </h2>
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                        MatsyaLink provides a commission-free discovery marketplace connecting buyers and sellers directly. MatsyaLink shall not be liable for quality discrepancies during direct physical trades. All legal disputes are subject to the exclusive jurisdiction of the courts in West Bengal, India.
                     </p>
-                </section>
-
-                <section className="space-y-4">
-                    <h2 className="text-2xl font-black text-gray-900 border-l-4 border-blue-600 pl-4">{t.usageLimits}</h2>
-                    <p className="text-gray-600 leading-relaxed font-medium">
-                        {t.usageLimitsDesc}
-                    </p>
-                </section>
-
-                <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 italic text-gray-500 text-sm">
-                    {formatDigit(t.termsLastUpdated)}
                 </div>
             </div>
         </div>

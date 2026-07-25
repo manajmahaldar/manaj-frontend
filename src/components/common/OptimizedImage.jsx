@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 /**
  * OptimizedImage Component
@@ -23,45 +23,30 @@ const OptimizedImage = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
-  const [optimizedSrc, setOptimizedSrc] = useState(src);
-  const [lqipSrc, setLqipSrc] = useState(null);
 
-  useEffect(() => {
-    if (!src) return;
-    
-    // Reset states when src changes
-    setError(false);
-    setIsLoaded(false);
+  // Compute Cloudinary optimized and LQIP URLs synchronously with useMemo
+  const { optimizedSrc, lqipSrc } = useMemo(() => {
+    if (!src) return { optimizedSrc: src, lqipSrc: null };
 
-    // Cloudinary optimization logic
     if (src.includes('res.cloudinary.com')) {
-      // Check if it already has transformations
       if (!src.includes('/upload/f_auto')) {
-        // High-res optimized image
-        const newSrc = src.replace('/upload/', '/upload/f_auto,q_auto,w_auto,dpr_auto/');
-        setOptimizedSrc(newSrc);
-        
-        // Low Quality Image Placeholder (LQIP)
-        const lqip = src.replace('/upload/', '/upload/f_auto,q_1,w_100,e_blur:1000/');
-        setLqipSrc(lqip);
-      } else {
-        setOptimizedSrc(src);
-        setLqipSrc(null);
+        return {
+          optimizedSrc: src.replace('/upload/', '/upload/f_auto,q_auto,w_auto,dpr_auto/'),
+          lqipSrc: src.replace('/upload/', '/upload/f_auto,q_1,w_100,e_blur:1000/')
+        };
       }
-    } else {
-      setOptimizedSrc(src);
-      setLqipSrc(null);
     }
+    return { optimizedSrc: src, lqipSrc: null };
   }, [src]);
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     setIsLoaded(true);
-  };
+  }, []);
 
-  const handleError = () => {
+  const handleError = useCallback(() => {
     setError(true);
     setIsLoaded(true); // stop showing skeleton
-  };
+  }, []);
 
   // Fallback placeholder
   const fallbackSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2IiAvPjwvc3ZnPg==';

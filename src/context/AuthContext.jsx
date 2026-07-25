@@ -22,12 +22,29 @@
  * (token already consumed), triggering an unintended logout.
  * The module-level `_bootstrapped` flag ensures the bootstrap runs exactly
  * once per page load, regardless of how many times the component mounts.
+ *
+ * Performance
+ * ───────────
+ * Split into two contexts to prevent unnecessary re-renders:
+ * - AuthStateContext  → { user, loading }         (changes on auth events)
+ * - AuthActionsContext → { login, logout, updateUser } (stable, never changes)
+ *
+ * Backward compat: AuthContext is aliased to AuthStateContext so existing
+ * `useContext(AuthContext)` consumers still work without changes.
  */
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback, useMemo, useContext } from 'react';
 import api, { setApiToken, clearApiToken, registerAuthCallbacks } from '../utils/api';
 import * as authService from '../services/auth.service.js';
 
-export const AuthContext = createContext();
+// ── Contexts ──────────────────────────────────────────────────────────────────
+export const AuthContext        = createContext(); // { user, loading, login, logout, updateUser }
+export const AuthStateContext   = AuthContext;
+export const AuthActionsContext = createContext(); // { login, logout, updateUser }
+
+// ── Convenience hooks ──────────────────────────────────────────────────────────
+export const useAuth        = () => useContext(AuthContext);
+export const useAuthState   = () => useContext(AuthStateContext);
+export const useAuthActions = () => useContext(AuthActionsContext);
 
 // ── Module-level flag: survives StrictMode's double-mount ─────────────────────
 // Reset to false only on a real page reload (module re-evaluation).
@@ -156,17 +173,17 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     // ── login — called after a successful POST /api/auth/login ───────────────
-    const login = (data) => {
+    const login = useCallback((data) => {
         console.log('[Auth] Login — storing session for:', data.user?.name ?? data.user?.email ?? 'unknown');
         setApiToken(data.token);
         setUser(data.user);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         // httpOnly refresh-token cookie is set automatically by the server response
-    };
+    }, []);
 
     // ── updateUser — after profile edits ─────────────────────────────────────
-    const updateUser = (updatedUserOrFn) => {
+    const updateUser = useCallback((updatedUserOrFn) => {
         setUser((prev) => {
             const next =
                 typeof updatedUserOrFn === 'function'
@@ -175,11 +192,19 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(next));
             return next;
         });
-    };
+    }, []);
+
+    // ── Memoize context values to prevent unnecessary re-renders ─────────────
+    // fullAuthValue changes when user or loading changes.
+    // actionsValue is stable — login/logout/updateUser are useCallback-wrapped.
+    const fullAuthValue = useMemo(() => ({ user, loading, login, logout, updateUser }), [user, loading, login, logout, updateUser]);
+    const actionsValue  = useMemo(() => ({ login, logout, updateUser }), [login, logout, updateUser]);
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
-            {children}
-        </AuthContext.Provider>
+        <AuthActionsContext.Provider value={actionsValue}>
+            <AuthContext.Provider value={fullAuthValue}>
+                {children}
+            </AuthContext.Provider>
+        </AuthActionsContext.Provider>
     );
 };

@@ -69,19 +69,16 @@ const Footer = () => {
                     {/* Legal Links */}
                     <div className="space-y-6 text-center md:text-left flex flex-col items-center md:items-start">
                         <h4 className="text-lg font-black uppercase tracking-widest text-green-400">{t.legal}</h4>
-                        <ul className="space-y-4 w-full flex flex-col items-center md:items-start">
-                            <li>
-                                <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors flex items-center justify-center md:justify-start gap-2 group">
-                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                    {t.privacyPolicy}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/terms" className="text-gray-400 hover:text-white transition-colors flex items-center justify-center md:justify-start gap-2 group">
-                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                    {t.terms}
-                                </Link>
-                            </li>
+                        <ul className="space-y-2.5 w-full flex flex-col items-center md:items-start text-xs font-medium">
+                            <li><Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
+                            <li><Link to="/terms" className="text-gray-400 hover:text-white transition-colors">Terms & Conditions</Link></li>
+                            <li><Link to="/cookie-policy" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</Link></li>
+                            <li><Link to="/data-deletion-policy" className="text-gray-400 hover:text-white transition-colors">Data Deletion Policy</Link></li>
+                            <li><Link to="/refund-policy" className="text-gray-400 hover:text-white transition-colors">Refund Policy</Link></li>
+                            <li><Link to="/shipping-policy" className="text-gray-400 hover:text-white transition-colors">Shipping Policy</Link></li>
+                            <li><Link to="/community-guidelines" className="text-gray-400 hover:text-white transition-colors">Community Guidelines</Link></li>
+                            <li><Link to="/grievance" className="text-gray-400 hover:text-white transition-colors">Grievance Officer</Link></li>
+                            <li><Link to="/security-notice" className="text-gray-400 hover:text-white transition-colors">Security Notice</Link></li>
                         </ul>
                     </div>
 
@@ -107,11 +104,11 @@ const Footer = () => {
 
                 {/* Bottom Bar */}
                 <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-gray-500 font-bold text-center md:text-left">
-                    <p>© {formatDigit(new Date().getFullYear())} MatsyaLink। {t.allRightsReserved}।</p>
+                    <p>© {formatDigit(new Date().getFullYear())} MatsyaLink। {t.allRightsReserved}। DPDP Act 2023 Compliant.</p>
                     <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-                        <Link to="/privacy-policy" className="hover:text-white transition-colors whitespace-nowrap">{t.privacy}</Link>
-                        <Link to="/terms" className="hover:text-white transition-colors whitespace-nowrap">{t.termsAlt}</Link>
-                        <Link to="/contact" className="hover:text-white transition-colors whitespace-nowrap">{t.support}</Link>
+                        <Link to="/privacy-policy" className="hover:text-white transition-colors whitespace-nowrap">Privacy</Link>
+                        <Link to="/terms" className="hover:text-white transition-colors whitespace-nowrap">Terms</Link>
+                        <Link to="/grievance" className="hover:text-white transition-colors whitespace-nowrap">Grievance Desk</Link>
                     </div>
                 </div>
             </div>
