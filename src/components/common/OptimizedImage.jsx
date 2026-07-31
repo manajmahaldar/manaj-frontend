@@ -24,6 +24,12 @@ const OptimizedImage = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
 
+  // Reset state when src changes
+  useEffect(() => {
+    setIsLoaded(false);
+    setError(false);
+  }, [src]);
+
   // Compute Cloudinary optimized and LQIP URLs synchronously with useMemo
   const { optimizedSrc, lqipSrc } = useMemo(() => {
     if (!src) return { optimizedSrc: src, lqipSrc: null };
@@ -52,7 +58,7 @@ const OptimizedImage = ({
   const fallbackSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2IiAvPjwvc3ZnPg==';
 
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ width, height }}>
+    <div className={`relative overflow-hidden w-full h-full min-h-[120px]`} style={{ width, height }}>
       {/* LQIP Background */}
       {lqipSrc && !isLoaded && !error && (
         <div 
@@ -63,7 +69,7 @@ const OptimizedImage = ({
 
       {/* Shimmer Skeleton Placeholder (shows over LQIP or empty background) */}
       {!isLoaded && !error && (
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-50 to-gray-200 bg-[length:200%_100%] animate-shimmer opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-50 to-gray-200 bg-[length:200%_100%] animate-shimmer opacity-80 z-0" />
       )}
       
       {/* High-res Image */}
@@ -71,11 +77,10 @@ const OptimizedImage = ({
         src={error ? fallbackSrc : optimizedSrc}
         alt={alt || 'Image'}
         loading={priority ? 'eager' : 'lazy'}
-        // Preload hint via fetchpriority if high priority
         fetchpriority={priority ? 'high' : 'auto'}
         onLoad={handleLoad}
         onError={handleError}
-        className={`w-full h-full transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
+        className={`relative z-10 w-full h-full block transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
         style={{ objectFit }}
         {...props}
       />

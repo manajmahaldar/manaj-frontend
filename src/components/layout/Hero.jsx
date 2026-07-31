@@ -106,10 +106,11 @@ const Hero = () => {
                             <div className="col-span-2 relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 group">
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none" />
                                 <OptimizedImage
+                                    key={heroImageSrc}
                                     src={heroImageSrc}
                                     alt="Fresh Fish Marketplace"
                                     priority={true}
-                                    className="w-full aspect-video group-hover:scale-105 transition-transform duration-500"
+                                    className="w-full h-full aspect-video group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
                         </div>
