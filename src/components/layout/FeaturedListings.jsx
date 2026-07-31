@@ -41,56 +41,60 @@ const FeaturedListings = memo(() => {
     };
 
     const tabs = useMemo(() => [
-        { id: 'fish', label: t.tabFishSeed, icon: <ShoppingBag size={18} /> },
-        { id: 'feed', label: t.tabFeedMed, icon: <ShoppingBag size={18} /> },
-        { id: 'posts', label: t.tabBuyingPosts, icon: <ShoppingCart size={18} /> },
+        { id: 'fish',  label: t.tabFishSeed,   icon: <ShoppingBag size={16} /> },
+        { id: 'feed',  label: t.tabFeedMed,    icon: <ShoppingBag size={16} /> },
+        { id: 'posts', label: t.tabBuyingPosts, icon: <ShoppingCart size={16} /> },
     ], [t.tabFishSeed, t.tabFeedMed, t.tabBuyingPosts]);
 
     return (
-        <section id="featured-listings" className="max-w-7xl mx-auto px-4 py-8 md:py-16">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8 md:mb-12">
-                <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start w-full md:w-auto">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider mx-auto md:mx-0 w-fit">
-                        <Sparkles size={14} />
+        <section id="featured-listings" className="max-w-7xl mx-auto px-4 py-10 md:py-16">
+            {/* Section header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                <div className="space-y-3 text-center md:text-left">
+                    <div className="inline-flex items-center gap-1.5 section-eyebrow mx-auto md:mx-0">
+                        <Sparkles size={13} />
                         {t.topUpdates}
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight">
-                        {t.featuredListingsTitle} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600">{t.featuredListingsTitleColor}</span>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
+                        {t.featuredListingsTitle}{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                            {t.featuredListingsTitleColor}
+                        </span>
                     </h2>
-                    <p className="text-gray-500 font-medium max-w-lg mx-auto md:mx-0">
+                    <p className="text-text-secondary font-medium max-w-lg mx-auto md:mx-0">
                         {t.featuredSubtitle}
                     </p>
                 </div>
 
-                <div className="flex bg-gray-100/80 p-1.5 rounded-2xl gap-1 self-start md:self-end w-full md:w-auto overflow-x-auto no-scrollbar snap-x min-w-0">
+                {/* Tabs */}
+                <div className="flex bg-surface-1 p-1 rounded-xl gap-1 border border-border self-start md:self-end w-full md:w-auto overflow-x-auto scrollbar-hide">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex-shrink-0 snap-start flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all text-sm whitespace-nowrap flex-1 md:flex-none ${
-                                activeTab === tab.id 
-                                ? 'bg-white text-blue-600 shadow-lg shadow-blue-600/5' 
-                                : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
+                            className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap flex-1 md:flex-none ${
+                                activeTab === tab.id
+                                    ? 'bg-white text-primary shadow-xs border border-border'
+                                    : 'text-text-secondary hover:text-text-primary hover:bg-white/60'
                             }`}
                         >
                             {tab.icon}
-                            <span>{tab.label}</span>
+                            {tab.label}
                         </button>
                     ))}
                 </div>
-
             </div>
 
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-32 space-y-4 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100">
-                    <Loader2 className="animate-spin text-blue-500" size={48} />
-                    <p className="text-gray-400 font-bold animate-pulse tracking-widest">{t.loadingData}</p>
+                <div className="flex flex-col items-center justify-center py-28 space-y-4 bg-white rounded-xl border border-dashed border-border">
+                    <Loader2 className="animate-spin text-primary" size={36} />
+                    <p className="text-text-tertiary text-sm font-medium">{t.loadingData}</p>
                 </div>
             ) : (
-                <div className="space-y-12">
+                <div className="space-y-10">
                     <div className="min-h-[400px]">
                         {activeTab === 'fish' && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                                 {fishListings.length > 0 ? (
                                     fishListings.map(item => (
                                         <ListingCard key={item._id} item={item} userRole={user?.role} />
@@ -100,9 +104,8 @@ const FeaturedListings = memo(() => {
                                 )}
                             </div>
                         )}
-
                         {activeTab === 'feed' && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                                 {feedMedicineListings.length > 0 ? (
                                     feedMedicineListings.map(item => (
                                         <ListingCard key={item._id} item={item} userRole={user?.role} />
@@ -112,9 +115,8 @@ const FeaturedListings = memo(() => {
                                 )}
                             </div>
                         )}
-
                         {activeTab === 'posts' && (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                 {buyingPosts.length > 0 ? (
                                     buyingPosts.map(post => (
                                         <BuyingPostCard key={post._id} post={post} />
@@ -126,30 +128,29 @@ const FeaturedListings = memo(() => {
                         )}
                     </div>
 
-                    <div className="flex justify-center pt-8">
-                        <Link 
+                    {/* View all button */}
+                    <div className="flex justify-center pt-4">
+                        <Link
                             to={activeTab === 'posts' ? '/posts' : '/listings'}
-                            className="group flex items-center gap-4 px-12 py-5 bg-gray-900 text-white rounded-[2rem] font-black hover:bg-blue-600 transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-gray-900/20"
+                            className="btn btn-ghost border border-border text-text-primary hover:bg-surface-2 btn-lg group"
                         >
                             {activeTab === 'posts' ? t.exploreAllPosts : t.exploreAllListings}
-                            <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors">
-                                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                            </div>
+                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
                 </div>
             )}
         </section>
     );
-};
+});
 
 const EmptyState = ({ message, t }) => (
-    <div className="col-span-full py-24 text-center bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-200">
-        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
-            <ShoppingBag size={40} />
+    <div className="col-span-full empty-state py-20">
+        <div className="empty-state-icon">
+            <ShoppingBag size={28} />
         </div>
-        <p className="text-gray-500 text-lg font-bold">{message}</p>
-        <p className="text-gray-400 text-sm mt-3 font-medium">{t.noListingsDesc || 'Explore other categories meanwhile!'}</p>
+        <p className="text-text-secondary font-semibold">{message}</p>
+        <p className="text-text-tertiary text-sm mt-1.5">{t.noListingsDesc || 'Explore other categories meanwhile!'}</p>
     </div>
 );
 

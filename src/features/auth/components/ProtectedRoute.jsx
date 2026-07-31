@@ -26,11 +26,6 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireVerification = 
         return <Navigate to="/" replace />;
     }
 
-    // Redirect to verification ONLY if required for this route
-    if (requireVerification && user.role !== 'admin' && user.accountStatus !== 'active') {
-        return <Navigate to="/verification" replace />;
-    }
-
     return children;
 };
 

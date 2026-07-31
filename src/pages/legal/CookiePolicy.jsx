@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Cookie, ShieldCheck, Check, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../../context/LanguageContext';
 
 const CookiePolicy = () => {
+    const { t } = useLanguage();
+
     const [preferences, setPreferences] = useState({
         essential: true,
         analytics: true,
@@ -12,7 +15,7 @@ const CookiePolicy = () => {
 
     const handleSave = () => {
         localStorage.setItem('matsyalink_cookie_preferences', JSON.stringify(preferences));
-        toast.success('Cookie preferences saved successfully');
+        toast.success(t.cookiePolicy?.saveSuccess || 'Cookie preferences saved successfully');
     };
 
     return (
@@ -20,10 +23,10 @@ const CookiePolicy = () => {
             <div className="bg-gradient-to-r from-cyan-900 to-blue-900 text-white py-16 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-5xl mx-auto space-y-3">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-bold uppercase tracking-wider border border-cyan-400/30">
-                        <Cookie size={14} /> DPDP Cookie Compliance
+                        <Cookie size={14} /> {t.cookiePolicy?.heroBadge || 'DPDP Cookie Compliance'}
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-black tracking-tight">Cookie Policy</h1>
-                    <p className="text-cyan-100 text-sm font-medium">Learn how we use cookies and manage your preferences.</p>
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tight">{t.cookiePolicy?.title || 'Cookie Policy'}</h1>
+                    <p className="text-cyan-100 text-sm font-medium">{t.cookiePolicy?.subtitle || 'Learn how we use cookies and manage your preferences.'}</p>
                 </div>
             </div>
 
@@ -35,16 +38,16 @@ const CookiePolicy = () => {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                             <div>
-                                <h3 className="font-bold text-gray-900 text-sm">Essential Cookies (Required)</h3>
-                                <p className="text-xs text-gray-500">Necessary for session authentication, security tokens, and language selection.</p>
+                                <h3 className="font-bold text-gray-900 text-sm">{t.cookiePolicy?.essentialTitle || 'Essential Cookies (Required)'}</h3>
+                                <p className="text-xs text-gray-500">{t.cookiePolicy?.essentialDesc || 'Necessary for session authentication, security tokens, and language selection.'}</p>
                             </div>
                             <input type="checkbox" checked disabled className="w-5 h-5 accent-blue-600 rounded" />
                         </div>
 
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                             <div>
-                                <h3 className="font-bold text-gray-900 text-sm">Analytics Cookies</h3>
-                                <p className="text-xs text-gray-500">Helps us measure page load speeds, error rates, and popular learning courses.</p>
+                                <h3 className="font-bold text-gray-900 text-sm">{t.cookiePolicy?.analyticsTitle || 'Analytics Cookies'}</h3>
+                                <p className="text-xs text-gray-500">{t.cookiePolicy?.analyticsDesc || 'Helps us measure page load speeds, error rates, and popular learning courses.'}</p>
                             </div>
                             <input 
                                 type="checkbox" 
@@ -56,8 +59,8 @@ const CookiePolicy = () => {
 
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                             <div>
-                                <h3 className="font-bold text-gray-900 text-sm">Functional & Preference Cookies</h3>
-                                <p className="text-xs text-gray-500">Remembers district filters, default tab views, and search preferences.</p>
+                                <h3 className="font-bold text-gray-900 text-sm">{t.cookiePolicy?.functionalTitle || 'Functional & Preference Cookies'}</h3>
+                                <p className="text-xs text-gray-500">{t.cookiePolicy?.functionalDesc || 'Remembers district filters, default tab views, and search preferences.'}</p>
                             </div>
                             <input 
                                 type="checkbox" 
@@ -72,7 +75,7 @@ const CookiePolicy = () => {
                         onClick={handleSave}
                         className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition-all inline-flex items-center gap-2"
                     >
-                        <Save size={16} /> Save Preference Choices
+                        <Save size={16} /> {t.cookiePolicy?.saveButton || 'Save Preference Choices'}
                     </button>
                 </div>
             </div>

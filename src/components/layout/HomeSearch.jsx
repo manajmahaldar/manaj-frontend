@@ -4,9 +4,10 @@ import { Search, Mic } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const HomeSearch = () => {
-    const { language } = useLanguage();
+    const { t, language } = useLanguage();
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
+    const [isListening, setIsListening] = useState(false);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -22,24 +23,21 @@ const HomeSearch = () => {
             recognition.continuous = false;
             recognition.interimResults = false;
 
-            // Set language based on app language
             if (language === 'bn') recognition.lang = 'bn-IN';
             else if (language === 'hi') recognition.lang = 'hi-IN';
             else if (language === 'or') recognition.lang = 'or-IN';
             else recognition.lang = 'en-US';
 
+            recognition.onstart  = () => setIsListening(true);
+            recognition.onend    = () => setIsListening(false);
+            recognition.onerror  = () => setIsListening(false);
+
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
                 setSearch(transcript);
-                
-                // Auto submit the form
                 const params = new URLSearchParams();
                 params.set('search', transcript);
                 navigate(`/listings?${params.toString()}`);
-            };
-            
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
             };
 
             recognition.start();
@@ -49,26 +47,41 @@ const HomeSearch = () => {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto relative z-20 mb-8 mt-4">
-            <form onSubmit={handleSearch} className="flex items-center w-full bg-[#f5f6f8] rounded-full p-1.5 shadow-sm border border-gray-100">
-                <div className="pl-5 pr-3 text-gray-400">
-                    <Search size={22} />
+        <div className="w-full max-w-3xl mx-auto">
+            <form
+                onSubmit={handleSearch}
+                className="flex items-center w-full bg-white rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+            >
+                <div className="pl-4 pr-3 text-text-tertiary flex-shrink-0">
+                    <Search size={20} />
                 </div>
-                <input 
-                    type="text" 
-                    placeholder="Search fish, pona, medicine, feed..."
-                    className="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400 text-base md:text-lg py-3"
+
+                <input
+                    type="text"
+                    placeholder={t.searchPlaceholder || 'Search fish, feed, medicine...'}
+                    className="flex-1 bg-transparent border-none outline-none text-text-primary placeholder:text-text-tertiary text-base py-4 font-medium min-w-0"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    aria-label="Search listings"
                 />
-                <button 
-                    type="button" 
-                    onClick={startListening}
-                    className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:shadow-md text-primary transition-all flex-shrink-0"
-                    title="Search by voice"
-                >
-                    <Mic size={22} className="fill-current" />
-                </button>
+
+                <div className="flex items-center gap-2 pr-2 flex-shrink-0">
+                    <button
+                        type="button"
+                        onClick={startListening}
+                        className={`btn-icon btn-ghost text-text-tertiary hover:text-primary ${isListening ? 'text-error animate-pulse' : ''}`}
+                        title="Search by voice"
+                        aria-label="Voice search"
+                    >
+                        <Mic size={20} />
+                    </button>
+                    <button
+                        type="submit"
+                        className="btn btn-primary btn-sm"
+                    >
+                        {t.searchBtn || 'Search'}
+                    </button>
+                </div>
             </form>
         </div>
     );

@@ -43,7 +43,7 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
         }
     }, [post]);
 
-    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
+    const states = Object.keys(stateDistricts);
     const districts = t.districtsList || [];
 
     const categories = [
@@ -189,8 +189,8 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
                                 onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
                                 required
                             >
-                                <option value="">{t.selectBtn}</option>
-                                {districtsEn.map((d, index) => <option key={d} value={d}>{districts[index]}</option>)}
+                                <option value="">{t.selectDistrictPlaceholder || 'Select State'}</option>
+                                {states.map((state) => <option key={state} value={state}>{t.districts?.[state] || state}</option>)}
                             </select>
                         </div>
                         <div className="space-y-1">
@@ -203,7 +203,7 @@ const EditPostModal = ({ isOpen, onClose, onSuccess, post }) => {
                                 disabled={!formData.district}
                             >
                                 <option value="">{t.selectBtn}</option>
-                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
+                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{t.districts?.[d] || d}</option>)}
                             </select>
                         </div>
                     </div>

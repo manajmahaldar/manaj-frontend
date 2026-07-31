@@ -52,16 +52,17 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// ── Response interceptor: auto-refresh on TOKEN_EXPIRED ───────────────────────
+// ── Response interceptor: auto-refresh on any 401 ────────────────────────────
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const original = error.config;
 
+        // Attempt a silent refresh on any 401 (whether the server sends a
+        // TOKEN_EXPIRED code or a plain "No token / invalid token" message),
+        // but only once per request and only if we have a refresh function.
         const shouldRefresh =
             error.response?.status === 401 &&
-            (error.response?.data?.code === 'TOKEN_EXPIRED' ||
-             error.response?.data?.code === 'TOKEN_INVALIDATED') &&
             !original._retry &&
             _refreshFn;
 
@@ -72,14 +73,17 @@ api.interceptors.response.use(
                 if (newToken) {
                     original.headers['x-auth-token'] = newToken;
                     return api(original); // retry original request with new token
+                } else {
+                    // Refresh returned null — session is dead
+                    if (_logoutFn) _logoutFn();
                 }
             } catch {
-                // Refresh failed — log the user out
+                // Refresh threw — log the user out
                 if (_logoutFn) _logoutFn();
             }
         }
 
-        // Hard 401 that can't be recovered — clear session
+        // Hard 401 after retry failed — clear session
         if (error.response?.status === 401 && original._retry) {
             if (_logoutFn) _logoutFn();
         }

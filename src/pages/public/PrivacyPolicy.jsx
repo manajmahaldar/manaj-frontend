@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { ShieldCheck, Calendar, Printer, Search, Lock, UserCheck, FileText, Scale } from 'lucide-react';
 
 const PrivacyPolicy = () => {
+    const { t } = useLanguage();
+
     const [searchTerm, setSearchTerm] = useState('');
 
-    const sections = [
+    const sections = t.privacy?.sections || [
         {
             id: 'introduction',
             title: '1. Introduction & Regulatory Context',
@@ -73,11 +76,10 @@ const PrivacyPolicy = () => {
             id: 'grievance-officer',
             title: '9. Grievance Redressal Mechanism',
             content: `In compliance with DPDP Act Section 13 & IT Rules:
-• Grievance Officer Name: Privacy Officer, MatsyaLink Compliance Desk
-• Email: grievance@matsyalink.com / support@machbazar.com
-• Response SLA: Acknowledgment within 24 hours; resolution within 72 business hours.`
-        }
-    ];
+    • Grievance Officer Name: Privacy Officer, MatsyaLink Compliance Desk
+    • Email: grievance@matsyalink.com / support@machbazar.com
+    • Response SLA: Acknowledgment within 24 hours; resolution within 72 business hours.`
+        }];
 
     const filteredSections = sections.filter(sec => 
         sec.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -91,16 +93,16 @@ const PrivacyPolicy = () => {
                 <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="space-y-3 text-center md:text-left">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold uppercase tracking-wider border border-blue-400/30">
-                            <ShieldCheck size={14} /> DPDP Act 2023 Compliant
+                            <ShieldCheck size={14} /> {t.privacy?.heroBadge || 'DPDP Act 2023 Compliant'}
                         </div>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight">Privacy Policy</h1>
-                        <p className="text-blue-200 text-sm font-medium">Version 2.1.0 • Effective Date: January 1, 2026</p>
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tight">{t.privacy?.title || 'Privacy Policy'}</h1>
+                        <p className="text-blue-200 text-sm font-medium">{t.privacy?.version || 'Version 2.1.0 • Effective Date: January 1, 2026'}</p>
                     </div>
                     <button 
                         onClick={() => window.print()}
                         className="flex items-center gap-2 px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-sm transition-all border border-white/20"
                     >
-                        <Printer size={16} /> Print Policy
+                        <Printer size={16} /> {t.privacy?.printPolicy || 'Print Policy'}
                     </button>
                 </div>
             </div>
@@ -112,7 +114,7 @@ const PrivacyPolicy = () => {
                     <Search className="absolute left-4 top-3.5 text-gray-400" size={18} />
                     <input 
                         type="text"
-                        placeholder="Search privacy terms (e.g. consent, retention, rights, Aadhaar)..."
+                        placeholder={t.privacy?.searchPlaceholder || 'Search privacy terms (e.g. consent, retention, rights, Aadhaar)...'}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-12 pr-4 py-3 bg-white rounded-2xl border border-gray-200 shadow-sm focus:outline-none focus:border-blue-500 text-sm"
@@ -136,9 +138,9 @@ const PrivacyPolicy = () => {
 
                 {/* Footer Note */}
                 <div className="mt-12 bg-blue-50 p-6 rounded-2xl border border-blue-100 flex items-center justify-between gap-4 text-xs font-bold text-blue-900">
-                    <span>Have questions regarding your personal data processing?</span>
+                    <span>{t.privacy?.footerQuestion || 'Have questions regarding your personal data processing?'}</span>
                     <a href="/grievance" className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all whitespace-nowrap">
-                        Contact Grievance Officer
+                        {t.privacy?.contactButton || 'Contact Grievance Officer'}
                     </a>
                 </div>
             </div>

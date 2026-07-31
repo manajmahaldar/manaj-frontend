@@ -8,10 +8,12 @@ import { stateDistricts } from '../utils/districtsData';
  * Custom hook for admin user management with filtering, search,
  * pagination, sorting, and cascading location data.
  */
-const useAdminUsers = () => {
+const useAdminUsers = (options = {}) => {
+    const forcedRole = options.forcedRole || '';
+
     // --- Filter State ---
     const [filters, setFilters] = useState({
-        role: '',
+        role: forcedRole,
         state: '',
         district: '',
         policeStation: '',
@@ -21,6 +23,11 @@ const useAdminUsers = () => {
         dateFrom: '',
         dateTo: ''
     });
+
+    useEffect(() => {
+        setFilters(prev => ({ ...prev, role: forcedRole }));
+        setPage(1);
+    }, [forcedRole]);
 
     // --- Search ---
     const [searchInput, setSearchInput] = useState('');

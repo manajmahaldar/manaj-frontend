@@ -12,63 +12,49 @@ const AuthModal = ({ onClose, t }) => {
             onClick={onClose}
         >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
             {/* Modal Card */}
             <div
-                className="relative w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl"
+                className="relative w-full max-w-sm rounded-xl bg-white shadow-xl overflow-hidden border border-border"
                 onClick={(e) => e.stopPropagation()}
-                style={{
-                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%)',
-                    border: '1px solid rgba(99,102,241,0.25)',
-                }}
             >
-                {/* Top glow bar */}
-                <div style={{ height: 3, background: 'linear-gradient(90deg, #6366f1, #22c55e, #3b82f6)' }} />
-
                 {/* Close button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+                    className="absolute top-3 right-3 btn-icon btn-ghost w-8 h-8 text-text-tertiary hover:text-text-primary"
                 >
                     <X className="w-4 h-4" />
                 </button>
 
-                <div className="p-6 pt-5">
+                <div className="p-6 text-center space-y-4">
                     {/* Icon */}
-                    <div className="flex justify-center mb-4">
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
-                            style={{ background: 'linear-gradient(135deg, #6366f1, #3b82f6)' }}>
-                            <Lock className="w-7 h-7 text-white" />
-                        </div>
+                    <div className="mx-auto w-12 h-12 rounded-full bg-primary-muted text-primary flex items-center justify-center">
+                        <Lock className="w-6 h-6" />
                     </div>
 
-                    {/* Heading */}
-                    <h2 className="text-center text-white font-bold text-lg mb-1">
-                        {t.loginRequiredTitle || 'Login Required'}
-                    </h2>
-                    <p className="text-center text-gray-400 text-sm mb-6">
-                        {t.loginRequiredDesc || 'Please create an account or log in to contact sellers.'}
-                    </p>
+                    {/* Heading & Desc */}
+                    <div>
+                        <h2 className="text-lg font-bold text-text-primary mb-1">
+                            {t.loginRequiredTitle || 'Login Required'}
+                        </h2>
+                        <p className="text-text-secondary text-sm">
+                            {t.loginRequiredDesc || 'Please create an account or log in to contact sellers.'}
+                        </p>
+                    </div>
 
                     {/* Buttons */}
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2 pt-2">
                         <button
                             onClick={() => { onClose(); navigate('/register'); }}
-                            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm text-white transition-all active:scale-95 shadow-lg"
-                            style={{ background: 'linear-gradient(135deg, #6366f1, #3b82f6)' }}
+                            className="btn btn-primary btn-md w-full gap-2"
                         >
                             <UserPlus className="w-4 h-4" />
                             {t.registerNow || 'Register Now'}
                         </button>
                         <button
                             onClick={() => { onClose(); navigate('/login'); }}
-                            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm transition-all active:scale-95 border"
-                            style={{
-                                background: 'rgba(255,255,255,0.05)',
-                                borderColor: 'rgba(255,255,255,0.15)',
-                                color: '#e2e8f0',
-                            }}
+                            className="btn btn-ghost btn-md border border-border w-full gap-2"
                         >
                             <LogIn className="w-4 h-4" />
                             {t.loginBtn || 'Login'}
@@ -97,7 +83,6 @@ const ContactButtons = ({ phone, message = "", variant = "colored" }) => {
             setShowModal(true);
             return;
         }
-        // If logged in, action (navigation) proceeds naturally for <a> tags
     };
 
     return (
@@ -105,17 +90,17 @@ const ContactButtons = ({ phone, message = "", variant = "colored" }) => {
             {showModal && (
                 <AuthModal t={t} onClose={() => setShowModal(false)} />
             )}
-            <div className="flex gap-1.5 md:gap-2 w-full">
+            <div className="flex gap-2 w-full">
                 <a
                     href={user ? `tel:${phone}` : '#'}
                     onClick={(e) => handleProtectedClick(e, 'call')}
-                    className={`flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 md:py-3 px-1 md:px-4 rounded-lg md:rounded-xl transition-all font-bold text-[10px] md:text-sm shadow-sm active:scale-95 whitespace-nowrap overflow-hidden ${
+                    className={`btn btn-sm flex-1 truncate ${
                         isLight
-                        ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 shadow-lg'
+                        ? 'btn-outline border-border text-text-primary hover:bg-surface-2'
+                        : 'btn-primary'
                     }`}
                 >
-                    <Phone className={`w-3.5 h-3.5 md:w-[18px] md:h-[18px] flex-shrink-0 ${isLight ? 'text-blue-600' : ''}`} />
+                    <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                     <span className="truncate">{t.callNow || 'Call Now'}</span>
                 </a>
                 <a
@@ -123,13 +108,13 @@ const ContactButtons = ({ phone, message = "", variant = "colored" }) => {
                     onClick={(e) => handleProtectedClick(e, 'whatsapp')}
                     target={user ? "_blank" : undefined}
                     rel="noopener noreferrer"
-                    className={`flex-1 flex items-center justify-center gap-1.5 md:gap-2 py-2 md:py-3 px-1 md:px-4 rounded-lg md:rounded-xl transition-all font-bold text-[10px] md:text-sm shadow-sm active:scale-95 whitespace-nowrap overflow-hidden ${
+                    className={`btn btn-sm flex-1 truncate ${
                         isLight
-                        ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                        : 'bg-green-100 hover:bg-green-200 text-green-700 border border-green-200/50'
-                    } ${!isLight ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/20 shadow-lg' : ''}`}
+                        ? 'btn-ghost border border-border text-text-primary hover:bg-surface-2'
+                        : 'btn-secondary'
+                    }`}
                 >
-                    <MessageCircle className={`w-3.5 h-3.5 md:w-[18px] md:h-[18px] flex-shrink-0 ${isLight ? 'text-green-600' : ''}`} />
+                    <MessageCircle className="w-3.5 h-3.5 flex-shrink-0" />
                     <span className="truncate">{t.whatsappContact || 'WhatsApp'}</span>
                 </a>
             </div>
@@ -138,4 +123,3 @@ const ContactButtons = ({ phone, message = "", variant = "colored" }) => {
 };
 
 export default ContactButtons;
-

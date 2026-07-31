@@ -52,13 +52,13 @@ const EquipmentListings = () => {
                     <div className="flex flex-col items-center justify-center gap-6 py-12">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase tracking-widest">
                             <Wrench size={14} />
-                            {t.equipment || 'Equipment'}
+                            {t.equipmentSection?.badge || t.equipment || 'Equipment'}
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black text-gray-900 text-center">
-                            Farm Equipment
+                            {t.equipmentSection?.title || 'Farm Equipment'}
                         </h2>
                         <p className="text-gray-500 font-medium text-center text-lg">
-                            No equipment listings available yet. Check back soon!
+                            {t.equipmentSection?.noEquipment || 'No equipment listings available yet. Check back soon!'}
                         </p>
                     </div>
                 </div>
@@ -73,16 +73,16 @@ const EquipmentListings = () => {
                     <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start w-full md:w-auto">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase tracking-widest mx-auto md:mx-0 w-fit">
                             <Wrench size={14} />
-                            {t.equipment || 'Equipment'}
+                            {t.equipmentSection?.badge || t.equipment || 'Equipment'}
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight w-full">
-                            Farm Equipment &nbsp;
+                            {t.equipmentSection?.title || 'Farm Equipment'} &nbsp;
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500">
-                                for aquaculture
+                                {t.equipmentSection?.titleSpan || 'for aquaculture'}
                             </span>
                         </h2>
                         <p className="text-gray-500 font-medium max-w-lg leading-relaxed text-lg mx-auto md:mx-0">
-                            Pumps, nets, aerators, and other approved machinery for fish farming.
+                            {t.equipmentSection?.desc || 'Pumps, nets, aerators, and other approved machinery for fish farming.'}
                         </p>
                     </div>
 
@@ -90,7 +90,7 @@ const EquipmentListings = () => {
                         to="/listings?category=Equipment"
                         className="group hidden md:flex items-center gap-3 px-10 py-5 bg-white hover:bg-amber-600 text-amber-700 hover:text-white border-2 border-amber-100 hover:border-amber-600 rounded-2xl font-black transition-all hover:scale-105 shadow-sm hover:shadow-amber-600/20 whitespace-nowrap"
                     >
-                        View all equipment
+                        {t.equipmentSection?.viewAll || 'View all equipment'}
                         <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
@@ -108,7 +108,7 @@ const EquipmentListings = () => {
                         to="/listings?category=Equipment"
                         className="flex items-center gap-3 px-8 py-4 bg-amber-600 text-white rounded-2xl font-black transition-all shadow-lg shadow-amber-600/20"
                     >
-                        View all equipment
+                        {t.equipmentSection?.viewAll || 'View all equipment'}
                         <ArrowRight size={18} />
                     </Link>
                 </div>

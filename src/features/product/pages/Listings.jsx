@@ -4,7 +4,7 @@ import api from '../../../utils/api';
 import ListingCard from '../components/ListingCard';
 import BuyingPostCard from '../../../components/trader/BuyingPostCard';
 import { CardSkeleton, PostSkeleton } from '../../../components/common/Skeletons';
-import { Search, Filter, MapPin, X, ShoppingBag, ArrowUpRight, ArrowDownRight, Mic } from 'lucide-react';
+import { Search, ArrowUpRight, ArrowDownRight, Mic } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { AuthContext } from '../../../context/AuthContext';
 import SEO from '../../../components/common/SEO';
@@ -60,10 +60,6 @@ const Listings = () => {
         recognition.start();
     };
 
-    const districtKeys = Object.keys(t.districts || {});
-    const categoryKeys = ['Spawn/Seed', 'Feed', 'Medicine', 'Fish', 'Equipment'];
-
-
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchData();
@@ -109,48 +105,36 @@ const Listings = () => {
         setPage(1);
     }, []);
 
-    const handleCategoryChange = (newCat) => {
-        setCategory(newCat);
-        setPage(1);
-    };
-
-    const handleDistrictChange = (newDist) => {
-        setDistrict(newDist);
-        setPage(1);
-    };
-
     const handleViewTypeChange = (newType) => {
         setViewType(newType);
         setPage(1);
     };
 
     return (
-        <div className="pb-20 bg-gray-50/30 min-h-screen">
+        <div className="pb-16 bg-surface-1 min-h-screen">
             <SEO 
                 title={viewType === 'selling' ? t.premiumSales : t.traderDemands}
                 description={viewType === 'selling' ? t.browseVerifiedDesc : t.exploreTraderDesc}
             />
-            {/* Hero Section */}
-            <section className="relative bg-gray-900 text-white py-10 md:py-32 px-4 overflow-hidden mb-8">
+            {/* Header Hero Banner */}
+            <section className="relative bg-text-primary text-white py-12 md:py-20 px-4 overflow-hidden mb-8">
                 <div 
-                    className="absolute inset-0 opacity-40"
+                    className="absolute inset-0 opacity-20"
                     style={{
                         backgroundImage: 'url(/listings-hero.png)',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                     }}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 via-blue-950/40 to-gray-900/60"></div>
-                </div>
+                />
                 
                 <div className="max-w-7xl mx-auto relative z-10 text-center space-y-3">
-                    <h1 className="text-2xl md:text-6xl font-black leading-tight tracking-tight">
-                        {viewType === 'selling' ? t.premiumSales : t.traderDemands} <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
+                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+                        {viewType === 'selling' ? t.premiumSales : t.traderDemands}{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-secondary-light">
                             {t.marketplaceHub}
                         </span>
                     </h1>
-                    <p className="max-w-2xl mx-auto text-sm md:text-xl text-blue-100 font-medium leading-relaxed opacity-90">
+                    <p className="max-w-xl mx-auto text-sm md:text-base text-white/70 font-medium leading-relaxed">
                         {viewType === 'selling' 
                             ? t.browseVerifiedDesc
                             : t.exploreTraderDesc
@@ -159,136 +143,128 @@ const Listings = () => {
                 </div>
             </section>
 
-            <div className="max-w-7xl mx-auto px-4 space-y-8">
-            {/* View Statistics & Tabs */}
-            <div className="flex flex-col md:flex-row gap-6 min-w-0">
-                <div className="flex-1 flex bg-white p-2 rounded-[2rem] shadow-sm border border-gray-100 min-w-0">
-                    <button 
-                        onClick={() => handleViewTypeChange('selling')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-[1.5rem] font-black transition-all ${
-                            viewType === 'selling' 
-                            ? 'bg-primary text-white shadow-lg shadow-primary/25' 
-                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                        }`}
-                    >
-                        <ArrowUpRight size={20} />
-                        {t.forSaleTab}
-                    </button>
-                    <button 
-                        onClick={() => handleViewTypeChange('buying')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-[1.5rem] font-black transition-all ${
-                            viewType === 'buying' 
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
-                            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-                        }`}
-                    >
-                        <ArrowDownRight size={20} />
-                        {t.buyingDemandsTab}
-                    </button>
-                </div>
-            </div>
+            <div className="max-w-7xl mx-auto px-4 space-y-6">
+                {/* View Tabs & Search Bar */}
+                <div className="space-y-4">
+                    <div className="flex bg-white p-1.5 rounded-xl border border-border max-w-md mx-auto sm:mx-0">
+                        <button 
+                            onClick={() => handleViewTypeChange('selling')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                                viewType === 'selling' 
+                                ? 'bg-primary text-white shadow-xs' 
+                                : 'text-text-secondary hover:text-text-primary hover:bg-surface-1'
+                            }`}
+                        >
+                            <ArrowUpRight size={16} />
+                            {t.forSaleTab}
+                        </button>
+                        <button 
+                            onClick={() => handleViewTypeChange('buying')}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                                viewType === 'buying' 
+                                ? 'bg-secondary text-white shadow-xs' 
+                                : 'text-text-secondary hover:text-text-primary hover:bg-surface-1'
+                            }`}
+                        >
+                            <ArrowDownRight size={16} />
+                            {t.buyingDemandsTab}
+                        </button>
+                    </div>
 
-
-            <div className="flex flex-col md:flex-row items-center gap-3 mb-8 max-w-3xl">
-                <div className="relative flex-1 w-full">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                    <input 
-                        type="text" 
-                        placeholder={t.findProduct || "Search..."} 
-                        className="w-full pl-12 pr-12 py-4 bg-white border border-gray-200 focus:border-primary rounded-2xl outline-none transition-all font-medium shadow-sm text-gray-900"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <button 
-                        onClick={startListening}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors z-10 p-2 cursor-pointer"
-                        title={t.voiceSearch || "Search by voice"}
-                    >
-                        <Mic size={20} />
-                    </button>
-                </div>
-                <button 
-                    className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-md shadow-blue-600/20 hover:bg-blue-700 transition-colors flex items-center justify-center"
-                >
-                    {t.search || "Search"}
-                </button>
-            </div>
-
-            {loading ? (
-                <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full">
-                    {[1,2,3,4,5,6,7,8].map(n => (
-                        <div key={n} className="w-full">
-                            {viewType === 'selling' ? <CardSkeleton /> : <PostSkeleton />}
+                    <div className="flex items-center gap-2 max-w-2xl">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary" size={18} />
+                            <input 
+                                type="text" 
+                                placeholder={t.findProduct || "Search..."} 
+                                className="form-input pl-10 pr-10 py-3"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                            <button 
+                                onClick={startListening}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-primary transition-colors p-1"
+                                title={t.voiceSearch || "Search by voice"}
+                            >
+                                <Mic size={18} />
+                            </button>
                         </div>
-                    ))}
+                    </div>
                 </div>
-            ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (
-                <div className="space-y-12">
-                    <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        {viewType === 'selling' ? (
-                            listings.map(item => (
-                                <div key={item._id} className="w-full">
-                                    <ListingCard 
-                                        item={item} 
-                                        userRole={user?.role} 
-                                    />
-                                </div>
-                            ))
-                        ) : (
-                            buyingPosts.map(post => (
-                                <div key={post._id} className="w-full">
-                                <BuyingPostCard 
-                                    post={post} 
-                                />
+
+                {/* Listings Grid */}
+                {loading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {[1,2,3,4,5,6,7,8].map(n => (
+                            <div key={n}>
+                                {viewType === 'selling' ? <CardSkeleton /> : <PostSkeleton />}
                             </div>
-                            ))
+                        ))}
+                    </div>
+                ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                            {viewType === 'selling' ? (
+                                listings.map(item => (
+                                    <div key={item._id}>
+                                        <ListingCard 
+                                            item={item} 
+                                            userRole={user?.role} 
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                buyingPosts.map(post => (
+                                    <div key={post._id}>
+                                        <BuyingPostCard 
+                                            post={post} 
+                                        />
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {pagination.pages > 1 && (
+                            <div className="flex items-center justify-center gap-3 py-6">
+                                <button 
+                                    disabled={page === 1}
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    className="btn btn-ghost border border-border btn-sm"
+                                >
+                                    {t.previous}
+                                </button>
+                                <span className="text-sm font-bold text-text-primary px-2">
+                                    {formatDigit(page)} / {formatDigit(pagination.pages)}
+                                </span>
+                                <button 
+                                    disabled={page === pagination.pages}
+                                    onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
+                                    className="btn btn-ghost border border-border btn-sm"
+                                >
+                                    {t.next}
+                                </button>
+                            </div>
                         )}
                     </div>
-
-                    {/* Pagination Controls */}
-                    {pagination.pages > 1 && (
-                        <div className="flex items-center justify-center gap-4 py-8">
-                            <button 
-                                disabled={page === 1}
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
-                                className="px-6 py-2 bg-white border border-gray-200 rounded-xl font-bold disabled:opacity-50 hover:bg-gray-50 transition-colors"
-                            >
-                                {t.previous}
-                            </button>
-                            <span className="font-black text-gray-900">
-                                {formatDigit(page)} / {formatDigit(pagination.pages)}
-                            </span>
-                            <button 
-                                disabled={page === pagination.pages}
-                                onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-                                className="px-6 py-2 bg-white border border-gray-200 rounded-xl font-bold disabled:opacity-50 hover:bg-gray-50 transition-colors"
-                            >
-                                {t.next}
-                            </button>
+                ) : (
+                    <div className="empty-state py-24">
+                        <div className="empty-state-icon">
+                            <Search size={32} />
                         </div>
-                    )}
-                </div>
-            ) : (
-                <div className="flex flex-col items-center justify-center py-32 space-y-6 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100">
-                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center text-gray-300">
-                        <Search size={48} />
+                        <h3 className="text-lg font-bold text-text-primary mb-1">{t.noDataFound}</h3>
+                        <p className="text-text-secondary text-sm mb-4">{t.tryDifferentFilters}</p>
+                        <button 
+                            onClick={clearFilters}
+                            className="btn btn-ghost border border-border btn-sm"
+                        >
+                            {t.clearAllFilters}
+                        </button>
                     </div>
-                    <div className="text-center">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{t.noDataFound}</h3>
-                        <p className="text-gray-500 font-medium">{t.tryDifferentFilters}</p>
-                    </div>
-                    <button 
-                        onClick={clearFilters}
-                        className="btn bg-white border border-gray-200 text-gray-900 hover:bg-gray-50"
-                    >
-                        {t.clearAllFilters}
-                    </button>
-                </div>
-            )}
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
 };
 
 export default Listings;
-

@@ -7,7 +7,7 @@ import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 
 import { getDashboardPath } from '../../../utils/roleUtils';
-import { stateDistricts } from '../../../utils/districtsData';
+import { stateDistricts, getPoliceStations } from '../../../utils/districtsData';
 
 const Register = () => {
     const { t } = useLanguage();
@@ -30,6 +30,7 @@ const Register = () => {
 
     const states = Object.keys(stateDistricts);
     const districts = formData.district ? stateDistricts[formData.district] : [];
+    const policeStationsList = formData.localDistrict ? getPoliceStations(formData.localDistrict) : [];
 
     const handleSuccessRedirect = (res) => {
         const user = res.data.user;
@@ -52,8 +53,8 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!formData.district || !formData.localDistrict) {
-            return toast.error("Please select state and district.");
+        if (!formData.district || !formData.localDistrict || !formData.policeStation) {
+            return toast.error("Please select state, district, and police station.");
         }
 
         if (formData.password !== formData.confirmPassword) {
@@ -97,7 +98,7 @@ const Register = () => {
                             <input 
                                 type="text" required 
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                                placeholder="Your Name"
+                                placeholder={t.enterNamePlaceholder || 'Your Name'}
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                             />
@@ -112,7 +113,7 @@ const Register = () => {
                                     type="tel" required 
                                     maxLength={10}
                                     className="w-full px-4 py-3 outline-none bg-transparent"
-                                    placeholder="98XXXXXXXX"
+                                    placeholder={t.enterPhonePlaceholder || '98XXXXXXXX'}
                                     value={formData.phone}
                                     onChange={(e) => {
                                         const val = e.target.value.replace(/\D/g, '');
@@ -123,26 +124,26 @@ const Register = () => {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddress}</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddressLabel || t.emailAddress || 'Email Address'}</label>
                         <input 
                             type="email" required
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                            placeholder="example@gmail.com"
+                            placeholder={t.enterEmailPlaceholder || 'example@gmail.com'}
                             value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                         />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.state || 'State'}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.district || 'State'}</label>
                             <select 
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none h-[50px]"
                                 value={formData.district}
-                                onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
+                                onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: '', policeStation: ''})}
                                 required
                             >
-                                <option value="">{t.selectState || 'Select State'}</option>
-                                {states.map((state) => <option key={state} value={state}>{state}</option>)}
+                                <option value="">{t.selectState || t.selectDistrictPlaceholder || 'Select State'}</option>
+                                {states.map((state) => <option key={state} value={state}>{t.districts?.[state] || state}</option>)}
                             </select>
                         </div>
                         <div>
@@ -150,12 +151,25 @@ const Register = () => {
                             <select 
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none h-[50px]"
                                 value={formData.localDistrict}
-                                onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
+                                onChange={(e) => setFormData({...formData, localDistrict: e.target.value, policeStation: ''})}
                                 required
                                 disabled={!formData.district}
                             >
-                                <option value="">{t.selectDistrict || 'Select District'}</option>
-                                {districts.map(d => <option key={d} value={d}>{d}</option>)}
+                                <option value="">{t.selectDistrict || t.selectBtn || 'Select District'}</option>
+                                {districts.map(d => <option key={d} value={d}>{t.districts?.[d] || d}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.policeStation || 'Police Station'}</label>
+                            <select 
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none h-[50px]"
+                                value={formData.policeStation}
+                                onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
+                                required
+                                disabled={!formData.localDistrict}
+                            >
+                                <option value="">{t.selectPoliceStation || t.selectBtn || 'Select Police Station'}</option>
+                                {policeStationsList.map(ps => <option key={ps} value={ps}>{t.policeStations?.[ps] || ps}</option>)}
                             </select>
                         </div>
                     </div>
@@ -179,18 +193,18 @@ const Register = () => {
                         <input 
                             type="password" required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                            placeholder="Enter a secure password"
+                            placeholder={t.enterPasswordSecurePlaceholder || 'Enter a secure password'}
                             value={formData.password}
                             onChange={(e) => setFormData({...formData, password: e.target.value})}
                         />
-                        <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters, include uppercase, lowercase, number, and special character.</p>
+                        <p className="text-xs text-gray-500 mt-1">{t.passwordHint || 'Must be at least 8 characters, include uppercase, lowercase, number, and special character.'}</p>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t.confirmNewPassword}</label>
                         <input 
                             type="password" required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                            placeholder="Re-enter your password"
+                            placeholder={t.reenterPasswordPlaceholder || 'Re-enter your password'}
                             value={formData.confirmPassword}
                             onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                         />

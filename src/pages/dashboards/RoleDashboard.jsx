@@ -53,7 +53,7 @@ const RoleDashboard = ({ allowedRole }) => {
     const statItems = [
         { label: t.myListings, val: stats?.totalListings || 0, icon: <Package />, col: 'bg-blue-600 shadow-blue-500/20', path: '/profile/listings' },
         { label: t.buyingRequirements, val: stats?.totalPosts || 0, icon: <PlusCircle />, col: 'bg-green-600 shadow-green-500/20', path: '/profile/posts' },
-        { label: 'BUYING REQUESTS', val: 'View', icon: <ShoppingCart />, col: 'bg-orange-600 shadow-orange-500/20', path: '/posts' },
+        { label: t.buyingRequirements, val: 'View', icon: <ShoppingCart />, col: 'bg-orange-600 shadow-orange-500/20', path: '/posts' },
     ];
 
     return (
@@ -61,13 +61,13 @@ const RoleDashboard = ({ allowedRole }) => {
             <header className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
                 <div className="flex items-center justify-center md:justify-start gap-3 text-primary font-black text-sm uppercase tracking-widest w-full">
                     <LayoutDashboard size={20} />
-                    <span>{roleTitle} Dashboard</span>
+                    <span>{roleTitle} {t.dashboard}</span>
                 </div>
                 <h1 className="text-4xl font-black text-gray-900 leading-tight">
                     {t.welcome}, <span className="text-primary">{user.name}</span>!
                 </h1>
                 <p className="text-lg text-gray-500 font-medium max-w-2xl text-center md:text-left">
-                    Manage your {allowedRole} activities and track your progress here.
+                    {t.manageYourActivities}
                 </p>
             </header>
 
@@ -88,13 +88,12 @@ const RoleDashboard = ({ allowedRole }) => {
                     <Info size={32} />
                 </div>
                 <div className="space-y-2 flex flex-col items-center md:items-start">
-                    <h3 className="text-xl font-black text-gray-900">Role Guidelines</h3>
+                    <h3 className="text-xl font-black text-gray-900">{t.roleGuidelines}</h3>
                     <p className="text-gray-500 font-medium leading-relaxed text-center md:text-left">
-                        As a <span className="font-bold text-gray-900">{roleTitle}</span>, you can 
-                        {allowedRole === 'trader' ? ' post buying requirements and connect with sellers.' : ' list products specific to your expertise and receive orders from traders.'}
+                        {t.roleDashboardDescriptionPrefix || 'As a'} <span className="font-bold text-gray-900">{roleTitle}</span>, {allowedRole === 'trader' ? t.roleDashboardTraderDesc || 'post buying requirements and connect with sellers.' : t.roleDashboardOtherDesc || 'list products specific to your expertise and receive orders from traders.'}
                     </p>
                     <Link to="/profile/settings" className="inline-block mt-4 text-primary font-black hover:underline">
-                        Go to detailed profile &rarr;
+                        {t.goToDetailedProfile || 'Go to detailed profile'} &rarr;
                     </Link>
                 </div>
             </div>

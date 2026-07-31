@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, PlusCircle } from 'lucide-react';
+import { PlusCircle, Search } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../utils/api';
 import OptimizedImage from '../common/OptimizedImage';
@@ -26,94 +26,103 @@ const Hero = () => {
     const heroImageSrc = heroMedia.heroImageUrl || FALLBACK_IMAGE;
 
     return (
-        <section className="relative bg-white pt-4 pb-10 sm:pt-6 sm:pb-16 md:pt-10 md:pb-24 px-4 sm:px-6 md:px-8 overflow-hidden">
-            {/* Background Decorative Elements */}
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 animate-gentle-pulse"></div>
-            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-green-50 rounded-full blur-3xl opacity-50 -z-10 animate-gentle-pulse"></div>
+        <section className="relative bg-white overflow-hidden pt-8 pb-16 sm:pt-12 sm:pb-20 md:pt-16 md:pb-28 px-4 sm:px-6 md:px-8">
+            {/* Subtle decorative background */}
+            <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-[500px] h-[500px] bg-primary-muted rounded-full blur-[100px] opacity-60 -z-10 animate-gentle-pulse pointer-events-none" />
+            <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-[300px] h-[300px] bg-secondary-muted rounded-full blur-[80px] opacity-40 -z-10 animate-gentle-pulse pointer-events-none" />
 
-            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 sm:gap-10 lg:gap-20">
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
+
                 {/* Text Content */}
-                <div className="flex-1 space-y-8 text-center lg:text-left order-2 lg:order-1">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-bold">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                <div className="flex-1 space-y-7 text-center lg:text-left order-2 lg:order-1">
+
+                    {/* Eyebrow badge */}
+                    <div className="inline-flex items-center gap-2 section-eyebrow mx-auto lg:mx-0">
+                        <span className="relative flex h-2 w-2 flex-shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
                         </span>
                         {t.heroBadge}
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 leading-[1.2]">
-                        {t.heroTitle1} <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600">
+                    {/* Headline */}
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-primary leading-[1.15] tracking-tight">
+                        {t.heroTitle1}{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                             {t.heroTitle2}
                         </span>
                     </h1>
 
-                    <p className="text-lg md:text-xl text-gray-600 font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                    {/* Subtitle */}
+                    <p className="text-lg text-text-secondary font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
                         {t.heroSubtitleExpanded}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-                        <Link 
-                            to="/profile" 
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl shadow-blue-600/20 group"
+                    {/* CTAs */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2">
+                        <Link
+                            to="/profile"
+                            className="btn btn-primary btn-xl w-full sm:w-auto group"
                         >
                             <PlusCircle size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                             {t.postListing}
                         </Link>
-                        <Link 
+                        <Link
                             to="/listings"
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-green-600 text-green-700 hover:bg-green-50 rounded-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-xl shadow-green-600/5 group"
+                            className="btn btn-outline btn-xl w-full sm:w-auto group"
                         >
-                            <Search size={20} className="group-hover:scale-125 transition-transform" />
+                            <Search size={20} className="group-hover:scale-110 transition-transform" />
                             {t.browseListings}
                         </Link>
                     </div>
-
-
                 </div>
 
-                {/* Hero Media Section */}
+                {/* Hero Media */}
                 <div className="flex-1 order-1 lg:order-2 w-full flex justify-center lg:justify-end">
-                    <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-[500px] mx-auto lg:mx-0">
-                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 relative z-10">
+                    <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-[480px]">
+                        <div className="grid grid-cols-2 gap-3 md:gap-4 relative z-10">
 
-                            {/* Video 1 — Cloudinary URL or local fallback */}
-                            <div className="relative bg-gray-100 rounded-xl sm:rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-md sm:shadow-xl ring-1 ring-gray-900/5 group">
-                                <OptimizedVideo 
-                                    key={video1Src} 
-                                    src={video1Src} 
+                            {/* Video 1 */}
+                            <div className="relative bg-surface-2 rounded-xl overflow-hidden shadow-md ring-1 ring-black/5 group">
+                                <OptimizedVideo
+                                    key={video1Src}
+                                    src={video1Src}
                                     priority={true}
-                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-300" 
+                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
 
-                            {/* Video 2 — Cloudinary URL or local fallback */}
-                            <div className="relative bg-gray-100 rounded-xl sm:rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-md sm:shadow-xl ring-1 ring-gray-900/5 group">
-                                <OptimizedVideo 
-                                    key={video2Src} 
-                                    src={video2Src} 
+                            {/* Video 2 */}
+                            <div className="relative bg-surface-2 rounded-xl overflow-hidden shadow-md ring-1 ring-black/5 group">
+                                <OptimizedVideo
+                                    key={video2Src}
+                                    src={video2Src}
                                     priority={true}
-                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-300" 
+                                    className="w-full aspect-square group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
 
-                            {/* Hero Image — Cloudinary URL or local fallback */}
-                            <div className="col-span-2 relative rounded-2xl sm:rounded-3xl md:rounded-[2rem] overflow-hidden shadow-lg sm:shadow-2xl ring-1 ring-gray-900/5 transition-all duration-300 group">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none"></div>
-                                <OptimizedImage src={heroImageSrc} alt="Fresh Fish Marketplace" priority={true}
-                                    className="w-full aspect-video group-hover:scale-105 transition-transform duration-300" />
+                            {/* Hero Image — spans full width */}
+                            <div className="col-span-2 relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 group">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none" />
+                                <OptimizedImage
+                                    src={heroImageSrc}
+                                    alt="Fresh Fish Marketplace"
+                                    priority={true}
+                                    className="w-full aspect-video group-hover:scale-105 transition-transform duration-500"
+                                />
                             </div>
-
                         </div>
 
-                        <div className="hidden sm:block absolute -top-8 -right-8 md:-top-10 md:-right-10 w-24 md:w-32 h-24 md:h-32 border-[10px] md:border-[15px] border-blue-100/30 rounded-full -z-0 animate-gentle-pulse"></div>
-                        <div className="hidden sm:block absolute -bottom-8 -left-8 md:-bottom-10 md:-left-10 w-12 md:w-16 h-12 md:h-16 bg-green-100/50 rounded-full -z-0"></div>
+                        {/* Decorative rings */}
+                        <div className="hidden sm:block absolute -top-8 -right-8 w-28 h-28 border-[12px] border-primary/10 rounded-full -z-0 animate-gentle-pulse pointer-events-none" />
+                        <div className="hidden sm:block absolute -bottom-6 -left-6 w-14 h-14 bg-secondary-muted rounded-full -z-0 pointer-events-none" />
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto mt-8 md:mt-12 px-4 relative z-20">
+            {/* Search bar */}
+            <div className="max-w-5xl mx-auto mt-10 md:mt-14 px-0 relative z-20">
                 <HomeSearch />
             </div>
         </section>

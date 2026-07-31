@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { X, Save, User as UserIcon, Phone, MapPin, Shield } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { stateDistricts } from '../../utils/districtsData';
+import { stateDistricts, getPoliceStations } from '../../utils/districtsData';
 
 const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
     const { user, updateUser } = useContext(AuthContext);
@@ -18,7 +18,7 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
     });
     const [loading, setLoading] = useState(false);
 
-    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
+    const states = Object.keys(stateDistricts);
     const districts = t.districtsList || [];
 
     const handleSubmit = async (e) => {
@@ -95,11 +95,11 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
                                 <select 
                                     className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-[60px]"
                                     value={formData.district}
-                                    onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
+                                    onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: '', policeStation: ''})}
                                     required
                                 >
                                     <option value="">{t.selectDistrictPlaceholder || 'Select State'}</option>
-                                    {districtsEn.map((d, index) => <option key={d} value={d}>{districts[index]}</option>)}
+                                    {states.map((state) => <option key={state} value={state}>{t.districts?.[state] || state}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -111,12 +111,12 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
                                 <select 
                                     className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-[60px]"
                                     value={formData.localDistrict}
-                                    onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
+                                    onChange={(e) => setFormData({...formData, localDistrict: e.target.value, policeStation: ''})}
                                     required
                                     disabled={!formData.district}
                                 >
                                     <option value="">{t.selectBtn || 'Select District'}</option>
-                                    {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
+                                    {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{t.districts?.[d] || d}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -125,13 +125,18 @@ const EditProfileModal = ({ isOpen, onClose, onSuccess }) => {
                             <label className="text-xs font-black uppercase text-gray-400 tracking-widest pl-2">{t.policeStation}</label>
                             <div className="relative">
                                 <Shield className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                <input 
-                                    type="text" required 
-                                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold"
-                                    placeholder={t.policeStationPlaceholder}
+                                <select 
+                                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-100 bg-gray-50 outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-[60px]"
                                     value={formData.policeStation}
                                     onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
-                                />
+                                    required
+                                    disabled={!formData.localDistrict}
+                                >
+                                    <option value="">{t.selectBtn || 'Select Police Station'}</option>
+                                    {formData.localDistrict && getPoliceStations(formData.localDistrict).map(ps => (
+                                        <option key={ps} value={ps}>{t.policeStations?.[ps] || ps}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>

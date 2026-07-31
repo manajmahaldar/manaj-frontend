@@ -480,108 +480,138 @@ const AdminDashboard = () => {
         </div>
     );
 
-    const ListingApprovalsView = () => (
-        <div className="space-y-8">
-            <header className="space-y-2">
-                <h1 className="text-4xl font-black text-gray-900 leading-tight">{t.listingApprovalsTable.split(' ')[0]} <span className="text-primary">{t.listingApprovalsTable.split(' ')[1] || ''}</span></h1>
-                <p className="text-gray-500 font-medium">{t.listingApprovalsDesc}</p>
-            </header>
+    const ListingApprovalsView = ({ filterType, customTitle, customDesc }) => {
+        const filteredItems = filterType 
+            ? pendingListings.filter(item => item.type === filterType) 
+            : pendingListings;
 
-            <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="px-10 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">{t.listingInfoTable}</th>
-                                <th className="px-6 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">{t.postedByTable}</th>
-                                <th className="px-6 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">{t.dateTable}</th>
-                                <th className="px-10 py-6 text-xs font-black text-gray-400 uppercase tracking-widest text-right">{t.actionTable}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {pendingListings.length === 0 ? (
-                                <tr>
-                                    <td colSpan="4" className="text-center py-10 text-gray-500 font-medium">{t.noPendingListings}</td>
+        const titleText = customTitle || t.listingApprovalsTable;
+        const titleParts = titleText.split(' ');
+        const mainTitle = titleParts.slice(0, -1).join(' ') || titleParts[0];
+        const highlightTitle = titleParts.length > 1 ? titleParts[titleParts.length - 1] : '';
+
+        return (
+            <div className="space-y-8">
+                <header className="space-y-2">
+                    <h1 className="text-4xl font-black text-gray-900 leading-tight">
+                        {mainTitle} {highlightTitle && <span className="text-primary">{highlightTitle}</span>}
+                    </h1>
+                    <p className="text-gray-500 font-medium">{customDesc || t.listingApprovalsDesc}</p>
+                </header>
+
+                <div className="bg-white rounded-[3rem] shadow-xl shadow-gray-200/40 border border-gray-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50/50 border-b border-gray-100">
+                                    <th className="px-10 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">{t.listingInfoTable}</th>
+                                    <th className="px-6 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">{t.postedByTable}</th>
+                                    <th className="px-6 py-6 text-xs font-black text-gray-400 uppercase tracking-widest">{t.dateTable}</th>
+                                    <th className="px-10 py-6 text-xs font-black text-gray-400 uppercase tracking-widest text-right">{t.actionTable}</th>
                                 </tr>
-                            ) : (
-                                pendingListings.map((item) => (
-                                    <tr key={item._id} className={`transition-colors ${item.isFlagged ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-blue-50/30'}`}>
-                                        <td className="px-10 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
-                                                    {item.photos && item.photos.length > 0 ? <img loading="lazy" src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
-                                                </div>
-                                                <div>
-                                                    <div className="font-black text-gray-900 flex items-center gap-2">
-                                                        {item.productName || item.fishName}
-                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                                            {item.type === 'listing' ? 'Sale' : 'Buy'}
-                                                        </span>
-                                                        {item.isFlagged && (
-                                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
-                                                                <Flag size={10} /> Flagged
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {filteredItems.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="4" className="text-center py-10 text-gray-500 font-medium">{t.noPendingListings}</td>
+                                    </tr>
+                                ) : (
+                                    filteredItems.map((item) => (
+                                        <tr key={item._id} className={`transition-colors ${item.isFlagged ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-blue-50/30'}`}>
+                                            <td className="px-10 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
+                                                        {item.photos && item.photos.length > 0 ? <img loading="lazy" src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-black text-gray-900 flex items-center gap-2">
+                                                            {item.productName || item.fishName}
+                                                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                                {item.type === 'listing' ? 'Sale' : 'Buy'}
                                                             </span>
+                                                            {item.isFlagged && (
+                                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
+                                                                    <Flag size={10} /> Flagged
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-xs text-gray-400 font-bold tracking-tight mt-1">
+                                                            {item.category} • {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price || item.buyingPrice)}
+                                                            {item.unit ? `/${item.unit}` : ''}
+                                                            {item.size ? ` • ${item.size}` : ''}
+                                                        </div>
+                                                        {item.isFlagged && (
+                                                            <div className="text-[10px] text-red-600 font-bold tracking-tight mt-1">
+                                                                Reason: {item.fraudReason}
+                                                            </div>
                                                         )}
                                                     </div>
-                                                    <div className="text-xs text-gray-400 font-bold tracking-tight mt-1">
-                                                        {item.category} • {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price || item.buyingPrice)}
-                                                        {item.unit ? `/${item.unit}` : ''}
-                                                        {item.size ? ` • ${item.size}` : ''}
-                                                    </div>
-                                                    {item.isFlagged && (
-                                                        <div className="text-[10px] text-red-600 font-bold tracking-tight mt-1">
-                                                            Reason: {item.fraudReason}
-                                                        </div>
-                                                    )}
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-6">
-                                            <div className="flex items-center gap-2">
-                                                <UserIcon size={16} className="text-gray-400" />
-                                                <span className="font-bold text-gray-700">{formatDigit(item.phoneNumber)}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-6 text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <Clock size={16} className="text-gray-400" />
-                                                <span className="font-bold text-gray-700">{new Date(item.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-10 py-6 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleApproveListing(item._id, item.type)}
-                                                    className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                    title="Approve"
-                                                >
-                                                    <ThumbsUp size={14} /> {t.approve}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleRejectListing(item._id, item.type)}
-                                                    className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                    title="Reject"
-                                                >
-                                                    <ThumbsDown size={14} /> {t.reject}
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                            </td>
+                                            <td className="px-6 py-6">
+                                                <div className="flex items-center gap-2">
+                                                    <UserIcon size={16} className="text-gray-400" />
+                                                    <span className="font-bold text-gray-700">{formatDigit(item.phoneNumber)}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6 text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <Clock size={16} className="text-gray-400" />
+                                                    <span className="font-bold text-gray-700">{new Date(item.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-6 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleApproveListing(item._id, item.type)}
+                                                        className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm text-xs font-bold"
+                                                        title="Approve"
+                                                    >
+                                                        <ThumbsUp size={14} /> {t.approve}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRejectListing(item._id, item.type)}
+                                                        className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold"
+                                                        title="Reject"
+                                                    >
+                                                        <ThumbsDown size={14} /> {t.reject}
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="w-full">
             <Routes>
                 <Route path="/" element={<UserManagement />} />
+                <Route path="/farmers" element={<UserManagement forcedRole="farmer" title="Farmers Management" description="Dedicated view for managing and inspecting registered farmers." />} />
+                <Route path="/sellers" element={<UserManagement forcedRole="seller" title="Sellers Management" description="Dedicated view for managing registered equipment & input sellers." />} />
+                <Route path="/traders" element={<UserManagement forcedRole="trader" title="Traders Management" description="Dedicated view for managing fish traders and wholesale buyers." />} />
+                <Route path="/hatcheries" element={<UserManagement forcedRole="hatchery" title="Hatcheries Management" description="Dedicated view for managing registered hatcheries & seed suppliers." />} />
                 <Route path="/stats" element={<StatsView />} />
-                <Route path="/listings-approval" element={<ListingApprovalsView />} />
+                <Route path="/buying-approvals" element={
+                    <ListingApprovalsView 
+                        filterType="post" 
+                        customTitle="Buying Demands Approval" 
+                        customDesc="Review and approve buying demand posts submitted by buyers and traders." 
+                    />
+                } />
+                <Route path="/listings-approval" element={
+                    <ListingApprovalsView 
+                        filterType="listing" 
+                        customTitle="Equipment & Listings Approval" 
+                        customDesc="Review and approve sale listings and equipment submitted by sellers, farmers, and hatcheries." 
+                    />
+                } />
                 <Route path="/user-verification" element={<UserVerificationView />} />
                 <Route path="/media" element={<MediaManager />} />
                 <Route path="/user-management" element={<UserManagement />} />

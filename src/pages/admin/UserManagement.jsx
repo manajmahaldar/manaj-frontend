@@ -8,13 +8,13 @@ import {
     ChevronUp, Eye, Trash2, CheckCircle2, ChevronLeft, ChevronRight, XCircle, AlertCircle, Flag
 } from 'lucide-react';
 
-const UserManagement = () => {
+const UserManagement = ({ forcedRole, title, description }) => {
     const {
         users, loading, total, filters, updateFilter, clearFilters,
         activeFilterCount, searchInput, setSearchInput,
         page, setPage, limit, setLimit, totalPages,
         sortBy, sortOrder, toggleSort, locationData, refetch
-    } = useAdminUsers();
+    } = useAdminUsers({ forcedRole });
 
     const [selectedUser, setSelectedUser] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
@@ -82,12 +82,24 @@ const UserManagement = () => {
             : <ChevronDown size={14} className="text-primary inline ml-1" />;
     };
 
+    const displayTitle = title || "User Management";
+    const displayDesc = description || (forcedRole 
+        ? `Dedicated management and administration for platform ${forcedRole}s.` 
+        : "Advanced filtering and administration of platform users.");
+
+    const titleParts = displayTitle.split(' ');
+    const mainTitle = titleParts.slice(0, -1).join(' ') || titleParts[0];
+    const highlightedTitle = titleParts.length > 1 ? titleParts[titleParts.length - 1] : '';
+
     return (
         <div className="space-y-8">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-4xl font-black text-gray-900 leading-tight">User <span className="text-primary">Management</span></h1>
-                    <p className="text-gray-500 font-medium">Advanced filtering and administration of platform users.</p>
+                    <h1 className="text-4xl font-black text-gray-900 leading-tight">
+                        {mainTitle}{' '}
+                        {highlightedTitle && <span className="text-primary">{highlightedTitle}</span>}
+                    </h1>
+                    <p className="text-gray-500 font-medium">{displayDesc}</p>
                 </div>
             </header>
 

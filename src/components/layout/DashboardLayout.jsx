@@ -1,6 +1,6 @@
 import { useState, useContext, useCallback } from 'react';
 import Sidebar from './Sidebar';
-import { Home, List, Heart, User, Plus } from 'lucide-react';
+import { Home, List, Heart, User, Plus, Menu } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -8,6 +8,7 @@ import { getDashboardPath } from '../../utils/roleUtils';
 import CreateListingModal from '../../features/product/components/CreateListingModal';
 import CreatePostModal from '../trader/CreatePostModal';
 import toast from 'react-hot-toast';
+import logoImg from '../../assets/logo/logo.png';
 
 const DashboardLayout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -29,53 +30,43 @@ const DashboardLayout = ({ children }) => {
     const dashboardHomePath = getDashboardPath(user.role);
     const listingsPath = getListingPath(user.role);
 
-    const isHomeActive = location.pathname === dashboardHomePath || location.pathname === '/profile';
+    const isHomeActive     = location.pathname === dashboardHomePath || location.pathname === '/profile';
     const isListingsActive = location.pathname === listingsPath;
-    const isSavedActive = location.pathname === '/profile/saved';
-    const isProfileActive = location.pathname === '/profile/settings';
+    const isSavedActive    = location.pathname === '/profile/saved';
+    const isProfileActive  = location.pathname === '/profile/settings';
 
     const handleCreateClick = useCallback(() => {
-        const isUnverified = user.role !== 'admin' && user.accountStatus !== 'active';
-        if (isUnverified) {
-            toast.error("Please complete verification to list products or post requirements");
-            navigate('/verification');
-            return;
-        }
         setIsListingModalOpen(true);
-    }, [user, navigate]);
+    }, []);
 
     const handleSuccess = useCallback(() => {
-        toast.success("Listing submitted successfully!");
+        toast.success(t.listingSubmitSuccess || 'Listing submitted successfully!');
         navigate(0);
-    }, [navigate]);
+    }, [navigate, t.listingSubmitSuccess]);
 
-    const renderNavItem = (label, path, icon, isActive) => (
+    const NavItem = ({ label, path, icon, isActive }) => (
         <Link
             to={path}
-            className={`flex flex-col items-center justify-center flex-1 min-w-0 h-full transition-colors duration-200 ${
-                isActive ? 'text-primary' : 'text-gray-400 hover:text-gray-600'
+            className={`flex flex-col items-center justify-center flex-1 min-w-0 h-full gap-1 transition-colors duration-150 ${
+                isActive ? 'text-primary' : 'text-text-tertiary hover:text-text-secondary'
             }`}
         >
-            <div className="transition-transform duration-200 active:scale-95">
+            <div className={`transition-transform duration-150 active:scale-90 ${isActive ? 'scale-105' : ''}`}>
                 {icon}
             </div>
-            <span className="text-[9px] font-bold mt-1 tracking-wide uppercase truncate max-w-full leading-none">
+            <span className="text-2xs font-semibold tracking-wide uppercase truncate max-w-full leading-none">
                 {label}
             </span>
-            <span style={{
-                display: 'block', width: '4px', height: '4px', marginTop: '3px',
-                backgroundColor: isActive ? '#0066cc' : 'transparent',
-                borderRadius: '50%',
-                transition: 'background-color 0.2s'
-            }} />
+            <span className={`w-1 h-1 rounded-full transition-all duration-200 ${isActive ? 'bg-primary opacity-100' : 'opacity-0'}`} />
         </Link>
     );
 
     return (
-        <div className="min-h-screen bg-gray-50/50 flex">
+        <div className="min-h-screen bg-surface-1 flex">
+            {/* Sidebar overlay */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/40 z-45 lg:hidden"
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
@@ -84,68 +75,78 @@ const DashboardLayout = ({ children }) => {
 
             <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
                 {/* Mobile Top Header */}
-                <header className="lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <header className="lg:hidden bg-white border-b border-border px-4 h-14 flex items-center justify-between sticky top-0 z-30">
                     <button 
                         onClick={() => setIsSidebarOpen(true)}
-                        className="p-2 -ml-2 text-gray-500 hover:text-primary active:scale-95 transition-all"
-                        aria-label="Open menu"
+                        className="btn-icon btn-ghost -ml-1 text-text-secondary"
+                        aria-label="Open navigation menu"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
+                        <Menu size={22} />
                     </button>
-                    <span className="font-black text-lg text-primary tracking-widest uppercase">MatsyaLink</span>
-                    <div className="w-8" />
+                    <Link to="/" className="flex items-center gap-2">
+                        <img src={logoImg} alt="MatsyaLink" className="h-7 w-auto object-contain" />
+                        <span className="font-bold text-sm text-text-primary tracking-tight">MatsyaLink</span>
+                    </Link>
+                    <div className="w-9" /> {/* spacer to balance layout */}
                 </header>
 
-                <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 lg:p-12 lg:pb-12 pb-24">
-                    <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+                {/* Main content */}
+                <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
+                    <div className="max-w-[1600px] mx-auto">
                         {children}
                     </div>
                 </main>
             </div>
 
-
-
-            {/* Outer wrapper: full-width, sits at bottom, clips nothing */}
+            {/* Mobile Bottom Navigation */}
             <nav
-                className="lg:hidden fixed bottom-0 left-0 right-0 z-40"
+                className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border"
                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             >
-                {/* Thin decorative top-border strip */}
-                <div className="h-px bg-gray-100 w-full" />
-
-                {/* Bar proper — 60 px tall, white background */}
-                <div
-                    className="bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] flex items-center"
-                    style={{ height: '60px' }}
-                >
+                <div className="flex items-center h-[60px]">
                     {/* HOME */}
-                    {renderNavItem(t.home || 'Home', dashboardHomePath, <Home size={20} />, isHomeActive)}
+                    <NavItem
+                        label={t.home || 'Home'}
+                        path={dashboardHomePath}
+                        icon={<Home size={20} />}
+                        isActive={isHomeActive}
+                    />
 
                     {/* LISTINGS */}
-                    {renderNavItem(t.listings || 'Listings', listingsPath, <List size={20} />, isListingsActive)}
+                    <NavItem
+                        label={t.listings || 'Listings'}
+                        path={listingsPath}
+                        icon={<List size={20} />}
+                        isActive={isListingsActive}
+                    />
 
-                    {/* Center + button — floats 20 px above the bar */}
+                    {/* Center FAB */}
                     <div className="flex-1 flex items-center justify-center h-full relative">
                         <button
                             onClick={handleCreateClick}
                             title={t.newListing || 'Create'}
-                            aria-label="Create new listing"
-                            className="absolute flex items-center justify-center bg-primary hover:bg-blue-700 active:scale-95 text-white rounded-[18px] border-4 border-white shadow-xl shadow-primary/40 transition-all duration-200"
-                            style={{ width: '54px', height: '54px', bottom: '14px' }}
+                            aria-label={t.createNewListing || 'Create new listing'}
+                            className="absolute -top-5 w-14 h-14 bg-primary hover:bg-primary-dark active:scale-95 text-white rounded-2xl shadow-md shadow-primary/30 transition-all duration-150 flex items-center justify-center border-4 border-surface-1"
                         >
-                            <div className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center">
-                                <Plus size={16} strokeWidth={3} />
-                            </div>
+                            <Plus size={22} strokeWidth={2.5} />
                         </button>
                     </div>
 
                     {/* SAVED */}
-                    {renderNavItem(t.saved || 'Saved', '/profile/saved', <Heart size={20} />, isSavedActive)}
+                    <NavItem
+                        label={t.saved || 'Saved'}
+                        path="/profile/saved"
+                        icon={<Heart size={20} />}
+                        isActive={isSavedActive}
+                    />
 
-                    {/* MY PROFILE */}
-                    {renderNavItem(t.profile || 'Profile', '/profile/settings', <User size={20} />, isProfileActive)}
+                    {/* PROFILE */}
+                    <NavItem
+                        label={t.profile || 'Profile'}
+                        path="/profile/settings"
+                        icon={<User size={20} />}
+                        isActive={isProfileActive}
+                    />
                 </div>
             </nav>
 

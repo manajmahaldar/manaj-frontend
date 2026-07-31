@@ -2,43 +2,69 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { AuthContext, AuthActionsContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { Languages, LayoutDashboard } from 'lucide-react';
+import { Languages, LayoutDashboard, ChevronDown } from 'lucide-react';
 import logoImg from '../../assets/logo/logo.png';
 import { getDashboardPath } from '../../utils/roleUtils';
 import api from '../../utils/api';
+
+const LANGS = [
+    { code: 'bn', label: 'বাংলা',  sub: 'Bengali' },
+    { code: 'en', label: 'English', sub: 'English' },
+    { code: 'hi', label: 'हिंदी',   sub: 'Hindi'   },
+    { code: 'or', label: 'ଓଡ଼ିଆ',   sub: 'Odia'    },
+];
 
 const Navbar = () => {
     const { user } = useContext(AuthContext);
     const { logout } = useContext(AuthActionsContext);
     const { t, language, changeLanguage } = useLanguage();
-    const [isLangOpen, setIsLangOpen] = useState(false);
+    const [isDesktopLangOpen, setIsDesktopLangOpen] = useState(false);
+    const [isMobileLangOpen, setIsMobileLangOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const navigate = useNavigate();
-    const langDropdownRef = useRef(null);
+
+    // Separate refs for desktop and mobile — MUST NOT share a single ref
+    const desktopLangRef = useRef(null);
+    const mobileLangRef  = useRef(null);
 
     const handleLogout = useCallback(() => {
         logout();
         navigate('/login');
     }, [logout, navigate]);
 
-    // Close language dropdown on outside click
+    // Close desktop dropdown on outside click
     useEffect(() => {
         const handler = (e) => {
-            if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
-                setIsLangOpen(false);
+            if (desktopLangRef.current && !desktopLangRef.current.contains(e.target)) {
+                setIsDesktopLangOpen(false);
             }
         };
-        if (isLangOpen) document.addEventListener('mousedown', handler);
+        if (isDesktopLangOpen) document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
-    }, [isLangOpen]);
+    }, [isDesktopLangOpen]);
 
-    const navLinks = useMemo(() => [
-        { name: t.home, path: '/' },
-    ], [t.home]);
+    // Close mobile dropdown on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (mobileLangRef.current && !mobileLangRef.current.contains(e.target)) {
+                setIsMobileLangOpen(false);
+            }
+        };
+        if (isMobileLangOpen) document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [isMobileLangOpen]);
 
-    // Prefetch listings/posts data on hover for instant navigation
+    // Subtle shadow on scroll
+    useEffect(() => {
+        const handleScroll = () => setIsScrolled(window.scrollY > 8);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Prefetch listings data on hover for instant navigation
     const prefetchListings = useCallback(() => {
         if (sessionStorage.getItem('prefetch_listings')) return;
-        api.get('/listings?page=1&limit=12').then(res => {
+        api.get('/listings?page=1&limit=12').then(() => {
             sessionStorage.setItem('prefetch_listings', '1');
         }).catch(() => {});
     }, []);
@@ -50,118 +76,155 @@ const Navbar = () => {
         }).catch(() => {});
     }, []);
 
+    const navLinks = useMemo(() => [
+        { name: t.home, path: '/' },
+    ], [t.home]);
+
+    const handleLanguageSelect = useCallback((code) => {
+        changeLanguage(code);
+        setIsDesktopLangOpen(false);
+        setIsMobileLangOpen(false);
+    }, [changeLanguage]);
+
     return (
-        <nav className="bg-white shadow-sm sticky top-0 z-50">
+        <nav className={`bg-white sticky top-0 z-50 transition-shadow duration-200 ${isScrolled ? 'shadow-sm border-b border-border' : 'border-b border-border-subtle'}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16 items-center">
-                    <Link to="/" className="flex items-center gap-2">
-                        <img loading="eager" fetchpriority="high" src={logoImg} alt="Logo" className="h-12 md:h-20 w-auto object-contain" />
-                        <span className="text-lg md:text-xl font-bold text-primary">MatsyaLink</span>
+                <div className="flex justify-between h-16 items-center gap-4">
+
+                    {/* Brand */}
+                    <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
+                        <img
+                            loading="eager"
+                            fetchpriority="high"
+                            src={logoImg}
+                            alt="MatsyaLink Logo"
+                            className="h-9 w-auto object-contain"
+                        />
+                        <span className="text-base font-bold text-text-primary tracking-tight">
+                            MatsyaLink
+                        </span>
                     </Link>
 
-                    {/* Desktop Links */}
-                    <div className="hidden md:flex items-center gap-6">
+                    {/* Desktop nav */}
+                    <div className="hidden md:flex items-center gap-1">
                         {navLinks.map((link) => (
-                            <Link key={link.path} to={link.path} className="text-gray-600 hover:text-primary font-medium">
+                            <Link
+                                key={link.path}
+                                to={link.path}
+                                className="px-3.5 py-2 text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-surface-1 rounded-lg transition-all duration-150"
+                                onMouseEnter={link.path === '/listings' ? prefetchListings : link.path === '/posts' ? prefetchPosts : undefined}
+                            >
                                 {link.name}
                             </Link>
                         ))}
-                        <Link to="/listings" onMouseEnter={prefetchListings} className="text-gray-600 hover:text-primary font-medium">{t.listings}</Link>
-                        <Link to="/posts" onMouseEnter={prefetchPosts} className="text-gray-600 hover:text-primary font-medium">{t.buyingPosts}</Link>
-
-                        {/* Language Dropdown */}
-                        <div className="relative" ref={langDropdownRef}>
-                            <button
-                                onClick={() => setIsLangOpen(!isLangOpen)}
-                                className="flex items-center gap-2 px-3 py-1.5 border-2 border-primary/20 hover:border-primary text-primary rounded-xl font-bold text-sm transition-all hover:bg-primary/5 active:scale-95"
-                                title="Change Language"
-                            >
-                                <Languages size={18} />
-                                <span className="uppercase">{language}</span>
-                            </button>
-
-                            {isLangOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 animate-in fade-in zoom-in-95 duration-200">
-                                    {[
-                                        { code: 'bn', label: 'বাংলা', sub: 'Bengali' },
-                                        { code: 'en', label: 'English', sub: 'English' },
-                                        { code: 'hi', label: 'हिंदी', sub: 'Hindi' },
-                                        { code: 'or', label: 'ଓଡ଼ିଆ', sub: 'Odia' }
-                                    ].map((lang) => (
-                                        <button
-                                            key={lang.code}
-                                            onClick={() => {
-                                                changeLanguage(lang.code);
-                                                setIsLangOpen(false);
-                                            }}
-                                            className={`w-full text-left px-5 py-2.5 hover:bg-gray-50 flex flex-col transition-colors ${language === lang.code ? 'bg-blue-50 text-primary' : 'text-gray-700'}`}
-                                        >
-                                            <span className="font-bold text-sm">{lang.label}</span>
-                                            <span className="text-[10px] font-medium opacity-60 uppercase tracking-widest">{lang.sub}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {!user ? (
-                            <Link to="/register" className="bg-primary text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all">
-                                {t.register}
-                            </Link>
-                        ) : (
-                            <Link 
-                                to={getDashboardPath(user.role)} 
-                                className="flex items-center gap-2 bg-primary/10 text-primary px-5 py-2 rounded-xl font-bold hover:bg-primary hover:text-white transition-all active:scale-95"
-                            >
-                                <LayoutDashboard size={18} />
-                                {t.dashboard}
-                            </Link>
-                        )}
                     </div>
 
-                    {/* Mobile Section */}
-                    <div className="md:hidden flex items-center gap-3">
-                        {/* Mobile language dropdown */}
-                        <div className="relative">
+                    {/* Desktop right section */}
+                    <div className="hidden md:flex items-center gap-2">
+                        {/* Desktop Language Dropdown — uses its own ref */}
+                        <div className="relative" ref={desktopLangRef}>
                             <button
-                                onClick={() => setIsLangOpen(!isLangOpen)}
-                                className="flex items-center gap-1 px-2.5 py-1.5 border border-primary/30 text-primary rounded-lg text-xs font-black uppercase tracking-widest active:scale-95"
+                                onClick={() => setIsDesktopLangOpen(prev => !prev)}
+                                className="btn btn-ghost btn-sm gap-1.5 text-text-secondary"
+                                title="Change Language"
+                                aria-haspopup="listbox"
+                                aria-expanded={isDesktopLangOpen}
                             >
-                                <Languages size={14} />
-                                {language}
+                                <Languages size={16} />
+                                <span className="font-semibold uppercase text-xs">{language}</span>
+                                <ChevronDown size={14} className={`transition-transform duration-200 ${isDesktopLangOpen ? 'rotate-180' : ''}`} />
                             </button>
-                            
-                            {isLangOpen && (
-                                <div className="absolute top-full right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
-                                    {['bn', 'en', 'hi', 'or'].map((l) => (
+
+                            {isDesktopLangOpen && (
+                                <div
+                                    className="absolute top-full right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border border-border py-1.5 z-50"
+                                    role="listbox"
+                                >
+                                    {LANGS.map((lang) => (
                                         <button
-                                            key={l}
-                                            onClick={() => {
-                                                changeLanguage(l);
-                                                setIsLangOpen(false);
-                                            }}
-                                            className={`w-full text-left px-4 py-2 text-xs font-bold uppercase tracking-widest ${language === l ? 'bg-blue-50 text-primary' : 'text-gray-500'}`}
+                                            key={lang.code}
+                                            role="option"
+                                            aria-selected={language === lang.code}
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => handleLanguageSelect(lang.code)}
+                                            className={`w-full text-left px-4 py-2.5 flex items-center justify-between transition-colors duration-150 ${
+                                                language === lang.code
+                                                    ? 'bg-primary-muted text-primary'
+                                                    : 'text-text-primary hover:bg-surface-1'
+                                            }`}
                                         >
-                                            {l === 'bn' ? 'বাংলা' : l === 'en' ? 'English' : l === 'hi' ? 'हिंदी' : 'ଓଡ଼ିଆ'}
+                                            <span className="font-semibold text-sm">{lang.label}</span>
+                                            <span className="text-2xs font-medium text-text-tertiary uppercase tracking-wider">{lang.sub}</span>
                                         </button>
                                     ))}
                                 </div>
                             )}
                         </div>
+
+                        {/* Auth CTA */}
                         {!user ? (
-                            <Link to="/register" className="bg-primary text-white px-4 py-2 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all text-sm">
+                            <Link to="/register" className="btn btn-primary btn-sm">
                                 {t.register}
                             </Link>
                         ) : (
-                            <Link 
-                                to={getDashboardPath(user.role)} 
-                                className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-xl font-bold hover:bg-primary hover:text-white transition-all active:scale-95 text-sm"
+                            <Link
+                                to={getDashboardPath(user.role)}
+                                className="btn btn-ghost btn-sm text-primary hover:bg-primary-muted"
                             >
                                 <LayoutDashboard size={16} />
                                 {t.dashboard}
                             </Link>
                         )}
                     </div>
+
+                    {/* Mobile section */}
+                    <div className="md:hidden flex items-center gap-2">
+                        {/* Mobile Language Dropdown — uses its own ref */}
+                        <div className="relative" ref={mobileLangRef}>
+                            <button
+                                onClick={() => setIsMobileLangOpen(prev => !prev)}
+                                className="btn-icon btn-ghost text-text-secondary w-9 h-9"
+                                title="Change Language"
+                                aria-label="Change Language"
+                            >
+                                <Languages size={18} />
+                            </button>
+
+                            {isMobileLangOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-36 bg-white rounded-xl shadow-lg border border-border py-1.5 z-50">
+                                    {LANGS.map((lang) => (
+                                        <button
+                                            key={lang.code}
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => handleLanguageSelect(lang.code)}
+                                            className={`w-full text-left px-4 py-2 text-sm font-semibold transition-colors ${
+                                                language === lang.code
+                                                    ? 'bg-primary-muted text-primary'
+                                                    : 'text-text-primary hover:bg-surface-1'
+                                            }`}
+                                        >
+                                            {lang.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Mobile auth CTA */}
+                        {!user ? (
+                            <Link to="/register" className="btn btn-primary btn-sm">
+                                {t.register}
+                            </Link>
+                        ) : (
+                            <Link
+                                to={getDashboardPath(user.role)}
+                                className="btn btn-ghost btn-sm text-primary w-9 h-9 p-0"
+                            >
+                                <LayoutDashboard size={18} />
+                            </Link>
+                        )}
+                    </div>
+
                 </div>
             </div>
         </nav>

@@ -151,10 +151,10 @@ const ProductDetails = () => {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">
-                                            {t.state || 'State'}
+                                            {t.district || 'State'}
                                         </p>
                                         <p className="font-bold text-gray-900">
-                                            {product.district || '—'}
+                                            {t.districts?.[product.district] || product.district || '—'}
                                         </p>
                                     </div>
                                 </div>
@@ -169,7 +169,7 @@ const ProductDetails = () => {
                                             {t.localDistrict || 'District'}
                                         </p>
                                         <p className="font-bold text-gray-900">
-                                            {product.localDistrict || '—'}
+                                            {t.districts?.[product.localDistrict] || product.localDistrict || '—'}
                                         </p>
                                     </div>
                                 </div>
@@ -184,7 +184,7 @@ const ProductDetails = () => {
                                             {t.policeStation || 'Police Station'}
                                         </p>
                                         <p className="font-bold text-gray-900">
-                                            {product.policeStation || '—'}
+                                            {t.policeStations?.[product.policeStation] || product.policeStation || '—'}
                                         </p>
                                     </div>
                                 </div>
@@ -294,7 +294,7 @@ const ProductDetails = () => {
                                         <div>
                                             <h4 className="font-bold text-gray-900 text-lg flex items-center gap-2">
                                                 {owner.name}
-                                                {owner.verifiedStatus === 'approved' && (
+                                                {owner.verifiedStatus === true && (
                                                     <ShieldCheck className="text-green-500" size={18} title="Verified User" />
                                                 )}
                                             </h4>

@@ -1,94 +1,75 @@
-import { ShieldCheck, Phone, BadgeCheck, Zap } from 'lucide-react';
+import { ShieldCheck, Zap, BadgeCheck, Phone } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useMemo, memo } from 'react';
 
 const WhyChooseUs = memo(() => {
-    const { t, language } = useLanguage();
+    const { t } = useLanguage();
 
     const features = useMemo(() => [
         {
-            icon: <ShieldCheck size={36} />,
+            icon: <ShieldCheck size={28} />,
             title: t.featNoCommTitle,
-            desc: t.featNoCommDesc,
-            color: 'text-green-600',
-            bgColor: 'bg-green-50',
-            ring: 'ring-green-100',
-            gradient: 'from-green-500/10 to-transparent',
+            desc:  t.featNoCommDesc,
         },
         {
-            icon: <Phone size={36} />,
+            icon: <Phone size={28} />,
             title: t.featDirectTitle,
-            desc: t.featDirectDesc,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-50',
-            ring: 'ring-blue-100',
-            gradient: 'from-blue-500/10 to-transparent',
+            desc:  t.featDirectDesc,
         },
         {
-            icon: <BadgeCheck size={36} />,
+            icon: <BadgeCheck size={28} />,
             title: t.featVerifiedTitle,
-            desc: t.featVerifiedDesc,
-            color: 'text-purple-600',
-            bgColor: 'bg-purple-50',
-            ring: 'ring-purple-100',
-            gradient: 'from-purple-500/10 to-transparent',
+            desc:  t.featVerifiedDesc,
         },
         {
-            icon: <Zap size={36} />,
+            icon: <Zap size={28} />,
             title: t.featFastTitle,
-            desc: t.featFastDesc,
-            color: 'text-orange-600',
-            bgColor: 'bg-orange-50',
-            ring: 'ring-orange-100',
-            gradient: 'from-orange-500/10 to-transparent',
+            desc:  t.featFastDesc,
         },
     ], [t.featNoCommTitle, t.featNoCommDesc, t.featDirectTitle, t.featDirectDesc, t.featVerifiedTitle, t.featVerifiedDesc, t.featFastTitle, t.featFastDesc]);
 
     return (
-        <section className="max-w-7xl mx-auto px-4 py-4 md:py-8">
-            {/* Header */}
-            <div className="text-center mb-10 md:mb-16 space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-xs font-bold uppercase tracking-widest">
+        <section className="max-w-7xl mx-auto px-4 py-10 md:py-16">
+            {/* Section header */}
+            <div className="text-center mb-12 space-y-3">
+                <div className="inline-flex items-center gap-1.5 section-eyebrow">
                     ✦ {t.whyChooseUsBadge}
                 </div>
-                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
-                        {language === 'hi' ? '' : language === 'bn' ? 'কেন ' : 'Why '}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 px-2 lg:px-4">
-                            Matsyalink
-                        </span>
-                        {language === 'hi' ? ' क्यों?' : '?'}
-                    </h2>
-                <p className="text-gray-500 font-medium text-lg max-w-xl mx-auto leading-relaxed">
+                <h2 className="text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
+                    Why{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                        MatsyaLink
+                    </span>
+                    ?
+                </h2>
+                <p className="text-text-secondary font-medium text-lg max-w-xl mx-auto leading-relaxed">
                     {t.whyChooseUsSubtitle}
                 </p>
             </div>
 
-            {/* Feature Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Feature cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {features.map((feat, idx) => (
                     <div
                         key={idx}
-                        className={`relative bg-white rounded-[2.5rem] p-8 shadow-lg border ring-1 ${feat.ring} hover:shadow-2xl transition-all hover:scale-[1.03] group overflow-hidden text-center md:text-left flex flex-col items-center md:items-start`}
+                        className="card card-hover p-7 space-y-4 group"
                     >
-                        {/* Background gradient blob */}
-                        <div className={`absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br ${feat.gradient} rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300`}></div>
-
                         {/* Icon */}
-                        <div className={`relative z-10 ${feat.bgColor} ${feat.color} w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-lg group-hover:rotate-6 transition-transform mx-auto md:mx-0`}>
+                        <div className="w-14 h-14 rounded-xl bg-primary-muted text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-200">
                             {feat.icon}
                         </div>
 
                         {/* Text */}
-                        <div className="relative z-10 space-y-3 w-full">
-                            <h3 className="text-xl font-black text-gray-900">{feat.title}</h3>
-                            <p className="text-gray-600 font-medium leading-relaxed text-sm">{feat.desc}</p>
+                        <div className="space-y-2">
+                            <h3 className="text-base font-bold text-text-primary">{feat.title}</h3>
+                            <p className="text-sm text-text-secondary leading-relaxed">{feat.desc}</p>
                         </div>
                     </div>
                 ))}
             </div>
         </section>
     );
-};
+});
 
 WhyChooseUs.displayName = 'WhyChooseUs';
 

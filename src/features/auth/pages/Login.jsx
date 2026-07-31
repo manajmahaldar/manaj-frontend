@@ -52,23 +52,23 @@ const Login = () => {
                 <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">{t.loginTitle}</h2>
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddress}</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddressLabel || t.emailAddress || 'Email Address'}</label>
                         <input 
                             type="email" 
                             required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                            placeholder="example@mail.com"
+                            placeholder={t.enterEmailPlaceholder || 'example@gmail.com'}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.passwordPlaceholder}</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.passwordLabel || t.passwordPlaceholder || 'Password'}</label>
                         <input 
                             type="password" 
                             required 
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                            placeholder="******"
+                            placeholder={t.enterPasswordPlaceholder || '******'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />

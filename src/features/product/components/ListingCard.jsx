@@ -1,4 +1,4 @@
-import { MapPin, Phone, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -86,9 +86,10 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
         <div 
             ref={cardRef}
             onClick={() => navigate(`/product/selling/${item._id}`)}
-            className="bg-white rounded-2xl border border-gray-100 p-3 md:p-0 md:border-none md:bg-transparent flex flex-row md:flex-col gap-3 md:gap-0 group hover:shadow-xl transition-all duration-300 cursor-pointer"
+            className="card card-hover flex flex-col h-full group cursor-pointer"
         >
-            <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-full md:h-auto md:aspect-[4/3] flex-shrink-0 overflow-hidden rounded-xl md:rounded-2xl md:mb-4 bg-gray-50 group/carousel">
+            {/* Media Section */}
+            <div className="relative w-full aspect-[4/3] flex-shrink-0 overflow-hidden bg-surface-1 group/carousel">
                 {media[currentMediaIndex].type === 'video' ? (
                     <video 
                         src={media[currentMediaIndex].url}
@@ -106,10 +107,10 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                 
                 {media.length > 1 && (
                     <>
-                        <button onClick={prevMedia} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1.5 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
+                        <button onClick={prevMedia} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-text-primary p-1 rounded-full shadow-sm opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
                             <ChevronLeft size={16} />
                         </button>
-                        <button onClick={nextMedia} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1.5 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
+                        <button onClick={nextMedia} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-text-primary p-1 rounded-full shadow-sm opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
                             <ChevronRight size={16} />
                         </button>
                         
@@ -123,15 +124,16 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                         </div>
                     </>
                 )}
-                <div className="absolute top-2 left-2 flex flex-col md:flex-row gap-1">
+
+                <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
                     {item.category !== 'Equipment' && (
-                        <span className="bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded text-[9px] md:text-xs font-black uppercase shadow-sm max-w-[80px] md:max-w-none truncate">
+                        <span className="badge badge-secondary shadow-xs uppercase">
                             {t.categories?.[item.category] || item.category}
                         </span>
                     )}
                     {isOwner && item.status !== 'approved' && (
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
-                            item.status === 'pending' ? 'bg-orange-500 text-white' : 'bg-red-500 text-white'
+                        <span className={`badge uppercase shadow-xs ${
+                            item.status === 'pending' ? 'badge-warning' : 'badge-error'
                         }`}>
                             {item.status === 'pending' ? t.pending : t.rejected}
                         </span>
@@ -139,73 +141,80 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                 </div>
             </div>
 
-            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5 md:space-y-3 md:px-2 md:pb-2">
-                <div className="flex justify-between items-start gap-2">
-                    <h3 className="font-bold text-sm md:text-lg text-gray-900 group-hover:text-primary transition-colors flex-1 min-w-0 break-words line-clamp-2 md:line-clamp-2">
-                        {item.productName}
-                    </h3>
-                    <div className="flex flex-col items-end flex-shrink-0">
-                        <p className="text-primary font-black text-sm md:text-xl leading-none whitespace-nowrap">{language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}</p>
-                        {item.category !== 'Equipment' && (
-                            <p className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase mt-0.5 md:mt-1">{t.per} {item.unit}</p>
-                        )}
+            {/* Details Section */}
+            <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                <div>
+                    <div className="flex justify-between items-start gap-2 mb-1">
+                        <h3 className="font-bold text-base text-text-primary group-hover:text-primary transition-colors flex-1 min-w-0 line-clamp-1 flex items-center gap-1">
+                            <span className="truncate">{item.productName}</span>
+                            {item.sellerId?.verifiedStatus === true && (
+                                <BadgeCheck size={16} className="text-secondary flex-shrink-0" title="Verified Seller" />
+                            )}
+                        </h3>
+                        <div className="text-right flex-shrink-0">
+                            <p className="text-primary font-extrabold text-base leading-tight">
+                                {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}
+                            </p>
+                            {item.category !== 'Equipment' && (
+                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.per} {item.unit}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-text-secondary font-medium pt-1">
+                        <div 
+                            className="flex items-center gap-1 truncate text-text-secondary"
+                            title={item.policeStation 
+                                ? `${t.districts?.[item.localDistrict] || item.localDistrict ? (t.districts?.[item.localDistrict] || item.localDistrict) + ', ' : ''}${t.districts?.[item.district] || item.district} (PS: ${t.policeStations?.[item.policeStation] || item.policeStation})` 
+                                : (item.localDistrict ? `${t.districts?.[item.localDistrict] || item.localDistrict}, ${t.districts?.[item.district] || item.district}` : (t.districts?.[item.district] || item.district))}
+                        >
+                            <MapPin size={13} className="text-primary flex-shrink-0" />
+                            <span className="truncate">
+                                {item.policeStation 
+                                    ? `${t.policeStations?.[item.policeStation] || item.policeStation}, ${t.districts?.[item.localDistrict] || item.localDistrict || t.districts?.[item.district] || item.district}` 
+                                    : (item.localDistrict 
+                                        ? `${t.districts?.[item.localDistrict] || item.localDistrict}, ${t.districts?.[item.district] || item.district}` 
+                                        : (t.districts?.[item.district] || item.district))}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-text-tertiary flex-shrink-0">
+                            <Clock size={12} />
+                            <span>{formatPostDate(item.createdAt)}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col md:grid md:grid-cols-2 gap-1 md:gap-2 text-[10px] md:text-xs font-medium text-gray-500 mt-1 md:mt-0">
-                    <div 
-                        className="flex items-center gap-1.5 bg-gray-50/50 md:bg-gray-50 p-1 md:p-2 rounded-lg"
-                        title={item.policeStation 
-                            ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts?.[item.district] || item.district} (PS: ${item.policeStation})` 
-                            : (item.localDistrict ? `${item.localDistrict}, ${t.districts?.[item.district] || item.district}` : (t.districts?.[item.district] || item.district))}
-                    >
-                        <MapPin size={10} className="text-primary flex-shrink-0 hidden md:block" />
-                        <MapPin size={12} className="text-primary flex-shrink-0 md:hidden" />
-                        <span className="truncate">
-                            {item.policeStation 
-                                ? `${item.localDistrict ? item.localDistrict + ', ' : ''}${t.districts?.[item.district] || item.district}` 
-                                : (item.localDistrict 
-                                    ? `${item.localDistrict}, ${t.districts?.[item.district] || item.district}` 
-                                    : (t.districts?.[item.district] || item.district))}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-gray-50/50 md:bg-gray-50 p-1 md:p-2 rounded-lg hidden md:flex">
-                         <Clock size={14} className="text-primary flex-shrink-0" />
-                        <span className="truncate">{formatPostDate(item.createdAt)}</span>
-                    </div>
-                </div>
-
-                <div className="mt-auto pt-1 md:pt-0">
-
-                {isOwner ? (
-                    <div className="grid grid-cols-2 gap-2 pt-1">
+                {/* Actions */}
+                <div className="pt-2 border-t border-border">
+                    {isOwner ? (
+                        <div className="grid grid-cols-2 gap-2">
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); onEdit(item); }}
+                                className="btn btn-ghost btn-sm border border-border w-full gap-1"
+                            >
+                                <Edit2 size={13} /> {t.edit}
+                            </button>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); onDelete(item._id); }}
+                                className="btn btn-danger-ghost btn-sm w-full gap-1"
+                            >
+                                <Trash2 size={13} /> {t.delete}
+                            </button>
+                        </div>
+                    ) : userRole === 'trader' ? (
                         <button 
-                            onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 md:py-2.5 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm"
+                            onClick={(e) => { e.stopPropagation(); setIsOrderModalOpen(true); }}
+                            className="btn btn-primary btn-sm w-full gap-1.5"
                         >
-                            <Edit2 size={14} /> {t.edit}
+                            <ShoppingBag size={14} /> {t.orderNow}
                         </button>
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); onDelete(item._id); }}
-                            className="bg-red-50 hover:bg-red-100 text-red-600 py-1.5 md:py-2.5 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm"
-                        >
-                            <Trash2 size={14} /> {t.delete}
-                        </button>
-                    </div>
-                ) : userRole === 'trader' ? (
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); setIsOrderModalOpen(true); }}
-                        className="w-full bg-primary hover:bg-blue-700 text-white py-1.5 md:py-3 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 shadow-sm md:shadow-lg shadow-blue-600/20 text-xs md:text-sm"
-                    >
-                        <ShoppingBag size={14} /> {t.orderNow}
-                    </button>
-                ) : (
-                    <ContactButtons 
-                        phone={item.phoneNumber} 
-                        message={t.contactMessageTemplate?.replace('{fishName}', item.productName)}
-                        variant="light"
-                    />
-                )}
+                    ) : (
+                        <ContactButtons 
+                            phone={item.phoneNumber} 
+                            message={t.contactMessageTemplate?.replace('{fishName}', item.productName)}
+                            variant="light"
+                        />
+                    )}
                 </div>
             </div>
 

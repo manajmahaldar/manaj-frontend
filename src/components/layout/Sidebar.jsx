@@ -17,17 +17,32 @@ import {
     Wrench,
     GraduationCap,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Tractor,
+    Store,
+    TrendingUp,
+    Fish
 } from 'lucide-react';
 import { useState, useContext, useMemo, useCallback, memo } from 'react';
 import { AuthContext, AuthActionsContext } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { getDashboardPath } from '../../utils/roleUtils';
+import logoImg from '../../assets/logo/logo.png';
 
 const Sidebar = memo(({ isOpen, toggleSidebar }) => {
     const { user } = useContext(AuthContext);
     const { logout } = useContext(AuthActionsContext);
+    const { t } = useLanguage();
     const [isLearningHubOpen, setIsLearningHubOpen] = useState(false);
     const location = useLocation();
+
+    const roleLabels = useMemo(() => ({
+        farmer: t.farmer,
+        seller: t.seller,
+        trader: t.trader,
+        hatchery: t.hatchery,
+        admin: t.admin || 'Admin',
+    }), [t]);
 
     if (!user) return null;
 
@@ -38,85 +53,114 @@ const Sidebar = memo(({ isOpen, toggleSidebar }) => {
 
     const navItems = useMemo(() => [
         { 
-            name: 'Dashboard', 
+            name: t.dashboard || 'Dashboard', 
             path: getDashboardPath(user.role), 
-            icon: <LayoutDashboard size={20} />, 
+            icon: <LayoutDashboard size={18} />, 
             roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
         { 
-            name: 'My Listings', 
+            name: t.myListings || 'My Listings', 
             path: '/profile/listings', 
-            icon: <ShoppingBag size={20} />, 
+            icon: <ShoppingBag size={18} />, 
             roles: ['farmer', 'seller', 'hatchery', 'trader'] 
         },
         { 
-            name: 'My Equipment', 
+            name: t.myEquipment || 'My Equipment', 
             path: '/profile/equipment', 
-            icon: <Wrench size={20} />, 
+            icon: <Wrench size={18} />, 
             roles: ['farmer', 'seller', 'hatchery', 'trader'] 
         },
         { 
-            name: 'Buying Demands', 
+            name: t.buyingPosts || 'Buying Demands', 
             path: '/profile/posts', 
-            icon: <PlusCircle size={20} />, 
+            icon: <PlusCircle size={18} />, 
             roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
         { 
-            name: 'Orders Received', 
+            name: t.ordersReceived || 'Orders Received', 
             path: '/profile/orders-received', 
-            icon: <ArrowDownRight size={20} />, 
+            icon: <ArrowDownRight size={18} />, 
             roles: ['farmer', 'seller', 'hatchery', 'trader'] 
         },
         { 
-            name: 'My Orders', 
+            name: t.myOrders || 'My Orders', 
             path: '/profile/my-orders', 
-            icon: <ArrowUpRight size={20} />, 
+            icon: <ArrowUpRight size={18} />, 
             roles: ['trader'] 
         },
         { 
-            name: 'User Management', 
+            name: t.userManagement || 'User Management', 
             path: '/admin/dashboard', 
-            icon: <Users size={20} />, 
+            icon: <Users size={18} />, 
             roles: ['admin'] 
         },
         { 
-            name: 'Listing Approval', 
+            name: t.farmers || 'Farmers', 
+            path: '/admin/dashboard/farmers', 
+            icon: <Tractor size={18} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: t.sellers || 'Sellers', 
+            path: '/admin/dashboard/sellers', 
+            icon: <Store size={18} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: t.traders || 'Traders', 
+            path: '/admin/dashboard/traders', 
+            icon: <TrendingUp size={18} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: t.hatcheries || 'Hatcheries', 
+            path: '/admin/dashboard/hatcheries', 
+            icon: <Fish size={18} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: t.buyingPostsApproval || 'Buying Posts Approval', 
+            path: '/admin/dashboard/buying-approvals', 
+            icon: <PlusCircle size={18} />, 
+            roles: ['admin'] 
+        },
+        { 
+            name: t.equipmentListingsApproval || 'Equipment & Listings Approval', 
             path: '/admin/dashboard/listings-approval', 
-            icon: <Package size={20} />, 
+            icon: <Package size={18} />, 
             roles: ['admin'] 
         },
         { 
-            name: 'Platform Stats', 
+            name: t.adminStats || 'Platform Stats', 
             path: '/admin/dashboard/stats', 
-            icon: <ShieldCheck size={20} />, 
+            icon: <ShieldCheck size={18} />, 
             roles: ['admin'] 
         },
         { 
-            name: 'Media Library', 
+            name: t.mediaLibrary || 'Media Library', 
             path: '/admin/dashboard/media', 
-            icon: <Images size={20} />, 
+            icon: <Images size={18} />, 
             roles: ['admin'] 
         },
         { 
-            name: 'Advanced Users', 
+            name: t.advancedUsers || 'Advanced Users', 
             path: '/admin/dashboard/user-management', 
-            icon: <Filter size={20} />, 
+            icon: <Filter size={18} />, 
             roles: ['admin'] 
         },
         { 
-            name: 'Analytics', 
+            name: t.analytics || 'Analytics', 
             path: '/admin/dashboard/analytics', 
-            icon: <BarChart3 size={20} />, 
+            icon: <BarChart3 size={18} />, 
             roles: ['admin'] 
         },
-
         { 
-            name: 'Profile Settings', 
+            name: t.profileSettings || 'Profile Settings', 
             path: '/profile/settings', 
-            icon: <Settings size={20} />, 
+            icon: <Settings size={18} />, 
             roles: ['farmer', 'seller', 'trader', 'hatchery', 'admin'] 
         },
-    ], [user.role]);
+    ], [user.role, t]);
 
     const filteredItems = useMemo(
         () => navItems.filter(item => item.roles.includes(user.role)),
@@ -128,113 +172,131 @@ const Sidebar = memo(({ isOpen, toggleSidebar }) => {
         []
     );
 
-    return (
-        <aside className={`fixed inset-y-0 left-0 bg-white border-r border-gray-100 w-64 transform transition-transform duration-300 z-50 lg:relative lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-            <div className="h-full flex flex-col p-6 space-y-8 overflow-y-auto min-h-0">
-                <div className="flex items-center gap-2 text-primary font-black text-2xl px-2">
-                    <LayoutDashboard size={28} />
-                    <span>DASHBOARD</span>
-                </div>
+    const avatarInitial = user.name ? user.name.charAt(0).toUpperCase() : '?';
 
-                <nav className="flex-1 space-y-1">
-                    {filteredItems.map((item) => (
+    return (
+        <aside className={`fixed inset-y-0 left-0 bg-white border-r border-border w-64 transform transition-transform duration-300 z-50 lg:relative lg:translate-x-0 flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+
+            {/* Sidebar Header */}
+            <div className="flex items-center gap-2.5 px-5 h-16 border-b border-border flex-shrink-0">
+                <img src={logoImg} alt="MatsyaLink" className="h-7 w-auto object-contain" />
+                <span className="text-sm font-bold text-text-primary tracking-tight">MatsyaLink</span>
+            </div>
+
+            {/* Navigation */}
+            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto min-h-0">
+                {filteredItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
                         <Link 
                             key={`${item.name}-${item.path}`}
                             to={item.path}
                             onClick={toggleSidebar}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all ${
-                                location.pathname === item.path 
-                                ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                                isActive 
+                                ? 'bg-primary-muted text-primary font-semibold' 
+                                : 'text-text-secondary hover:bg-surface-1 hover:text-text-primary'
                             }`}
                         >
-                            {item.icon}
+                            <span className={isActive ? 'text-primary' : 'text-text-tertiary'}>
+                                {item.icon}
+                            </span>
                             <span>{item.name}</span>
+                            {isActive && (
+                                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                            )}
                         </Link>
-                    ))}
+                    );
+                })}
 
-                    {/* Learning Hub Collapsible Dropdown */}
-                    <div className="space-y-1">
-                        <button
-                            onClick={handleLearningHubToggle}
-                            onMouseEnter={prefetchLearningHub}
-                            className={`flex items-center justify-between w-full px-4 py-3 rounded-2xl font-bold transition-all text-gray-500 hover:bg-gray-50 hover:text-gray-900 ${
-                                location.pathname.startsWith('/learning') ? 'bg-blue-50/50 text-primary' : ''
-                            }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <GraduationCap size={20} />
-                                <span>Learning Hub</span>
-                            </div>
-                            {isLearningHubOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </button>
-
-                        {isLearningHubOpen && (
-                            <div className="pl-6 space-y-1 mt-1 transition-all duration-300">
-                                {[
-                                    { name: 'Home', path: '/learning' },
-                                    { name: 'Categories', path: '/learning/categories' },
-                                    { name: 'Videos', path: '/learning/videos' },
-                                    { name: 'Articles', path: '/learning/articles' },
-                                    { name: 'Blogs', path: '/learning/blogs' },
-                                    { name: 'PDF Library', path: '/learning/pdfs' },
-                                    { name: 'Government Schemes', path: '/learning/schemes' },
-                                    { name: 'Training Programs', path: '/learning/trainings' },
-                                    { name: 'Webinars', path: '/learning/webinars' },
-                                    { name: 'Quizzes', path: '/learning/quizzes' },
-                                    { name: 'Certificates', path: '/learning/certificates' },
-                                    { name: 'Bookmarks', path: '/learning/bookmarks' },
-                                    { name: 'Recently Viewed', path: '/learning/recent' },
-                                    { name: 'My Progress', path: '/learning/progress' }
-                                ].map((sub) => (
-                                    <Link
-                                        key={sub.path}
-                                        to={sub.path}
-                                        onClick={toggleSidebar}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
-                                            location.pathname === sub.path
-                                                ? 'text-primary bg-blue-50/80 font-black'
-                                                : 'text-gray-400 hover:text-gray-900 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                                        {sub.name}
-                                    </Link>
-                                ))}
-                                {user.role === 'admin' && (
-                                    <Link
-                                        to="/learning/admin"
-                                        onClick={toggleSidebar}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-accent hover:bg-orange-50 transition-colors`}
-                                    >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                                        CMS Dashboard
-                                    </Link>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </nav>
-
-                <div className="pt-6 border-t border-gray-100">
-                    <button 
-                        onClick={logout}
-                        className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-red-500 hover:bg-red-50 w-full transition-colors"
+                {/* Learning Hub Collapsible */}
+                <div className="pt-0.5">
+                    <button
+                        onClick={handleLearningHubToggle}
+                        onMouseEnter={prefetchLearningHub}
+                        className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                            location.pathname.startsWith('/learning') 
+                                ? 'bg-primary-muted text-primary font-semibold' 
+                                : 'text-text-secondary hover:bg-surface-1 hover:text-text-primary'
+                        }`}
                     >
-                        <LogOut size={20} />
-                        <span>Sign Out</span>
+                        <span className={location.pathname.startsWith('/learning') ? 'text-primary' : 'text-text-tertiary'}>
+                            <GraduationCap size={18} />
+                        </span>
+                        <span className="flex-1 text-left">{t.learningHub || 'Learning Hub'}</span>
+                        <span className="text-text-tertiary">
+                            {isLearningHubOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                        </span>
                     </button>
-                    
-                    <div className="mt-6 flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
-                            {user.name.charAt(0)}
+
+                    {isLearningHubOpen && (
+                        <div className="ml-6 mt-1 space-y-0.5 border-l border-border pl-3">
+                            {[
+                                { name: t.learningHome || 'Home',             path: '/learning' },
+                                { name: t.learningCategories || 'Categories',       path: '/learning/categories' },
+                                { name: t.learningVideos || 'Videos',           path: '/learning/videos' },
+                                { name: t.learningArticles || 'Articles',         path: '/learning/articles' },
+                                { name: t.learningBlogs || 'Blogs',            path: '/learning/blogs' },
+                                { name: t.learningPdfLibrary || 'PDF Library',      path: '/learning/pdfs' },
+                                { name: t.learningGovtSchemes || 'Govt. Schemes',    path: '/learning/schemes' },
+                                { name: t.learningTrainingPrograms || 'Training Programs',path: '/learning/trainings' },
+                                { name: t.learningWebinars || 'Webinars',         path: '/learning/webinars' },
+                                { name: t.learningQuizzes || 'Quizzes',          path: '/learning/quizzes' },
+                                { name: t.learningCertificates || 'Certificates',     path: '/learning/certificates' },
+                                { name: t.learningBookmarks || 'Bookmarks',        path: '/learning/bookmarks' },
+                                { name: t.learningRecentlyViewed || 'Recently Viewed',  path: '/learning/recent' },
+                                { name: t.learningMyProgress || 'My Progress',      path: '/learning/progress' },
+                            ].map((sub) => (
+                                <Link
+                                    key={sub.path}
+                                    to={sub.path}
+                                    onClick={toggleSidebar}
+                                    className={`block px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                                        location.pathname === sub.path
+                                            ? 'text-primary bg-primary-muted'
+                                            : 'text-text-tertiary hover:text-text-primary hover:bg-surface-1'
+                                    }`}
+                                >
+                                    {sub.name}
+                                </Link>
+                            ))}
+                            {user.role === 'admin' && (
+                                <Link
+                                    to="/learning/admin"
+                                    onClick={toggleSidebar}
+                                    className="block px-3 py-2 rounded-md text-xs font-medium text-accent hover:bg-accent-muted transition-colors"
+                                >
+                                    {t.cmsDashboard || 'CMS Dashboard'}
+                                </Link>
+                            )}
                         </div>
-                        <div className="flex-1 truncate">
-                            <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{user.role}</p>
-                        </div>
+                    )}
+                </div>
+            </nav>
+
+            {/* Sidebar Footer */}
+            <div className="px-3 py-4 border-t border-border flex-shrink-0 space-y-2">
+                {/* User card */}
+                <div className="flex items-center gap-3 px-3 py-2.5 bg-surface-1 rounded-lg border border-border">
+                    <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        {avatarInitial}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-text-primary truncate">{user.name}</p>
+                        <p className="text-2xs font-medium text-text-tertiary uppercase tracking-wider">
+                            {roleLabels[user.role] || user.role}
+                        </p>
                     </div>
                 </div>
+
+                {/* Logout */}
+                <button 
+                    onClick={logout}
+                    className="btn btn-danger-ghost btn-sm w-full justify-start gap-3"
+                >
+                    <LogOut size={16} />
+                    <span>{t.signOut || 'Sign Out'}</span>
+                </button>
             </div>
         </aside>
     );

@@ -5,9 +5,11 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import VideoRecorder from '../../components/common/VideoRecorder';
 import { ShieldCheck, Upload, FileText, Camera, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { INDIAN_STATES_DISTRICTS } from '../../utils/locationData';
+import { useLanguage } from '../../context/LanguageContext';
+import { getPoliceStations } from '../../utils/districtsData';
 
 const Verification = () => {
+    const { t } = useLanguage();
     const { user, updateUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -28,11 +30,7 @@ const Verification = () => {
         policeStation: user?.policeStation || ''
     });
 
-    useEffect(() => {
-        if (user?.accountStatus === 'active') {
-            navigate('/profile');
-        }
-    }, [user, navigate]);
+    // Optional verification page - users can complete it anytime to earn Verified Badge
 
     const handleProfileChange = (e) => {
         const file = e.target.files[0];
@@ -114,6 +112,30 @@ const Verification = () => {
 
     if (!user) return null;
 
+    if (user.verifiedStatus) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
+                <div className="bg-white p-12 rounded-[3rem] shadow-2xl max-w-2xl w-full text-center space-y-6 border border-gray-100">
+                    <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto text-green-600">
+                        <CheckCircle2 size={56} />
+                    </div>
+                    <h1 className="text-3xl font-black text-gray-900 flex items-center justify-center gap-2">
+                        Verified User <ShieldCheck className="text-primary" size={32} />
+                    </h1>
+                    <p className="text-gray-500 text-lg leading-relaxed">
+                        Your identity has been verified by admin! You have the official Verified User Badge on your profile and listings.
+                    </p>
+                    <button 
+                        onClick={() => navigate('/profile')} 
+                        className="btn btn-primary py-4 px-8 text-lg rounded-2xl font-bold shadow-lg shadow-primary/20"
+                    >
+                        Go to Profile
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (submitted || (user.accountStatus === 'pending' && user.aadhaarCard && !user.verificationRejectedReason)) {
         return (
             <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
@@ -121,14 +143,17 @@ const Verification = () => {
                     <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto text-primary animate-bounce">
                         <Loader2 size={48} className="animate-spin" />
                     </div>
-                    <h1 className="text-3xl font-black text-gray-900">Verification Pending</h1>
+                    <h1 className="text-3xl font-black text-gray-900">Verification Submitted</h1>
                     <p className="text-gray-500 text-lg leading-relaxed">
-                        We have received your documents. Our team is currently reviewing your profile. 
-                        You will get full access once the verification is complete.
+                        We have received your verification documents. Our admin team is reviewing them.
+                        Once approved, your account will display the Verified User Badge! You can continue posting listings anytime.
                     </p>
-                    <div className="p-4 bg-blue-50 rounded-2xl text-blue-700 text-sm font-medium">
-                        This usually takes less than 24 hours.
-                    </div>
+                    <button 
+                        onClick={() => navigate('/profile')} 
+                        className="btn btn-primary py-4 px-8 text-lg rounded-2xl font-bold shadow-lg shadow-primary/20"
+                    >
+                        Continue to Profile
+                    </button>
                 </div>
             </div>
         );
@@ -139,19 +164,23 @@ const Verification = () => {
             <div className="max-w-4xl mx-auto">
                 <div className="bg-white rounded-[3.5rem] shadow-2xl overflow-hidden border border-gray-100">
                     {/* Header */}
-                    <div className="bg-primary p-12 text-white relative overflow-hidden">
-                        <div className="relative z-10">
-                            <h1 className="text-4xl font-black flex items-center gap-4">
-                                <ShieldCheck size={40} />
-                                Complete Your Profile
+                    <div className="bg-primary p-8 md:p-12 text-white relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        <div className="relative z-10 max-w-xl">
+                            <h1 className="text-3xl md:text-4xl font-black flex items-center gap-3">
+                                <ShieldCheck size={36} />
+                                Get Verified User Badge
                             </h1>
-                            <p className="mt-4 text-white/80 text-lg font-medium">
-                                To ensure a safe community, we require all users to verify their identity.
+                            <p className="mt-3 text-white/90 text-sm md:text-base font-medium">
+                                Verification (Aadhaar & 10s video) is <strong>optional</strong>. Uploading documents awards you the <strong>Verified Badge (✔)</strong> on your profile and listings to build trust!
                             </p>
                         </div>
-                        <div className="absolute top-0 right-0 p-8 opacity-10">
-                            <ShieldCheck size={200} />
-                        </div>
+                        <button 
+                            type="button"
+                            onClick={() => navigate('/profile')}
+                            className="relative z-10 bg-white/20 hover:bg-white text-white hover:text-primary px-5 py-2.5 rounded-2xl font-bold transition-all text-xs md:text-sm shrink-0 border border-white/30"
+                        >
+                            Skip for Now
+                        </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-12 space-y-12">
@@ -272,14 +301,19 @@ const Verification = () => {
                                     </select>
                                 </div>
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">Police Station</label>
-                                    <input 
-                                        type="text" required
-                                        placeholder="Enter Police Station"
-                                        className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
+                                    <label className="block text-sm font-black text-gray-400 uppercase tracking-widest mb-2">{t.policeStation || 'Police Station'}</label>
+                                    <select 
+                                        required
+                                        disabled={!formData.localDistrict}
+                                        className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed h-[56px]"
                                         value={formData.policeStation}
                                         onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
-                                    />
+                                    >
+                                        <option value="">{t.selectPoliceStation || t.selectBtn || 'Select Police Station'}</option>
+                                        {formData.localDistrict && getPoliceStations(formData.localDistrict).map(ps => (
+                                            <option key={ps} value={ps}>{t.policeStations?.[ps] || ps}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </section>
@@ -329,30 +363,40 @@ const Verification = () => {
                                     <Camera className="text-primary" />
                                     4. Live Video Verification (10s)
                                 </h2>
-                                <span className="px-4 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">Required</span>
+                                <span className="px-4 py-1 bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-widest rounded-full">Optional (For Verified Badge)</span>
                             </div>
                             <p className="text-gray-500 font-medium">Record a short 10-second video of yourself looking directly into the camera to verify you are a live person.</p>
                             
                             <VideoRecorder onRecordingComplete={(blob) => setVideoBlob(blob)} />
                         </section>
 
-                        <button 
-                            type="submit" 
-                            disabled={loading}
-                            className="w-full btn btn-primary py-6 text-xl rounded-3xl shadow-2xl shadow-primary/30 flex items-center justify-center gap-4 active:scale-95 transition-all disabled:opacity-50"
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="animate-spin" />
-                                    Submitting Verification...
-                                </>
-                            ) : (
-                                <>
-                                    <CheckCircle2 size={24} />
-                                    Submit for Admin Approval
-                                </>
-                            )}
-                        </button>
+                        <div className="space-y-4">
+                            <button 
+                                type="submit" 
+                                disabled={loading}
+                                className="w-full btn btn-primary py-6 text-xl rounded-3xl shadow-2xl shadow-primary/30 flex items-center justify-center gap-4 active:scale-95 transition-all disabled:opacity-50"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="animate-spin" />
+                                        Submitting Verification...
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle2 size={24} />
+                                        Submit for Verification Badge
+                                    </>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => navigate('/profile')}
+                                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-4 text-base font-bold rounded-2xl transition-all text-center"
+                            >
+                                Skip &amp; Continue to Profile / Dashboard
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

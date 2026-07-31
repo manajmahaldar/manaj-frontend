@@ -1,4 +1,4 @@
-import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight, BadgeCheck } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
@@ -52,9 +52,10 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
         <div 
             ref={cardRef}
             onClick={() => navigate(`/product/buying/${post._id}`)}
-            className="bg-white rounded-2xl border border-gray-100 p-3 md:p-5 md:border-l-4 md:border-l-green-500 flex flex-row md:flex-col gap-3 md:gap-4 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer"
+            className="card card-hover flex flex-col h-full group cursor-pointer"
         >
-            <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-full md:h-auto md:aspect-[4/3] flex-shrink-0 overflow-hidden rounded-xl md:rounded-2xl bg-gray-50 group/carousel">
+            {/* Image Header */}
+            <div className="relative w-full aspect-[4/3] flex-shrink-0 overflow-hidden bg-surface-1 group/carousel">
                 <OptimizedImage 
                     src={photos[currentImageIndex]} 
                     alt={post.fishName}
@@ -63,10 +64,10 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                 
                 {photos.length > 1 && (
                     <>
-                        <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1.5 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
+                        <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-text-primary p-1 rounded-full shadow-sm opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
                             <ChevronLeft size={16} />
                         </button>
-                        <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1.5 rounded-full shadow-lg opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
+                        <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-text-primary p-1 rounded-full shadow-sm opacity-0 group-hover/carousel:opacity-100 transition-all z-10 active:scale-95">
                             <ChevronRight size={16} />
                         </button>
                         
@@ -80,93 +81,100 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                         </div>
                     </>
                 )}
+
+                <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
+                    <span className="badge badge-primary uppercase shadow-xs">
+                        {t.categories?.[post.category] || post.category}
+                    </span>
+                    {isOwner && post.status !== 'approved' && (
+                        <span className={`badge uppercase shadow-xs ${
+                            post.status === 'pending' ? 'badge-warning' : 'badge-error'
+                        }`}>
+                            {post.status === 'pending' ? t.pending : t.rejected}
+                        </span>
+                    )}
+                </div>
+
+                <div className="absolute top-2.5 right-2.5 z-10">
+                    <span className="badge badge-neutral shadow-xs uppercase">
+                        {t.buyingDemand}
+                    </span>
+                </div>
             </div>
             
-            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5 md:py-0">
-                <div className="flex justify-between items-start gap-2">
-                    <div className="space-y-1 flex-1 min-w-0">
-                        <h3 className="font-bold text-sm md:text-xl text-gray-900 truncate">{post.fishName}</h3>
-                        <div className="flex flex-wrap items-center gap-1 md:gap-2">
-                            <span className={`inline-block px-1.5 md:px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold uppercase tracking-wider ${
-                                post.category === 'feed' ? 'bg-orange-100 text-orange-700' :
-                                post.category === 'medicine' ? 'bg-blue-100 text-blue-700' :
-                                'bg-green-100 text-green-700'
-                            }`}>
-                                {t.categories?.[post.category] || post.category}
+            {/* Card Content */}
+            <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                    <h3 className="font-bold text-base text-text-primary group-hover:text-primary transition-colors flex items-center gap-1">
+                        <span className="truncate">{post.fishName}</span>
+                        {post.traderId?.verifiedStatus === true && (
+                            <BadgeCheck size={16} className="text-secondary flex-shrink-0" title="Verified Trader" />
+                        )}
+                    </h3>
+
+                    {/* Specs Grid */}
+                    <div className="grid grid-cols-2 gap-2 bg-surface-1 p-2.5 rounded-lg text-xs">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                            <Ruler className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{post.category === 'fish' ? t.size : t.packingSize}</p>
+                                <p className="font-semibold text-text-primary truncate">{formatDigit(post.size)}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                            <Box className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.quantity}</p>
+                                <p className="font-semibold text-text-primary truncate">{formatDigit(post.requiredQuantity)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-center gap-1 text-primary font-extrabold text-base">
+                            <IndianRupee className="w-4 h-4" />
+                            <span>{formatDigit(post.buyingPrice)}</span>
+                        </div>
+                        <div className="text-xs text-text-secondary font-medium flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                            <span className="truncate">
+                                {post.policeStation 
+                                    ? `${t.policeStations?.[post.policeStation] || post.policeStation}, ${t.districts?.[post.localDistrict] || post.localDistrict || t.districts?.[post.district] || post.district}` 
+                                    : (post.localDistrict 
+                                        ? `${t.districts?.[post.localDistrict] || post.localDistrict}, ${t.districts?.[post.district] || post.district}` 
+                                        : (t.districts?.[post.district] || post.district))}
                             </span>
-                            {isOwner && post.status !== 'approved' && (
-                                <span className={`px-1.5 md:px-2 py-0.5 rounded text-[9px] md:text-[10px] font-black uppercase tracking-wider ${
-                                    post.status === 'pending' ? 'bg-orange-500 text-white' : 'bg-red-500 text-white'
-                                }`}>
-                                    {post.status === 'pending' ? t.pending : t.rejected}
-                                </span>
-                            )}
                         </div>
-                    </div>
-                    <div className="flex-shrink-0 mt-1">
-                        <span className="bg-gray-100 border border-gray-200 text-gray-600 px-1.5 md:px-3 py-0.5 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shadow-sm">
-                            {t.buyingDemand}
-                        </span>
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center py-1 md:py-3 border-y border-gray-50 my-1 md:my-0">
-                    <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm min-w-0">
-                        <Ruler className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
-                        <div className="min-w-0">
-                            <p className="text-gray-500 text-[8px] md:text-[10px] uppercase font-bold truncate">
-                                {post.category === 'fish' ? t.size : t.packingSize}
-                            </p>
-                            <p className="font-semibold text-[10px] md:text-sm truncate">{formatDigit(post.size)}</p>
+                {/* Actions Footer */}
+                <div className="pt-2 border-t border-border">
+                    {isOwner ? (
+                        <div className="grid grid-cols-2 gap-2">
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); onEdit(post); }}
+                                className="btn btn-ghost btn-sm border border-border w-full gap-1"
+                            >
+                                <Edit2 className="w-3.5 h-3.5" /> {t.edit}
+                            </button>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); onDelete(post._id); }}
+                                className="btn btn-danger-ghost btn-sm w-full gap-1"
+                            >
+                                <Trash2 className="w-3.5 h-3.5" /> {t.delete}
+                            </button>
                         </div>
-                    </div>
-                    <div className="flex items-center justify-end gap-1 md:gap-2 text-xs md:text-sm min-w-0">
-                        <div className="min-w-0 flex flex-col items-end">
-                            <p className="text-gray-500 text-[8px] md:text-[10px] uppercase font-bold truncate text-right">{t.quantity}</p>
-                            <p className="font-semibold text-[10px] md:text-sm truncate text-right">{formatDigit(post.requiredQuantity)}</p>
-                        </div>
-                        <Box className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-between bg-gray-50 p-1.5 md:p-3 rounded-lg md:rounded-xl">
-                    <div className="flex items-center gap-1 md:gap-2">
-                        <IndianRupee className="w-3 h-3 md:w-[18px] md:h-[18px] text-primary" />
-                        <span className="font-bold text-[10px] md:text-base text-gray-900">{language === 'bn' ? 'টাকা' : '₹'} {formatDigit(post.buyingPrice)}</span>
-                    </div>
-                    <div className="text-[9px] md:text-xs text-gray-500 font-bold flex items-center gap-1">
-                        <MapPin className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                        <span className="truncate">{t.districts?.[post.district] || post.district}</span>
-                    </div>
-                </div>
-
-                {isOwner ? (
-                    <div className="pt-1 md:pt-2 flex gap-2">
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); onEdit(post); }}
-                            className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-1 md:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md md:rounded-lg text-[10px] md:text-sm font-medium transition-colors"
-                        >
-                            <Edit2 className="w-3 h-3 md:w-4 md:h-4" /> {t.edit}
-                        </button>
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); onDelete(post._id); }}
-                            className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-1 md:py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-md md:rounded-lg text-[10px] md:text-sm font-medium transition-colors"
-                        >
-                            <Trash2 className="w-3 h-3 md:w-4 md:h-4" /> {t.delete}
-                        </button>
-                    </div>
-                ) : (
-                    <div className="pt-1 md:pt-2">
+                    ) : (
                         <ContactButtons 
                             phone={post.phoneNumber} 
                             message={t.contactMessageTemplate?.replace('{fishName}', post.fishName) || ''}
                         />
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );
 };
-
 
 export default React.memo(BuyingPostCard);

@@ -3,7 +3,7 @@ import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Plus, Upload } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { stateDistricts } from '../../utils/districtsData';
+import { stateDistricts, getPoliceStations } from '../../utils/districtsData';
 
 const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
     const { t, formatDigit } = useLanguage();
@@ -14,6 +14,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
         buyingPrice: '',
         district: '',
         localDistrict: '',
+        policeStation: '',
         phoneNumber: ''
     });
     const [photos, setPhotos] = useState([]);
@@ -27,7 +28,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
         setPhotos(e.target.files);
     };
 
-    const districtsEn = ["West Bengal", "Jharkhand", "Assam", "Odisha", "Bihar"];
+    const states = Object.keys(stateDistricts);
     const districts = t.districtsList || [];
 
     const categories = [
@@ -164,17 +165,17 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-bold text-gray-700">{t.district}</label>
                             <select 
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
                                 value={formData.district}
-                                onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: ''})}
+                                onChange={(e) => setFormData({...formData, district: e.target.value, localDistrict: '', policeStation: ''})}
                                 required
                             >
-                                <option value="">{t.selectBtn}</option>
-                                {districtsEn.map((d, index) => <option key={d} value={d}>{districts[index]}</option>)}
+                                <option value="">{t.selectDistrictPlaceholder || 'Select State'}</option>
+                                {states.map((state) => <option key={state} value={state}>{t.districts?.[state] || state}</option>)}
                             </select>
                         </div>
                         <div className="space-y-1">
@@ -182,12 +183,27 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
                             <select 
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
                                 value={formData.localDistrict}
-                                onChange={(e) => setFormData({...formData, localDistrict: e.target.value})}
+                                onChange={(e) => setFormData({...formData, localDistrict: e.target.value, policeStation: ''})}
                                 required
                                 disabled={!formData.district}
                             >
                                 <option value="">{t.selectBtn}</option>
-                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{d}</option>)}
+                                {formData.district && stateDistricts[formData.district]?.map(d => <option key={d} value={d}>{t.districts?.[d] || d}</option>)}
+                            </select>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-sm font-bold text-gray-700">{t.policeStation || 'Police Station'}</label>
+                            <select 
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary h-[50px]"
+                                value={formData.policeStation}
+                                onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
+                                required
+                                disabled={!formData.localDistrict}
+                            >
+                                <option value="">{t.selectBtn || 'Select Police Station'}</option>
+                                {formData.localDistrict && getPoliceStations(formData.localDistrict).map(ps => (
+                                    <option key={ps} value={ps}>{t.policeStations?.[ps] || ps}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
