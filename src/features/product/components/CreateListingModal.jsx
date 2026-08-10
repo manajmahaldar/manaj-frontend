@@ -6,7 +6,7 @@ import { AuthContext } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { stateDistricts, getPoliceStations } from '../../../utils/districtsData';
 
-const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
+const CreateListingModal = ({ isOpen, onClose, onSuccess, initialData }) => {
     const { user } = useContext(AuthContext);
     const { t, formatDigit } = useLanguage();
     const [formData, setFormData] = useState({
@@ -29,21 +29,34 @@ const CreateListingModal = ({ isOpen, onClose, onSuccess }) => {
     // All roles can select any category
     const categories = useMemo(() => allCategories, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Reset form fields only when the modal opens or the logged-in user changes.
-    // Do NOT include `categories` here — it would cause a reset loop that
-    // overwrites the user's selection on every keystroke / re-render.
+    // Reset or auto-fill form fields when the modal opens or initialData changes.
     useEffect(() => {
         if (isOpen) {
-            setFormData(prev => ({
-                ...prev,
-                category: categories[0] || 'Fish',
-                district: user?.district || '',
-                localDistrict: user?.localDistrict || '',
-                policeStation: user?.policeStation || '',
-                phoneNumber: user?.phone || ''
-            }));
+            if (initialData) {
+                setFormData({
+                    productName: initialData.productName || '',
+                    category: initialData.category || categories[0] || 'Fish',
+                    price: initialData.price || '',
+                    district: initialData.district || user?.district || '',
+                    localDistrict: initialData.localDistrict || user?.localDistrict || '',
+                    policeStation: initialData.policeStation || user?.policeStation || '',
+                    description: initialData.description || '',
+                    phoneNumber: initialData.phoneNumber || user?.phone || '',
+                    quantity: initialData.quantity || '',
+                    unit: initialData.unit || 'kg'
+                });
+            } else {
+                setFormData(prev => ({
+                    ...prev,
+                    category: categories[0] || 'Fish',
+                    district: user?.district || '',
+                    localDistrict: user?.localDistrict || '',
+                    policeStation: user?.policeStation || '',
+                    phoneNumber: user?.phone || ''
+                }));
+            }
         }
-    }, [isOpen, user]); // ← categories intentionally omitted
+    }, [isOpen, user, initialData]); // ← categories intentionally omitted
 
     const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
     const states = Object.keys(stateDistricts);

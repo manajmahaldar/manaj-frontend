@@ -6,6 +6,9 @@ import { Languages, LayoutDashboard, ChevronDown } from 'lucide-react';
 import logoImg from '../../assets/logo/logo.png';
 import { getDashboardPath } from '../../utils/roleUtils';
 import api from '../../utils/api';
+import AIMarketplaceAgentModal from '../ai/AIMarketplaceAgentModal';
+import CreateListingModal from '../../features/product/components/CreateListingModal';
+import CreatePostModal from '../trader/CreatePostModal';
 
 const LANGS = [
     { code: 'bn', label: 'বাংলা',  sub: 'Bengali' },
@@ -21,11 +24,29 @@ const Navbar = () => {
     const [isDesktopLangOpen, setIsDesktopLangOpen] = useState(false);
     const [isMobileLangOpen, setIsMobileLangOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isAIAgentOpen, setIsAIAgentOpen] = useState(false);
+    const [isListingModalOpen, setIsListingModalOpen] = useState(false);
+    const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+    const [aiInitialData, setAiInitialData] = useState(null);
+
     const navigate = useNavigate();
 
     // Separate refs for desktop and mobile — MUST NOT share a single ref
     const desktopLangRef = useRef(null);
     const mobileLangRef  = useRef(null);
+
+    const handleLaunchFormFromAI = useCallback((data) => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        setAiInitialData(data);
+        if (data.actionType === 'buying') {
+            setIsPostModalOpen(true);
+        } else {
+            setIsListingModalOpen(true);
+        }
+    }, [user, navigate]);
 
     const handleLogout = useCallback(() => {
         logout();
@@ -179,6 +200,14 @@ const Navbar = () => {
 
                     {/* Mobile section */}
                     <div className="md:hidden flex items-center gap-2">
+                        {/* AI Assistant button for mobile header */}
+                        <button
+                            onClick={() => setIsAIAgentOpen(true)}
+                            className="p-2 text-emerald-700 bg-emerald-50 rounded-xl flex items-center gap-1 font-bold text-xs"
+                        >
+                            <span>AI</span>
+                        </button>
+
                         {/* Mobile Language Dropdown — uses its own ref */}
                         <div className="relative" ref={mobileLangRef}>
                             <button
@@ -227,6 +256,26 @@ const Navbar = () => {
 
                 </div>
             </div>
+
+            {/* AI Assistant Modal */}
+            <AIMarketplaceAgentModal
+                isOpen={isAIAgentOpen}
+                onClose={() => setIsAIAgentOpen(false)}
+                onLaunchForm={handleLaunchFormFromAI}
+            />
+
+            <CreateListingModal
+                isOpen={isListingModalOpen}
+                onClose={() => setIsListingModalOpen(false)}
+                onSuccess={() => navigate(0)}
+                initialData={aiInitialData}
+            />
+            <CreatePostModal
+                isOpen={isPostModalOpen}
+                onClose={() => setIsPostModalOpen(false)}
+                onSuccess={() => navigate(0)}
+                initialData={aiInitialData}
+            />
         </nav>
     );
 };

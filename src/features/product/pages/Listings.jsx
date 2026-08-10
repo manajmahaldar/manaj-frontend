@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 import ListingCard from '../components/ListingCard';
 import BuyingPostCard from '../../../components/trader/BuyingPostCard';
@@ -9,6 +9,10 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { AuthContext } from '../../../context/AuthContext';
 import SEO from '../../../components/common/SEO';
 import toast from 'react-hot-toast';
+import AIAssistantButton from '../../../components/ai/AIAssistantButton';
+import AIMarketplaceAgentModal from '../../../components/ai/AIMarketplaceAgentModal';
+import CreateListingModal from '../components/CreateListingModal';
+import CreatePostModal from '../../../components/trader/CreatePostModal';
 
 const Listings = () => {
     const { t, formatDigit, language } = useLanguage();
@@ -105,6 +109,25 @@ const Listings = () => {
         setPage(1);
     }, []);
 
+    const navigate = useNavigate();
+    const [isAIAgentOpen, setIsAIAgentOpen] = useState(false);
+    const [isListingModalOpen, setIsListingModalOpen] = useState(false);
+    const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+    const [aiInitialData, setAiInitialData] = useState(null);
+
+    const handleLaunchFormFromAI = useCallback((data) => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        setAiInitialData(data);
+        if (data.actionType === 'buying') {
+            setIsPostModalOpen(true);
+        } else {
+            setIsListingModalOpen(true);
+        }
+    }, [user, navigate]);
+
     const handleViewTypeChange = (newType) => {
         setViewType(newType);
         setPage(1);
@@ -189,6 +212,7 @@ const Listings = () => {
                                 <Mic size={18} />
                             </button>
                         </div>
+                        <AIAssistantButton onClick={() => setIsAIAgentOpen(true)} variant="inline" />
                     </div>
                 </div>
 
@@ -201,46 +225,32 @@ const Listings = () => {
                             </div>
                         ))}
                     </div>
-                ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (
-                    <div className="space-y-8">
+                ) : (viewType === 'selling' ? listings.length > 0 : buyingPosts.length > 0) ? (
+                    <div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                            {viewType === 'selling' ? (
-                                listings.map(item => (
-                                    <div key={item._id}>
-                                        <ListingCard 
-                                            item={item} 
-                                            userRole={user?.role} 
-                                        />
-                                    </div>
-                                ))
-                            ) : (
-                                buyingPosts.map(post => (
-                                    <div key={post._id}>
-                                        <BuyingPostCard 
-                                            post={post} 
-                                        />
-                                    </div>
-                                ))
-                            )}
+                            {viewType === 'selling' 
+                                ? listings.map(l => <ListingCard key={l._id} item={l} userRole={user?.role} />)
+                                : buyingPosts.map(p => <BuyingPostCard key={p._id} post={p} />)
+                            }
                         </div>
-
-                        {/* Pagination Controls */}
+                        
+                        {/* Pagination */}
                         {pagination.pages > 1 && (
-                            <div className="flex items-center justify-center gap-3 py-6">
+                            <div className="flex justify-center items-center gap-2 mt-8">
                                 <button 
                                     disabled={page === 1}
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    className="btn btn-ghost border border-border btn-sm"
+                                    onClick={() => setPage(p => p - 1)}
+                                    className="btn btn-ghost btn-sm border border-border disabled:opacity-40"
                                 >
                                     {t.previous}
                                 </button>
-                                <span className="text-sm font-bold text-text-primary px-2">
+                                <span className="text-sm font-semibold text-text-secondary px-3">
                                     {formatDigit(page)} / {formatDigit(pagination.pages)}
                                 </span>
                                 <button 
                                     disabled={page === pagination.pages}
-                                    onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-                                    className="btn btn-ghost border border-border btn-sm"
+                                    onClick={() => setPage(p => p + 1)}
+                                    className="btn btn-ghost btn-sm border border-border disabled:opacity-40"
                                 >
                                     {t.next}
                                 </button>
@@ -263,6 +273,26 @@ const Listings = () => {
                     </div>
                 )}
             </div>
+
+            {/* AI Assistant Modal */}
+            <AIMarketplaceAgentModal
+                isOpen={isAIAgentOpen}
+                onClose={() => setIsAIAgentOpen(false)}
+                onLaunchForm={handleLaunchFormFromAI}
+            />
+
+            <CreateListingModal
+                isOpen={isListingModalOpen}
+                onClose={() => setIsListingModalOpen(false)}
+                onSuccess={() => fetchData()}
+                initialData={aiInitialData}
+            />
+            <CreatePostModal
+                isOpen={isPostModalOpen}
+                onClose={() => setIsPostModalOpen(false)}
+                onSuccess={() => fetchData()}
+                initialData={aiInitialData}
+            />
         </div>
     );
 };

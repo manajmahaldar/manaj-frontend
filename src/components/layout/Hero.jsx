@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PlusCircle, Search } from 'lucide-react';
+import { PlusCircle, Search, Bot, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../utils/api';
 import OptimizedImage from '../common/OptimizedImage';
@@ -11,7 +11,7 @@ const FALLBACK_VIDEO1 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%2010.5
 const FALLBACK_VIDEO2 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%208.03.59%20PM.mp4';
 const FALLBACK_IMAGE  = '/hero-fish-new.png';
 
-const Hero = () => {
+const Hero = ({ onOpenFarmingAI }) => {
     const { t, formatDigit } = useLanguage();
     const [heroMedia, setHeroMedia] = useState({ video1Url: '', video2Url: '', heroImageUrl: '' });
 

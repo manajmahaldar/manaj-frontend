@@ -30,6 +30,7 @@ const CookiePolicy        = lazy(() => import('../pages/legal/CookiePolicy'));
 const GrievanceRedressal  = lazy(() => import('../pages/legal/GrievanceRedressal'));
 const PrivacyCenter       = lazy(() => import('../pages/user/PrivacyCenter'));
 const LearningHub         = lazy(() => import('../features/learning/pages/LearningHub'));
+const FarmingAIAssistant   = lazy(() => import('../features/farmingAI/pages/FarmingAIAssistant'));
 
 const AppRoutes = () => {
   return (
@@ -74,6 +75,12 @@ const AppRoutes = () => {
         <Route path="/learning/*" element={
           <ProtectedRoute>
             <DashboardLayout><LearningHub /></DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/farming-ai/*" element={
+          <ProtectedRoute>
+            <DashboardLayout><FarmingAIAssistant /></DashboardLayout>
           </ProtectedRoute>
         } />
 

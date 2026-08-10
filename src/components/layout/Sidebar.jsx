@@ -21,15 +21,18 @@ import {
     Tractor,
     Store,
     TrendingUp,
-    Fish
+    Fish,
+    Sparkles,
+    Bot
 } from 'lucide-react';
 import { useState, useContext, useMemo, useCallback, memo } from 'react';
 import { AuthContext, AuthActionsContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { getDashboardPath } from '../../utils/roleUtils';
 import logoImg from '../../assets/logo/logo.png';
+import AIAssistantButton from '../ai/AIAssistantButton';
 
-const Sidebar = memo(({ isOpen, toggleSidebar }) => {
+const Sidebar = memo(({ isOpen, toggleSidebar, onOpenAIAgent, onOpenFarmingAIAgent }) => {
     const { user } = useContext(AuthContext);
     const { logout } = useContext(AuthActionsContext);
     const { t } = useLanguage();
@@ -184,7 +187,19 @@ const Sidebar = memo(({ isOpen, toggleSidebar }) => {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto min-h-0">
+            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto min-h-0">
+                {/* Create with AI Sidebar Action */}
+                <button
+                    onClick={() => {
+                        onOpenAIAgent?.();
+                        toggleSidebar?.();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm shadow-md shadow-emerald-500/20 hover:from-emerald-700 hover:to-teal-700 active:scale-98 transition-all mb-2"
+                >
+                    <Sparkles size={18} className="animate-pulse text-amber-300" />
+                    <span>{t.aiAgentTitle || 'Create with AI'}</span>
+                </button>
+
                 {filteredItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (

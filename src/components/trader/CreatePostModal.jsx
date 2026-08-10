@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { X, Plus, Upload } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { AuthContext } from '../../context/AuthContext';
 import { stateDistricts, getPoliceStations } from '../../utils/districtsData';
 
-const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
+const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
+    const { user } = useContext(AuthContext);
     const { t, formatDigit } = useLanguage();
     const [formData, setFormData] = useState({
         fishName: '',
@@ -15,10 +17,37 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess }) => {
         district: '',
         localDistrict: '',
         policeStation: '',
-        phoneNumber: ''
+        phoneNumber: '',
+        category: 'fish'
     });
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            if (initialData) {
+                setFormData({
+                    fishName: initialData.fishName || initialData.productName || '',
+                    size: initialData.size || '',
+                    requiredQuantity: initialData.requiredQuantity || (initialData.quantity ? `${initialData.quantity} ${initialData.unit || 'kg'}` : ''),
+                    buyingPrice: initialData.buyingPrice || initialData.price || '',
+                    district: initialData.district || user?.district || '',
+                    localDistrict: initialData.localDistrict || user?.localDistrict || '',
+                    policeStation: initialData.policeStation || user?.policeStation || '',
+                    phoneNumber: initialData.phoneNumber || user?.phone || '',
+                    category: initialData.category ? initialData.category.toLowerCase() : 'fish'
+                });
+            } else {
+                setFormData(prev => ({
+                    ...prev,
+                    district: user?.district || '',
+                    localDistrict: user?.localDistrict || '',
+                    policeStation: user?.policeStation || '',
+                    phoneNumber: user?.phone || ''
+                }));
+            }
+        }
+    }, [isOpen, user, initialData]);
 
     const handlePhotoChange = (e) => {
         if (e.target.files.length > 3) {
