@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     Bot, Send, Mic, Image as ImageIcon, Plus, Trash2, Copy, Check,
     Sparkles, AlertTriangle, ExternalLink, ChevronRight, HelpCircle,
-    BookOpen, RefreshCw, X, Sliders, Maximize2, Minimize2, History, MessageSquare
+    BookOpen, RefreshCw, X, Sliders, Maximize2, Minimize2, History, MessageSquare,
+    LogIn
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     sendFarmingAIChat,
     getFarmingAIConversations,
@@ -25,6 +26,7 @@ const SUGGESTED_QUESTIONS = [
 
 const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [conversations, setConversations] = useState([]);
     const [currentConversationId, setCurrentConversationId] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -50,12 +52,12 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    // Fetch conversation list on open
+    // Fetch conversation list on open — only when authenticated
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && user) {
             loadConversations();
         }
-    }, [isOpen]);
+    }, [isOpen, user]);
 
     // Auto-scroll messages
     useEffect(() => {
@@ -176,8 +178,13 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
         recognition.start();
     };
 
-    // Send Message Handler
+    // Send Message Handler — guard against unauthenticated state
     const handleSend = async (overrideText = null) => {
+        if (!user) {
+            onClose();
+            navigate('/login');
+            return;
+        }
         const queryText = overrideText || input;
         if (!queryText.trim() && images.length === 0) return;
 
@@ -238,6 +245,62 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
             });
         } catch (err) { }
     };
+
+    // ─── Not logged in: show login gate inside the modal ───────────────────
+    if (!user) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs transition-all duration-300">
+                <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden w-full sm:w-[480px]">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-cyan-900 text-white px-5 py-3.5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white/10 rounded-2xl border border-white/20">
+                                <Bot size={22} className="text-emerald-300" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-base text-white">Ask Farming AI</h3>
+                                <p className="text-xs text-emerald-200/80">Smart Aquaculture Advisor</p>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="p-2 rounded-xl text-emerald-100 hover:bg-red-500/30 transition-colors">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    {/* Login Gate Body */}
+                    <div className="p-8 flex flex-col items-center text-center gap-5">
+                        <div className="p-5 bg-gradient-to-tr from-emerald-50 to-teal-50 rounded-3xl">
+                            <Bot size={48} className="text-emerald-600" />
+                        </div>
+                        <div>
+                            <h4 className="text-lg font-bold text-slate-800 mb-1">Login to Use Farming AI</h4>
+                            <p className="text-sm text-slate-500 max-w-xs">
+                                Get expert aquaculture advice, fish disease diagnosis, and personalised pond management tips — for free.
+                            </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-3 w-full">
+                            <Link
+                                to="/login"
+                                onClick={onClose}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95"
+                            >
+                                <LogIn size={18} />
+                                Login to Continue
+                            </Link>
+                            <Link
+                                to="/register"
+                                onClick={onClose}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 border-2 border-emerald-600 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-all active:scale-95"
+                            >
+                                Register Free
+                            </Link>
+                        </div>
+                        <p className="text-[11px] text-slate-400">Free forever · No credit card required</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-xs transition-all duration-300">
