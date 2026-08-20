@@ -76,7 +76,7 @@ const BuyingPosts = () => {
                 </div>
             </div>
 
-            {loading ? (
+            {loading && posts.length === 0 ? (
                 <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:overflow-visible w-full">
                     {[1,2,3,4,5,6].map(n => (
                         <div key={n} className="flex-shrink-0 w-[85vw] md:w-full snap-start h-48 bg-gray-50 animate-pulse rounded-xl border border-gray-100"></div>
@@ -84,7 +84,7 @@ const BuyingPosts = () => {
                 </div>
             ) : posts.length > 0 ? (
                 <div className="space-y-12">
-                    <div className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:overflow-visible w-full">
+                    <div className={`flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:overflow-visible w-full transition-opacity duration-200 ${loading ? 'opacity-70' : 'opacity-100'}`}>
                         {posts.map(post => (
                             <div key={post._id} className="flex-shrink-0 w-[85vw] md:w-full snap-start">
                                 <BuyingPostCard post={post} />

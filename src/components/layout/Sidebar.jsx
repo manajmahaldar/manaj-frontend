@@ -247,20 +247,11 @@ const Sidebar = memo(({ isOpen, toggleSidebar, onOpenAIAgent, onOpenFarmingAIAge
                     {isLearningHubOpen && (
                         <div className="ml-6 mt-1 space-y-0.5 border-l border-border pl-3">
                             {[
-                                { name: t.learningHome || 'Home',             path: '/learning' },
-                                { name: t.learningCategories || 'Categories',       path: '/learning/categories' },
-                                { name: t.learningVideos || 'Videos',           path: '/learning/videos' },
                                 { name: t.learningArticles || 'Articles',         path: '/learning/articles' },
-                                { name: t.learningBlogs || 'Blogs',            path: '/learning/blogs' },
-                                { name: t.learningPdfLibrary || 'PDF Library',      path: '/learning/pdfs' },
-                                { name: t.learningGovtSchemes || 'Govt. Schemes',    path: '/learning/schemes' },
-                                { name: t.learningTrainingPrograms || 'Training Programs',path: '/learning/trainings' },
+                                { name: t.learningVideos || 'Videos',           path: '/learning/videos' },
+                                { name: t.learningProblemsStory || 'Problems Story (Videos)', path: '/learning/problems-story' },
                                 { name: t.learningWebinars || 'Webinars',         path: '/learning/webinars' },
-                                { name: t.learningQuizzes || 'Quizzes',          path: '/learning/quizzes' },
-                                { name: t.learningCertificates || 'Certificates',     path: '/learning/certificates' },
-                                { name: t.learningBookmarks || 'Bookmarks',        path: '/learning/bookmarks' },
-                                { name: t.learningRecentlyViewed || 'Recently Viewed',  path: '/learning/recent' },
-                                { name: t.learningMyProgress || 'My Progress',      path: '/learning/progress' },
+                                { name: t.learningGovtSchemes || 'Govt. Schemes',    path: '/learning/schemes' },
                             ].map((sub) => (
                                 <Link
                                     key={sub.path}
@@ -275,7 +266,7 @@ const Sidebar = memo(({ isOpen, toggleSidebar, onOpenAIAgent, onOpenFarmingAIAge
                                     {sub.name}
                                 </Link>
                             ))}
-                            {user.role === 'admin' && (
+                            {user?.role === 'admin' && (
                                 <Link
                                     to="/learning/admin"
                                     onClick={toggleSidebar}

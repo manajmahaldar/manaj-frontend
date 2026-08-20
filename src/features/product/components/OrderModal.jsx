@@ -46,11 +46,11 @@ const OrderModal = ({ isOpen, onClose, onSuccess, listing }) => {
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div className="bg-blue-50 p-4 rounded-xl">
                         <p className="text-sm text-blue-700 font-bold">{listing.productName}</p>
-                        <p className="text-lg font-black text-blue-900">{language === 'bn' ? 'টাকা' : '₹'} {formatDigit(listing.price)} / {listing.unit}</p>
+                        <p className="text-lg font-black text-blue-900">{language === 'bn' ? 'টাকা' : '₹'} {formatDigit(listing.price)} / {t.units?.[listing.unit] || listing.unit}</p>
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-sm font-bold text-gray-700">{t.quantity} ({listing.unit})</label>
+                        <label className="text-sm font-bold text-gray-700">{t.quantity} ({t.units?.[listing.unit] || listing.unit})</label>
                         <input 
                             type="number" required min="0.1" step="0.1"
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-primary"

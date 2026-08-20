@@ -1,4 +1,4 @@
-import { MapPin, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, BadgeCheck, Clock, Edit2, Trash2, ShoppingBag, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -85,7 +85,7 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
     return (
         <div 
             ref={cardRef}
-            onClick={() => navigate(`/product/selling/${item._id}`)}
+            onClick={() => navigate(`/product/selling/${item._id}`, { state: { product: item } })}
             className="card card-hover flex flex-col h-full group cursor-pointer"
         >
             {/* Media Section */}
@@ -101,6 +101,7 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                     <OptimizedImage 
                         src={media[currentMediaIndex].url} 
                         alt={item.productName}
+                        targetWidth={600}
                         className="object-cover w-full h-full group-hover/carousel:scale-105 transition-transform duration-500"
                     />
                 )}
@@ -139,6 +140,13 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                         </span>
                     )}
                 </div>
+
+                {/* Discount badge — top right of image */}
+                {item.mrp && parseFloat(item.mrp) > parseFloat(item.price) && (
+                    <div className="absolute top-2.5 right-2.5 z-10 bg-green-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                        {Math.round((1 - parseFloat(item.price) / parseFloat(item.mrp)) * 100)}% {t.off || 'OFF'}
+                    </div>
+                )}
             </div>
 
             {/* Details Section */}
@@ -152,11 +160,23 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                             )}
                         </h3>
                         <div className="text-right flex-shrink-0">
-                            <p className="text-primary font-extrabold text-base leading-tight">
-                                {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}
-                            </p>
+                            {/* Swiggy-style discount display */}
+                            {item.mrp && parseFloat(item.mrp) > parseFloat(item.price) ? (
+                                <>
+                                    <p className="text-xs text-text-tertiary line-through leading-tight">
+                                        {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.mrp)}
+                                    </p>
+                                    <p className="text-primary font-extrabold text-base leading-tight">
+                                        {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}
+                                    </p>
+                                </>
+                            ) : (
+                                <p className="text-primary font-extrabold text-base leading-tight">
+                                    {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price)}
+                                </p>
+                            )}
                             {item.category !== 'Equipment' && (
-                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.per} {item.unit}</p>
+                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.per} {t.units?.[item.unit] || item.unit}</p>
                             )}
                         </div>
                     </div>
@@ -183,6 +203,16 @@ const ListingCard = ({ item, isOwner, onEdit, onDelete, userRole }) => {
                         </div>
                     </div>
                 </div>
+
+                {isOwner && item.status === 'rejected' && item.rejectionReason && (
+                    <div className="bg-red-50 text-red-700 p-2.5 rounded-xl text-xs font-semibold border border-red-100 flex items-start gap-1.5 animate-in fade-in">
+                        <AlertCircle size={14} className="mt-0.5 flex-shrink-0 text-red-500" />
+                        <div>
+                            <p className="font-bold">Rejection Reason:</p>
+                            <p className="font-normal mt-0.5">{item.rejectionReason}</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Actions */}
                 <div className="pt-2 border-t border-border">

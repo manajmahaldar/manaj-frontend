@@ -14,6 +14,7 @@ import {
     trackFarmingAIResourceClick
 } from '../api/farmingAIApi';
 import { useAuth } from '../../../context/AuthContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const SUGGESTED_QUESTIONS = [
     "🐟 My fish are gasping at the surface. What should I do?",
@@ -25,6 +26,7 @@ const SUGGESTED_QUESTIONS = [
 
 const FarmingAIAssistant = () => {
     const { user } = useAuth();
+    const { language } = useLanguage();
     const [conversations, setConversations] = useState([]);
     const [currentConversationId, setCurrentConversationId] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -189,7 +191,8 @@ const FarmingAIAssistant = () => {
                 imageUrls: userMsg.imageUrls,
                 hasVoice: userMsg.hasAudio,
                 conversationId: currentConversationId,
-                farmContext
+                farmContext,
+                language
             });
 
             if (res.data.success) {

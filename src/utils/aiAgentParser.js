@@ -48,6 +48,7 @@ export function parseMarketplaceIntent(text = '', existingData = {}, user = {}) 
         quantity: existingData.quantity || '',
         unit: existingData.unit || 'kg',
         price: existingData.price || '',             // Selling price or Buying budget
+        mrp: existingData.mrp || '',                // MRP / Original price (for discount display)
         district: existingData.district || user?.district || '',           // State
         localDistrict: existingData.localDistrict || user?.localDistrict || '', // District
         policeStation: existingData.policeStation || user?.policeStation || '', // Police station
@@ -208,7 +209,8 @@ export function parseMarketplaceIntent(text = '', existingData = {}, user = {}) 
     if (result.productName || result.category) {
         const catLabel = result.category || 'Product';
         const pName = result.productName || catLabel;
-        const qStr = result.quantity ? `${result.quantity} ${result.unit}` : '';
+        const isEquipment = (result.category || '').toLowerCase() === 'equipment';
+        const qStr = (!isEquipment && result.quantity) ? `${result.quantity} ${result.unit}` : '';
         const prStr = result.price ? `₹${result.price}` : '';
         const locStr = result.localDistrict ? `in ${result.localDistrict}` : '';
 
@@ -216,13 +218,17 @@ export function parseMarketplaceIntent(text = '', existingData = {}, user = {}) 
             if (result.actionType === 'buying') {
                 result.title = `Urgent Requirement: ${pName} ${qStr}`.trim();
             } else {
-                result.title = `${pName} ${qStr} Available ${locStr}`.trim();
+                result.title = `${pName}${qStr ? ` ${qStr}` : ''} Available ${locStr}`.trim();
             }
         }
 
         if (!result.description) {
-            const verb = result.actionType === 'buying' ? 'Looking to purchase' : 'High quality';
-            result.description = `${verb} ${pName}. ${qStr ? `Quantity: ${qStr}.` : ''} ${prStr ? `Price/Budget: ${prStr}.` : ''} Location: ${result.localDistrict || ''} ${result.district || ''}. Contact: ${result.phoneNumber || ''}.`.trim();
+            if (isEquipment) {
+                result.description = `Equipment for sale: ${pName}.${prStr ? ` Price: ${prStr}.` : ''} Location: ${result.localDistrict || ''} ${result.district || ''}. Contact: ${result.phoneNumber || ''}.`.trim();
+            } else {
+                const verb = result.actionType === 'buying' ? 'Looking to purchase' : 'High quality';
+                result.description = `${verb} ${pName}. ${qStr ? `Quantity: ${qStr}.` : ''} ${prStr ? `Price/Budget: ${prStr}.` : ''} Location: ${result.localDistrict || ''} ${result.district || ''}. Contact: ${result.phoneNumber || ''}.`.trim();
+            }
         }
     }
 
@@ -269,12 +275,16 @@ const GUIDED_FIELDS = [
  */
 function generateNextState(result, user, isCorrection = false) {
     const missing = [];
+    const isEquipmentSelling = result.actionType === 'selling' && (result.category || '').toLowerCase() === 'equipment';
 
     if (!result.actionType) missing.push('actionType');
     if (!result.category) missing.push('category');
     if (!result.productName) missing.push('productName');
-    if (!result.quantity) missing.push('quantity');
+    // Equipment is sold as a whole unit — no quantity/unit required
+    if (!isEquipmentSelling && !result.quantity) missing.push('quantity');
     if (!result.price) missing.push(result.actionType === 'buying' ? 'buyingPrice' : 'price');
+    // MRP required when selling (all categories)
+    if (result.actionType === 'selling' && !result.mrp) missing.push('mrp');
     if (!result.district) missing.push('district');
     if (!result.localDistrict) missing.push('localDistrict');
     if (!result.policeStation) missing.push('policeStation');

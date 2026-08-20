@@ -88,7 +88,7 @@ const HomeListings = () => {
 
 
             {/* Listings Grid */}
-            {loading ? (
+            {loading && (viewType === 'selling' ? listings.length === 0 : buyingPosts.length === 0) ? (
                 <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full">
                     {[1,2,3,4,5,6,7,8].map(n => (
                         <div key={n} className="w-full">
@@ -98,7 +98,7 @@ const HomeListings = () => {
                 </div>
             ) : (viewType === 'selling' ? listings : buyingPosts).length > 0 ? (
                 <div className="space-y-8">
-                    <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className={`flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 pb-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 transition-opacity ${loading ? 'opacity-70' : 'opacity-100'}`}>
                         {viewType === 'selling' ? (
                             listings.map(item => (
                                 <div key={item._id} className="w-full">

@@ -23,7 +23,8 @@ import {
     createWebinar,
     deleteWebinar,
     bulkContentAction,
-    sendBroadcastNotification
+    sendBroadcastNotification,
+    uploadLearningVideo
 } from '../../api/learningApi';
 import { 
     BarChart3, Database, HelpCircle, FileText, Landmark, RefreshCw, 
@@ -44,6 +45,9 @@ const LearningAdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('analytics');
 
+    // Video upload state
+    const [videoUpload, setVideoUpload] = useState({ uploading: false, progress: 0, error: '' });
+
     // Selection & Filter State
     const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
     const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
@@ -54,6 +58,10 @@ const LearningAdminDashboard = () => {
 
     // Editing State
     const [editingContentId, setEditingContentId] = useState(null);
+
+    // Structured Q&A Parts builder state
+    const [parts, setParts] = useState([{ id: Date.now(), title: '', qas: [{ id: Date.now() + 1, question: '', answer: '' }] }]);
+
 
     // Form States
     const [contentForm, setContentForm] = useState({
@@ -95,26 +103,34 @@ const LearningAdminDashboard = () => {
     const loadAdminData = async () => {
         try {
             setLoading(true);
-            const [analRes, catRes, contentRes, mediaRes, courseRes, webinarRes, schemeRes] = await Promise.all([
-                getLearningAnalytics(),
-                getCategories(),
-                getAllContentAdmin({ limit: 200 }),
-                getMediaAssets({ folder: selectedFolder, search: mediaSearch }),
-                getCourses(),
-                getWebinars(),
-                getGovernmentSchemes()
+
+            // Core data — always available (public or user-level auth)
+            const [analRes, catRes, contentRes, schemeRes] = await Promise.all([
+                getLearningAnalytics().catch(() => null),
+                getCategories().catch(() => null),
+                getAllContentAdmin({ limit: 200 }).catch(() => null),
+                getGovernmentSchemes().catch(() => null),
             ]);
 
             if (analRes?.data?.success) setAnalytics(analRes.data.data);
             if (catRes?.data?.success) setCategories(catRes.data.data);
             if (contentRes?.data?.success) setContents(contentRes.data.data || []);
+            if (schemeRes?.data?.success) setSchemes(schemeRes.data.data || []);
+
+            // Admin-only endpoints — gracefully skip on 401/403 (e.g. token not yet set)
+            const [mediaRes, courseRes, webinarRes] = await Promise.all([
+                getMediaAssets({ folder: selectedFolder, search: mediaSearch }).catch(() => null),
+                getCourses().catch(() => null),
+                getWebinars().catch(() => null),
+            ]);
+
             if (mediaRes?.data?.success) {
                 setMediaAssets(mediaRes.data.data || []);
                 setFolders(mediaRes.data.folders || []);
             }
             if (courseRes?.data?.success) setCourses(courseRes.data.data || []);
             if (webinarRes?.data?.success) setWebinars(webinarRes.data.data || []);
-            if (schemeRes?.data?.success) setSchemes(schemeRes.data.data || []);
+
         } catch (err) {
             console.error('Error loading admin CMS data', err);
         } finally {
@@ -122,19 +138,90 @@ const LearningAdminDashboard = () => {
         }
     };
 
+
     useEffect(() => {
         loadAdminData();
     }, [selectedFolder, mediaSearch]);
 
-    // Content Handlers
+    // ── Part / Q&A helpers ──────────────────────────────────────────────────
+    const serializeParts = (partsData) => {
+        return partsData
+            .filter(p => p.title.trim() || p.qas.some(qa => qa.question.trim()))
+            .map((part, pi) => {
+                const header = `🟢 PART ${pi + 1} — ${part.title}`;
+                const qaLines = part.qas
+                    .filter(qa => qa.question.trim())
+                    .map((qa, qi) => `${qi + 1}. ${qa.question}\n\nans:\n${qa.answer}`)
+                    .join('\n\n');
+                return `${header}\n\n${qaLines}`;
+            })
+            .join('\n\n');
+    };
+
+    // Reverse of serializeParts — parses saved content string back into parts array
+    const deserializeContent = (text) => {
+        if (!text || !text.trim()) return [{ id: Date.now(), title: '', qas: [{ id: Date.now() + 1, question: '', answer: '' }] }];
+
+        // Split on PART headers (🟢 PART N — Title  OR  PART N — Title  OR  Part N)
+        const partSections = text.split(/(?=(?:🟢\s*)?PART\s+\d+\s*[—-])/i).filter(s => s.trim());
+
+        if (partSections.length === 0) {
+            // No PART markers — treat the whole thing as one part with one Q&A
+            return [{ id: Date.now(), title: '', qas: [{ id: Date.now() + 1, question: text.trim(), answer: '' }] }];
+        }
+
+        return partSections.map((section, pi) => {
+            const lines = section.split('\n');
+            // First line is the part header — extract the title after the dash
+            const headerLine = lines[0] || '';
+            const titleMatch = headerLine.match(/(?:🟢\s*)?PART\s+\d+\s*[—-]\s*(.*)/i);
+            const partTitle = titleMatch ? titleMatch[1].trim() : headerLine.trim();
+
+            // Remaining lines contain Q&A pairs
+            const body = lines.slice(1).join('\n').trim();
+
+            // Split on numbered questions: `1.`, `2.`, `qn1`, `qn2`, etc.
+            const qaPairs = body.split(/\n(?=\d+\.\s|qn\d+)/i).filter(s => s.trim());
+
+            const qas = qaPairs.map((pair, qi) => {
+                // Split on `ans:` or `ans\n` (with optional whitespace)
+                const ansMatch = pair.split(/\bans\s*:?\s*\n?/i);
+                const questionRaw = ansMatch[0] || '';
+                const answerRaw = ansMatch.slice(1).join('').trim();
+
+                // Strip leading number from question (e.g. `1. ` or `qn1 `)
+                const question = questionRaw.replace(/^(?:\d+\.\s*|qn\d+\s*)/i, '').trim();
+
+                return { id: Date.now() + pi * 100 + qi, question, answer: answerRaw };
+            }).filter(qa => qa.question);
+
+            return {
+                id: Date.now() + pi * 1000,
+                title: partTitle,
+                qas: qas.length > 0 ? qas : [{ id: Date.now() + pi * 100, question: '', answer: '' }]
+            };
+        });
+    };
+
+    const addPart = () => setParts(prev => [...prev, { id: Date.now(), title: '', qas: [{ id: Date.now() + 1, question: '', answer: '' }] }]);
+    const deletePart = (pid) => setParts(prev => prev.filter(p => p.id !== pid));
+    const updatePartTitle = (pid, val) => setParts(prev => prev.map(p => p.id === pid ? { ...p, title: val } : p));
+
+    const addQA = (pid) => setParts(prev => prev.map(p => p.id === pid ? { ...p, qas: [...p.qas, { id: Date.now(), question: '', answer: '' }] } : p));
+    const deleteQA = (pid, qid) => setParts(prev => prev.map(p => p.id === pid ? { ...p, qas: p.qas.filter(q => q.id !== qid) } : p));
+    const updateQA = (pid, qid, field, val) => setParts(prev => prev.map(p => p.id === pid ? { ...p, qas: p.qas.map(q => q.id === qid ? { ...q, [field]: val } : q) } : p));
+
+    // ── Content Handlers ────────────────────────────────────────────────────
     const handleContentSubmit = async (e) => {
         e.preventDefault();
         try {
+            const serializedContent = serializeParts(parts);
             const payload = {
                 ...contentForm,
+                content: serializedContent || contentForm.content,
                 categories: Array.isArray(contentForm.categories) && contentForm.categories.length > 0 
                     ? contentForm.categories 
-                    : (contentForm.category ? [contentForm.category] : []),
+                    : (categories[0]?._id ? [categories[0]._id] : []),
                 author: {
                     name: contentForm.authorName || 'MatsyaLink Expert',
                     bio: contentForm.authorBio || ''
@@ -160,10 +247,13 @@ const LearningAdminDashboard = () => {
         }
     };
 
-    const resetContentForm = () => {
+    const resetContentForm = (presetType) => {
         setEditingContentId(null);
+        setParts([{ id: Date.now(), title: '', qas: [{ id: Date.now() + 1, question: '', answer: '' }] }]);
         setContentForm({
-            title: '', type: 'article', categories: [], subcategory: '', language: 'en', level: 'beginner',
+            title: '', 
+            type: presetType || (['article', 'video', 'success_story', 'problems_story'].includes(activeTab) ? activeTab : 'article'), 
+            categories: [], subcategory: '', language: 'en', level: 'beginner',
             status: 'published', content: '', videoUrl: '', videoSource: 'youtube', pdfUrl: '', mediaUrl: '',
             thumbnail: '', duration: 0, readingTime: 0, featured: false, pinned: false, isTrending: false, isRecommended: false,
             authorName: 'MatsyaLink Expert', authorBio: '', tags: ''
@@ -172,6 +262,8 @@ const LearningAdminDashboard = () => {
 
     const handleEditContent = (item) => {
         setEditingContentId(item._id);
+        // Parse existing content string back into the structured parts builder
+        setParts(deserializeContent(item.content || ''));
         setContentForm({
             title: item.title,
             type: item.type,
@@ -196,7 +288,9 @@ const LearningAdminDashboard = () => {
             authorBio: item.author?.bio || '',
             tags: item.tags ? item.tags.join(', ') : ''
         });
-        setActiveTab('publish');
+        setActiveTab(item.type);
+        // Scroll to top of form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDeleteContent = async (id) => {
@@ -438,19 +532,28 @@ const LearningAdminDashboard = () => {
                 {[
                     { id: 'analytics', label: 'Analytics Insights', icon: <BarChart3 className="w-4 h-4" /> },
                     { id: 'manage', label: 'Manage Content', icon: <FileText className="w-4 h-4" /> },
-                    { id: 'publish', label: editingContentId ? 'Edit Resource' : 'Create Resource', icon: <Plus className="w-4 h-4" /> },
-                    { id: 'quizzes', label: 'Quizzes & Tests', icon: <HelpCircle className="w-4 h-4" /> },
-                    { id: 'schemes', label: 'Government Schemes', icon: <Landmark className="w-4 h-4" /> },
-                    { id: 'courses', label: 'Courses & Modules', icon: <Layers className="w-4 h-4" /> },
-                    { id: 'categories', label: 'Taxonomy & Categories', icon: <Tag className="w-4 h-4" /> },
-                    { id: 'media', label: 'Media Library', icon: <Folder className="w-4 h-4" /> },
-                    { id: 'webinars', label: 'Webinars & Events', icon: <Calendar className="w-4 h-4" /> },
-                    { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> }
+                    { id: 'article', label: editingContentId && contentForm.type === 'article' ? 'Edit Article' : 'Upload Article', icon: <Plus className="w-4 h-4" /> },
+                    { id: 'video', label: editingContentId && contentForm.type === 'video' ? 'Edit Video' : 'Upload Video', icon: <Video className="w-4 h-4" /> },
+                    { id: 'success_story', label: editingContentId && contentForm.type === 'success_story' ? 'Edit Success Story' : 'Upload Success Story', icon: <Star className="w-4 h-4" /> },
+                    { id: 'problems_story', label: editingContentId && contentForm.type === 'problems_story' ? 'Edit Problems Story' : 'Upload Problems Story', icon: <HelpCircle className="w-4 h-4" /> },
+                    { id: 'webinars', label: 'Upload Webinar', icon: <Calendar className="w-4 h-4" /> },
+                    { id: 'schemes', label: 'Upload Govt Scheme', icon: <Landmark className="w-4 h-4" /> }
                 ].map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => {
-                            if (tab.id !== 'publish' && editingContentId) resetContentForm();
+                            const isContentTab = ['article', 'video', 'success_story', 'problems_story'].includes(tab.id);
+                            const wasEditingOther = editingContentId && contentForm.type !== tab.id;
+                            
+                            if (isContentTab) {
+                                if (wasEditingOther) {
+                                    resetContentForm(tab.id);
+                                } else {
+                                    setContentForm(prev => ({ ...prev, type: tab.id }));
+                                }
+                            } else if (editingContentId) {
+                                resetContentForm();
+                            }
                             setActiveTab(tab.id);
                         }}
                         className={`flex items-center gap-2 px-5 py-3 border-b-2 font-bold text-xs whitespace-nowrap transition-colors ${
@@ -556,13 +659,10 @@ const LearningAdminDashboard = () => {
                                 className="px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs font-bold text-gray-700"
                             >
                                 <option value="all">All Resource Types</option>
-                                <option value="video">Videos</option>
                                 <option value="article">Articles</option>
-                                <option value="blog">Blogs</option>
-                                <option value="pdf">PDF Library</option>
-                                <option value="infographic">Infographics</option>
-                                <option value="audio">Audio Lessons</option>
-                                <option value="presentation">Presentations</option>
+                                <option value="video">Videos</option>
+                                <option value="success_story">Success Stories</option>
+                                <option value="problems_story">Problems Story (Videos)</option>
                             </select>
 
                             <select 
@@ -699,7 +799,7 @@ const LearningAdminDashboard = () => {
             )}
 
             {/* TAB 3: CREATE / EDIT RESOURCE */}
-            {activeTab === 'publish' && (
+            {['article', 'video', 'success_story', 'problems_story'].includes(activeTab) && (
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm max-w-4xl">
                     <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center justify-between">
                         <span>{editingContentId ? 'Edit Learning Resource' : 'Create & Publish Learning Resource'}</span>
@@ -725,132 +825,109 @@ const LearningAdminDashboard = () => {
                             </div>
 
                             <div>
-                                <label className="block font-bold text-gray-700 mb-1">Resource Type *</label>
-                                <select 
-                                    value={contentForm.type}
-                                    onChange={(e) => setContentForm({...contentForm, type: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold"
-                                >
-                                    <option value="video">Video Lesson</option>
-                                    <option value="article">Educational Article</option>
-                                    <option value="blog">Blog Post</option>
-                                    <option value="pdf">PDF Guide</option>
-                                    <option value="infographic">Infographic</option>
-                                    <option value="audio">Audio Lesson</option>
-                                    <option value="presentation">Presentation</option>
-                                </select>
+                                <label className="block font-bold text-gray-700 mb-1">Resource Type</label>
+                                <div className="w-full px-4 py-2.5 bg-gray-100 border border-gray-200 rounded-xl font-bold text-gray-700 capitalize">
+                                    {contentForm.type?.replace('_', ' ')}
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block font-bold text-gray-700 mb-1">Category *</label>
-                                <select 
-                                    value={contentForm.category || (contentForm.categories?.[0] || '')}
-                                    onChange={(e) => setContentForm({...contentForm, categories: [e.target.value]})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold"
+        {/* Hidden inputs with default values */}
+
+                        {/* ── Video Upload ── */}
+                        {(contentForm.type === 'video' || contentForm.type === 'problems_story' || contentForm.type === 'success_story') && (
+                            <div className="bg-sky-50/60 border border-sky-100 p-4 rounded-2xl space-y-3">
+                                <label className="block font-bold text-gray-800 text-sm">🎬 Video File</label>
+
+                                {/* Drop zone / file picker */}
+                                <label
+                                    htmlFor="video-file-input"
+                                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                                        videoUpload.uploading
+                                            ? 'border-sky-300 bg-sky-50'
+                                            : contentForm.videoUrl
+                                            ? 'border-emerald-300 bg-emerald-50'
+                                            : 'border-sky-200 bg-white hover:border-sky-400 hover:bg-sky-50'
+                                    }`}
                                 >
-                                    <option value="">Select Primary Category</option>
-                                    {categories.map(cat => (
-                                        <option key={cat._id} value={cat._id}>{cat.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block font-bold text-gray-700 mb-1">Subcategory</label>
-                                <input 
-                                    type="text" 
-                                    value={contentForm.subcategory}
-                                    onChange={(e) => setContentForm({...contentForm, subcategory: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"
-                                    placeholder="e.g. Biofloc Tech"
+                                    {videoUpload.uploading ? (
+                                        <div className="flex flex-col items-center gap-2 w-full px-6">
+                                            <div className="w-full bg-sky-100 rounded-full h-2">
+                                                <div
+                                                    className="bg-sky-500 h-2 rounded-full transition-all duration-300"
+                                                    style={{ width: `${videoUpload.progress}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-xs font-bold text-sky-600">Uploading... {videoUpload.progress}%</span>
+                                        </div>
+                                    ) : contentForm.videoUrl ? (
+                                        <div className="flex flex-col items-center gap-1">
+                                            <Video className="w-7 h-7 text-emerald-500" />
+                                            <span className="text-xs font-bold text-emerald-600">✅ Video uploaded</span>
+                                            <span className="text-[10px] text-gray-400 max-w-xs truncate px-2">{contentForm.videoUrl}</span>
+                                            <span className="text-[10px] text-sky-500 font-semibold mt-0.5">Click to replace</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-1">
+                                            <Upload className="w-7 h-7 text-sky-400" />
+                                            <span className="text-xs font-bold text-sky-600">Click to upload video</span>
+                                            <span className="text-[10px] text-gray-400">MP4, MOV, WebM — max 200MB</span>
+                                        </div>
+                                    )}
+                                </label>
+                                <input
+                                    id="video-file-input"
+                                    type="file"
+                                    accept="video/*"
+                                    className="hidden"
+                                    disabled={videoUpload.uploading}
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        setVideoUpload({ uploading: true, progress: 0, error: '' });
+                                        try {
+                                            const res = await uploadLearningVideo(file, (pct) =>
+                                                setVideoUpload(prev => ({ ...prev, progress: pct }))
+                                            );
+                                            if (res.data.success) {
+                                                setContentForm(prev => ({
+                                                    ...prev,
+                                                    videoUrl: res.data.url,
+                                                    duration: res.data.duration ? Math.round(res.data.duration / 60) : prev.duration
+                                                }));
+                                                setVideoUpload({ uploading: false, progress: 100, error: '' });
+                                            }
+                                        } catch (err) {
+                                            setVideoUpload({ uploading: false, progress: 0, error: err.response?.data?.msg || 'Upload failed' });
+                                        }
+                                        e.target.value = '';
+                                    }}
                                 />
-                            </div>
 
-                            <div>
-                                <label className="block font-bold text-gray-700 mb-1">Publishing Status *</label>
-                                <select 
-                                    value={contentForm.status}
-                                    onChange={(e) => setContentForm({...contentForm, status: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-sky-700"
-                                >
-                                    <option value="published">Published</option>
-                                    <option value="draft">Save as Draft</option>
-                                    <option value="pending_review">Pending Review</option>
-                                    <option value="scheduled">Scheduled</option>
-                                    <option value="archived">Archived</option>
-                                </select>
-                            </div>
-                        </div>
+                                {videoUpload.error && (
+                                    <p className="text-xs text-rose-600 font-semibold">{videoUpload.error}</p>
+                                )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block font-bold text-gray-700 mb-1">Target Language</label>
-                                <select 
-                                    value={contentForm.language}
-                                    onChange={(e) => setContentForm({...contentForm, language: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold"
-                                >
-                                    <option value="en">English (en)</option>
-                                    <option value="bn">Bengali (bn)</option>
-                                    <option value="hi">Hindi (hi)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block font-bold text-gray-700 mb-1">Author Name</label>
-                                <input 
-                                    type="text" 
-                                    value={contentForm.authorName}
-                                    onChange={(e) => setContentForm({...contentForm, authorName: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block font-bold text-gray-700 mb-1">Tags (Comma separated)</label>
-                                <input 
-                                    type="text" 
-                                    value={contentForm.tags}
-                                    onChange={(e) => setContentForm({...contentForm, tags: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"
-                                    placeholder="fish, aquaculture, biofloc"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block font-bold text-gray-700 mb-1">Thumbnail / Cover Image URL</label>
-                                <input 
-                                    type="url" 
-                                    value={contentForm.thumbnail}
-                                    onChange={(e) => setContentForm({...contentForm, thumbnail: e.target.value})}
-                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"
-                                    placeholder="https://res.cloudinary.com/your-image-url.jpg"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Media Links depending on type */}
-                        {contentForm.type === 'video' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-sky-50/50 p-4 rounded-xl">
+                                {/* Fallback: paste a YouTube / external URL */}
                                 <div>
-                                    <label className="block font-bold text-gray-700 mb-1">Video Stream URL</label>
-                                    <input 
+                                    <label className="block text-[11px] font-bold text-gray-500 mb-1">Or paste a YouTube / external URL</label>
+                                    <input
                                         type="url"
                                         value={contentForm.videoUrl}
                                         onChange={(e) => setContentForm({...contentForm, videoUrl: e.target.value})}
-                                        className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl"
+                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs"
                                         placeholder="https://youtube.com/watch?v=..."
                                     />
                                 </div>
+
+                                {/* Duration override */}
                                 <div>
-                                    <label className="block font-bold text-gray-700 mb-1">Video Duration (Minutes)</label>
-                                    <input 
+                                    <label className="block text-[11px] font-bold text-gray-500 mb-1">Video Duration (minutes)</label>
+                                    <input
                                         type="number"
                                         value={contentForm.duration}
                                         onChange={(e) => setContentForm({...contentForm, duration: Number(e.target.value)})}
-                                        className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl"
+                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs"
                                     />
                                 </div>
                             </div>
@@ -869,43 +946,98 @@ const LearningAdminDashboard = () => {
                             </div>
                         )}
 
+                        {/* ── Structured Part → Q&A Builder ── */}
                         <div>
-                            <label className="block font-bold text-gray-700 mb-1">Resource Body / Description Content</label>
-                            <textarea 
-                                rows={6}
-                                value={contentForm.content}
-                                onChange={(e) => setContentForm({...contentForm, content: e.target.value})}
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl font-medium"
-                                placeholder="Enter detailed learning body content in markdown or plain text..."
-                            />
-                        </div>
+                            <div className="flex items-center justify-between mb-3">
+                                <label className="block font-bold text-gray-800 text-sm">📚 Content Parts &amp; Q&amp;A</label>
+                                <button
+                                    type="button"
+                                    onClick={addPart}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors"
+                                >
+                                    <Plus className="w-3.5 h-3.5" /> Add Part
+                                </button>
+                            </div>
 
-                        {/* Curation Flags */}
-                        <div className="flex flex-wrap items-center gap-6 p-4 bg-gray-50 rounded-xl">
-                            <label className="flex items-center gap-2 font-bold text-gray-700 cursor-pointer">
-                                <input 
-                                    type="checkbox"
-                                    checked={contentForm.featured}
-                                    onChange={(e) => setContentForm({...contentForm, featured: e.target.checked})}
-                                />
-                                Featured Content
-                            </label>
-                            <label className="flex items-center gap-2 font-bold text-gray-700 cursor-pointer">
-                                <input 
-                                    type="checkbox"
-                                    checked={contentForm.pinned}
-                                    onChange={(e) => setContentForm({...contentForm, pinned: e.target.checked})}
-                                />
-                                Pin Content to Top
-                            </label>
-                            <label className="flex items-center gap-2 font-bold text-gray-700 cursor-pointer">
-                                <input 
-                                    type="checkbox"
-                                    checked={contentForm.isTrending}
-                                    onChange={(e) => setContentForm({...contentForm, isTrending: e.target.checked})}
-                                />
-                                Mark as Trending
-                            </label>
+                            <div className="space-y-5">
+                                {parts.map((part, pi) => (
+                                    <div key={part.id} className="border-2 border-sky-100 rounded-2xl overflow-hidden">
+                                        {/* Part Header */}
+                                        <div className="flex items-center gap-3 bg-sky-50 px-4 py-3">
+                                            <span className="flex-shrink-0 w-7 h-7 bg-sky-600 text-white rounded-lg flex items-center justify-center text-xs font-black">
+                                                {pi + 1}
+                                            </span>
+                                            <input
+                                                type="text"
+                                                value={part.title}
+                                                onChange={(e) => updatePartTitle(part.id, e.target.value)}
+                                                placeholder={`Part ${pi + 1} title (e.g. মাছ চাষের Basic)`}
+                                                className="flex-1 px-3 py-1.5 bg-white border border-sky-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-sky-500"
+                                            />
+                                            {parts.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => deletePart(part.id)}
+                                                    className="flex-shrink-0 p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                                    title="Delete Part"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Q&A List */}
+                                        <div className="p-4 space-y-4">
+                                            {part.qas.map((qa, qi) => (
+                                                <div key={qa.id} className="bg-gray-50 rounded-xl p-3 space-y-2 border border-gray-200">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="flex-shrink-0 w-5 h-5 bg-amber-500 text-white rounded text-[10px] font-black flex items-center justify-center">{qi + 1}</span>
+                                                        <input
+                                                            type="text"
+                                                            value={qa.question}
+                                                            onChange={(e) => updateQA(part.id, qa.id, 'question', e.target.value)}
+                                                            placeholder="Question..."
+                                                            className="flex-1 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium focus:outline-none focus:border-amber-400"
+                                                        />
+                                                        {part.qas.length > 1 && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => deleteQA(part.id, qa.id)}
+                                                                className="flex-shrink-0 p-1 text-rose-300 hover:text-rose-500 rounded transition-colors"
+                                                            >
+                                                                <Trash2 className="w-3 h-3" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <textarea
+                                                        rows={3}
+                                                        value={qa.answer}
+                                                        onChange={(e) => updateQA(part.id, qa.id, 'answer', e.target.value)}
+                                                        placeholder="Answer..."
+                                                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-medium focus:outline-none focus:border-sky-400 resize-y"
+                                                    />
+                                                </div>
+                                            ))}
+
+                                            <button
+                                                type="button"
+                                                onClick={() => addQA(part.id)}
+                                                className="w-full py-2 border-2 border-dashed border-sky-200 hover:border-sky-400 text-sky-500 hover:text-sky-700 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                                            >
+                                                <Plus className="w-3.5 h-3.5" /> Add Q&amp;A
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Live Preview toggle */}
+                            <details className="mt-4">
+                                <summary className="text-xs font-bold text-gray-500 cursor-pointer hover:text-gray-800 select-none">🔍 Preview raw content (what will be saved)</summary>
+                                <pre className="mt-2 p-3 bg-gray-900 text-green-300 rounded-xl text-[10px] whitespace-pre-wrap font-mono overflow-auto max-h-48">
+                                    {serializeParts(parts) || '(empty — add parts and Q&As above)'}
+                                </pre>
+                            </details>
                         </div>
 
                         <button 
@@ -997,15 +1129,42 @@ const LearningAdminDashboard = () => {
                                 value={schemeForm.schemeName} onChange={(e) => setSchemeForm({...schemeForm, schemeName: e.target.value})}
                                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"
                             />
+                            <select
+                                value={schemeForm.category}
+                                onChange={(e) => setSchemeForm({...schemeForm, category: e.target.value})}
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-700 bg-white"
+                            >
+                                <option value="subsidy">Subsidy</option>
+                                <option value="pmmsy">PMMSY Scheme</option>
+                                <option value="loan">Loan</option>
+                                <option value="insurance">Insurance</option>
+                                <option value="training_program">Training Program</option>
+                                <option value="notification">Government Notification</option>
+                            </select>
                             <input 
                                 type="text" placeholder="Ministry / Department"
                                 value={schemeForm.ministry} onChange={(e) => setSchemeForm({...schemeForm, ministry: e.target.value})}
                                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"
                             />
                             <textarea 
-                                rows={3} placeholder="Eligibility Criteria & Benefits"
+                                rows={3} required placeholder="Description (Required)"
+                                value={schemeForm.description} onChange={(e) => setSchemeForm({...schemeForm, description: e.target.value})}
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl"
+                            />
+                            <textarea 
+                                rows={2} placeholder="Eligibility Criteria"
                                 value={schemeForm.eligibility} onChange={(e) => setSchemeForm({...schemeForm, eligibility: e.target.value})}
                                 className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl"
+                            />
+                            <textarea 
+                                rows={2} placeholder="Benefits"
+                                value={schemeForm.benefits} onChange={(e) => setSchemeForm({...schemeForm, benefits: e.target.value})}
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl"
+                            />
+                            <input 
+                                type="url" placeholder="Official Application Link (URL)"
+                                value={schemeForm.applicationLink} onChange={(e) => setSchemeForm({...schemeForm, applicationLink: e.target.value})}
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl"
                             />
                             <button type="submit" className="w-full py-3 bg-sky-600 text-white font-bold rounded-xl">
                                 Publish Scheme

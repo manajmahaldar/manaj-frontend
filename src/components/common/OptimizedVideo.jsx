@@ -20,6 +20,7 @@ const OptimizedVideo = ({
   loop = true,
   muted = true,
   playsInline = true,
+  containerBg = 'bg-surface-2',
   ...props 
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -46,9 +47,9 @@ const OptimizedVideo = ({
     }
   }, [src]);
 
-  // If video is already cached and loaded by browser, this handles it
+  // If video is already cached and loaded by browser, handle it immediately
   useEffect(() => {
-    if (videoRef.current && videoRef.current.readyState >= 3) {
+    if (videoRef.current && videoRef.current.readyState >= 2) {
       setIsLoaded(true);
     }
   }, [optimizedSrc]);
@@ -67,10 +68,10 @@ const OptimizedVideo = ({
   };
 
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ width, height }}>
+    <div className={`relative overflow-hidden ${containerBg} ${className}`} style={{ width, height }}>
       {/* Shimmer Skeleton Placeholder */}
       {!isLoaded && !error && (
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-50 to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-shimmer pointer-events-none z-0" />
       )}
       
       <video
@@ -85,7 +86,7 @@ const OptimizedVideo = ({
         onError={handleError}
         // Preload auto if priority, metadata otherwise
         preload={priority ? 'auto' : 'metadata'}
-        className={`w-full h-full transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
+        className={`w-full h-full block transition-opacity duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} ${className}`}
         style={{ objectFit }}
         {...props}
       />

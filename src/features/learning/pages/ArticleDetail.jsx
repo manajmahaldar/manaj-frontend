@@ -2,6 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getContentDetails, trackProgress } from '../api/learningApi';
 import { Calendar, User, Eye, ChevronRight, CheckCircle, Moon, Sun, Printer, Share2 } from 'lucide-react';
+const renderFormattedContent = (content) => {
+    if (!content) return '';
+    if (/<[a-z][\s\S]*>/i.test(content)) {
+        return content;
+    }
+    const lines = content.split('\n');
+    return lines.map((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return '<br />';
+        if (/^(🟢|🔵|part\s*\d+|part)/i.test(trimmed)) {
+            return `<h2 class="text-base font-black text-primary mt-6 mb-3 pb-1 border-b border-gray-100 flex items-center gap-2">${trimmed}</h2>`;
+        }
+        if (/^\d+\./.test(trimmed) || /^qn?\s*\d+/i.test(trimmed)) {
+            return `<h3 class="text-xs font-bold text-gray-900 mt-4 mb-2 flex items-start gap-1 bg-gray-50 p-3 rounded-xl border-l-4 border-primary">${trimmed}</h3>`;
+        }
+        if (trimmed.toLowerCase().startsWith('ans')) {
+            const hasColon = trimmed.includes(':');
+            const ansText = hasColon ? trimmed.substring(trimmed.indexOf(':') + 1).trim() : trimmed.substring(3).trim();
+            if (ansText) {
+                return `<div class="pl-4 pb-4 text-xs font-semibold text-gray-600 leading-relaxed"><strong class="text-primary">Ans:</strong> ${ansText}</div>`;
+            } else {
+                return `<strong class="text-primary pl-4 block mt-1 font-bold">Ans:</strong>`;
+            }
+        }
+        return `<p class="text-xs font-semibold text-gray-600 leading-relaxed mb-3">${trimmed}</p>`;
+    }).join('');
+};
 
 const ArticleDetail = () => {
     const { slug } = useParams();
@@ -149,7 +176,7 @@ const ArticleDetail = () => {
 
                     <div 
                         className="space-y-4 prose max-w-none text-sm"
-                        dangerouslySetInnerHTML={{ __html: article.content }} 
+                        dangerouslySetInnerHTML={{ __html: renderFormattedContent(article.content) }} 
                     />
 
                     {/* Completion control */}

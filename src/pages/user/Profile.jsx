@@ -422,16 +422,22 @@ const Profile = () => {
                                         <span className="badge badge-primary uppercase">
                                             {user.role === 'farmer' ? t.farmer : user.role === 'seller' ? t.seller : user.role === 'hatchery' ? t.hatchery : t.trader}
                                         </span>
-                                        {user.verifiedStatus ? (
+                                        {user.accountStatus === 'active' ? (
                                             <span className="badge badge-success uppercase flex items-center gap-1">
                                                 <BadgeCheck size={14} />
-                                                Verified User
+                                                Approved Account
                                             </span>
                                         ) : (
                                             <Link to="/verification" className="badge badge-warning uppercase flex items-center gap-1 hover:opacity-80">
-                                                <ShieldCheck size={14} />
-                                                Get Verified Badge
+                                                <Clock size={14} />
+                                                Pending Admin Approval
                                             </Link>
+                                        )}
+                                        {user.verifiedStatus && (
+                                            <span className="badge badge-success uppercase flex items-center gap-1">
+                                                <ShieldCheck size={14} />
+                                                Verified
+                                            </span>
                                         )}
                                     </div>
                                 </div>

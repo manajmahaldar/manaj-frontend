@@ -3,7 +3,7 @@ import api from '../../utils/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
     User as UserIcon, Package, MessageSquare, ShieldCheck, 
-    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2, Eye, Flag
+    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2, Eye, Flag, Mic
 } from 'lucide-react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -23,6 +23,8 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [rejectionReason, setRejectionReason] = useState("");
     const [rejectingUserId, setRejectingUserId] = useState(null);
+    const [rejectingItemId, setRejectingItemId] = useState(null);
+    const [itemRejectionReason, setItemRejectionReason] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
     const location = useLocation();
 
@@ -69,6 +71,33 @@ const AdminDashboard = () => {
         } catch (err) { toast.error("Failed to approve verification"); }
     };
 
+    const startSpeechRecognition = (setValue) => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            toast.error("Speech recognition is not supported in this browser. Please use Google Chrome.");
+            return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        toast.success("Listening... Please speak now.");
+
+        recognition.onresult = (event) => {
+            const speechToText = event.results[0][0].transcript;
+            setValue(prev => prev ? prev + " " + speechToText : speechToText);
+            toast.success("Voice capture successful!");
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error", event.error);
+            toast.error("Voice capture failed. Please try again.");
+        };
+
+        recognition.start();
+    };
+
     const handleRejectVerification = async () => {
         if (!rejectionReason) return toast.error("Please provide a reason");
         try {
@@ -90,10 +119,20 @@ const AdminDashboard = () => {
     };
 
     const handleRejectListing = async (itemId, type = 'listing') => {
+        setRejectingItemId(itemId);
+        setItemRejectionReason("");
+    };
+
+    const handleRejectListingConfirm = async (itemId, type = 'listing') => {
+        if (!itemRejectionReason.trim()) {
+            return toast.error("Please provide a reason for rejection");
+        }
         try {
             const url = type === 'listing' ? `/admin/listings/${itemId}/reject` : `/admin/posts/${itemId}/reject`;
-            await api.put(url, {});
+            await api.put(url, { reason: itemRejectionReason });
             toast.success(t.updateSuccess);
+            setRejectingItemId(null);
+            setItemRejectionReason("");
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
@@ -212,8 +251,8 @@ const AdminDashboard = () => {
                 {pendingUsers.length === 0 ? (
                     <div className="py-20 bg-white rounded-[3rem] border-2 border-dashed border-gray-100 text-center">
                         <ShieldCheck size={48} className="text-gray-200 mx-auto mb-4" />
-                        <p className="text-gray-400 font-bold text-lg">No verification documents submitted yet.</p>
-                        <p className="text-gray-300 font-medium text-sm mt-2">Users must complete the verification form at <strong>/verification</strong> to appear here.</p>
+                        <p className="text-gray-400 font-bold text-lg">No pending user profiles awaiting approval.</p>
+                        <p className="text-gray-300 font-medium text-sm mt-2">All registered users have been reviewed and processed.</p>
                     </div>
                 ) : (
                     pendingUsers.map(u => (
@@ -251,15 +290,24 @@ const AdminDashboard = () => {
                                         </div>
                                     </div>
                                 </div>
-                                
                                 {rejectingUserId === u._id ? (
                                     <div className="space-y-4 animate-in fade-in slide-in-from-top-4">
-                                        <textarea 
-                                            placeholder="Reason for rejection..."
-                                            className="w-full p-4 rounded-2xl bg-red-50 border border-red-100 outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium"
-                                            value={rejectionReason}
-                                            onChange={(e) => setRejectionReason(e.target.value)}
-                                        />
+                                        <div className="relative">
+                                            <textarea 
+                                                placeholder="Reason for rejection..."
+                                                className="w-full p-4 pr-12 rounded-2xl bg-red-50 border border-red-100 outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium"
+                                                value={rejectionReason}
+                                                onChange={(e) => setRejectionReason(e.target.value)}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => startSpeechRecognition(setRejectionReason)}
+                                                className="absolute right-3 top-3 p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
+                                                title="Speak Rejection Reason"
+                                            >
+                                                <Mic size={16} />
+                                            </button>
+                                        </div>
                                         <div className="flex gap-2">
                                             <button onClick={handleRejectVerification} className="btn bg-red-600 text-white flex-grow py-3 rounded-xl font-bold">Confirm Reject</button>
                                             <button onClick={() => setRejectingUserId(null)} className="btn bg-gray-100 text-gray-500 px-6 py-3 rounded-xl font-bold">Cancel</button>
@@ -517,68 +565,112 @@ const AdminDashboard = () => {
                                     </tr>
                                 ) : (
                                     filteredItems.map((item) => (
-                                        <tr key={item._id} className={`transition-colors ${item.isFlagged ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-blue-50/30'}`}>
-                                            <td className="px-10 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
-                                                        {item.photos && item.photos.length > 0 ? <img loading="lazy" src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-black text-gray-900 flex items-center gap-2">
-                                                            {item.productName || item.fishName}
-                                                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                                                {item.type === 'listing' ? 'Sale' : 'Buy'}
-                                                            </span>
-                                                            {item.isFlagged && (
-                                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
-                                                                    <Flag size={10} /> Flagged
+                                        <React.Fragment key={item._id}>
+                                            <tr className={`transition-colors ${item.isFlagged ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-blue-50/30'}`}>
+                                                <td className="px-10 py-6">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
+                                                            {item.photos && item.photos.length > 0 ? <img loading="lazy" src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-black text-gray-900 flex items-center gap-2">
+                                                                {item.productName || item.fishName}
+                                                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                                    {item.type === 'listing' ? 'Sale' : 'Buy'}
                                                                 </span>
+                                                                {item.isFlagged && (
+                                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
+                                                                        <Flag size={10} /> Flagged
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="text-xs text-gray-400 font-bold tracking-tight mt-1">
+                                                                {item.category} • {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price || item.buyingPrice)}
+                                                                {item.unit ? `/${item.unit}` : ''}
+                                                                {item.size ? ` • ${item.size}` : ''}
+                                                            </div>
+                                                            {item.isFlagged && (
+                                                                <div className="text-[10px] text-red-600 font-bold tracking-tight mt-1">
+                                                                    Reason: {item.fraudReason}
+                                                                </div>
                                                             )}
                                                         </div>
-                                                        <div className="text-xs text-gray-400 font-bold tracking-tight mt-1">
-                                                            {item.category} • {language === 'bn' ? 'টাকা' : '₹'}{formatDigit(item.price || item.buyingPrice)}
-                                                            {item.unit ? `/${item.unit}` : ''}
-                                                            {item.size ? ` • ${item.size}` : ''}
-                                                        </div>
-                                                        {item.isFlagged && (
-                                                            <div className="text-[10px] text-red-600 font-bold tracking-tight mt-1">
-                                                                Reason: {item.fraudReason}
-                                                            </div>
-                                                        )}
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6">
-                                                <div className="flex items-center gap-2">
-                                                    <UserIcon size={16} className="text-gray-400" />
-                                                    <span className="font-bold text-gray-700">{formatDigit(item.phoneNumber)}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6 text-sm">
-                                                <div className="flex items-center gap-2">
-                                                    <Clock size={16} className="text-gray-400" />
-                                                    <span className="font-bold text-gray-700">{new Date(item.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-10 py-6 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <button
-                                                        onClick={() => handleApproveListing(item._id, item.type)}
-                                                        className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                        title="Approve"
-                                                    >
-                                                        <ThumbsUp size={14} /> {t.approve}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleRejectListing(item._id, item.type)}
-                                                        className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                        title="Reject"
-                                                    >
-                                                        <ThumbsDown size={14} /> {t.reject}
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                </td>
+                                                <td className="px-6 py-6">
+                                                    <div className="flex items-center gap-2">
+                                                        <UserIcon size={16} className="text-gray-400" />
+                                                        <span className="font-bold text-gray-700">{formatDigit(item.phoneNumber)}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-6 text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock size={16} className="text-gray-400" />
+                                                        <span className="font-bold text-gray-700">{new Date(item.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-10 py-6 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <button
+                                                            onClick={() => handleApproveListing(item._id, item.type)}
+                                                            className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm text-xs font-bold"
+                                                            title="Approve"
+                                                        >
+                                                            <ThumbsUp size={14} /> {t.approve}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRejectListing(item._id, item.type)}
+                                                            className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold"
+                                                            title="Reject"
+                                                        >
+                                                            <ThumbsDown size={14} /> {t.reject}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {rejectingItemId === item._id && (
+                                                <tr className="bg-red-50/10">
+                                                    <td colSpan="4" className="px-10 py-4">
+                                                        <div className="space-y-3 max-w-xl animate-in fade-in slide-in-from-top-2 ml-16">
+                                                            <div className="relative">
+                                                                <textarea 
+                                                                    placeholder="Reason for listing rejection..."
+                                                                    className="w-full p-4 pr-12 rounded-2xl border border-red-100 outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium"
+                                                                    value={itemRejectionReason}
+                                                                    onChange={(e) => setItemRejectionReason(e.target.value)}
+                                                                    rows={2}
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => startSpeechRecognition(setItemRejectionReason)}
+                                                                    className="absolute right-3 top-3 p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
+                                                                    title="Speak Rejection Reason"
+                                                                >
+                                                                    <Mic size={16} />
+                                                                </button>
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <button 
+                                                                    onClick={() => handleRejectListingConfirm(item._id, item.type)} 
+                                                                    className="btn bg-red-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs"
+                                                                >
+                                                                    Confirm Reject
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        setRejectingItemId(null);
+                                                                        setItemRejectionReason("");
+                                                                    }} 
+                                                                    className="btn bg-gray-100 text-gray-500 px-4 py-2.5 rounded-xl font-bold text-xs"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
                                     ))
                                 )}
                             </tbody>

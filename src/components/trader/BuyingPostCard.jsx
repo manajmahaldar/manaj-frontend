@@ -1,4 +1,4 @@
-import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight, BadgeCheck } from 'lucide-react';
+import { MapPin, Ruler, Box, IndianRupee, Edit2, Trash2, ChevronLeft, ChevronRight, BadgeCheck, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
@@ -51,7 +51,7 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
     return (
         <div 
             ref={cardRef}
-            onClick={() => navigate(`/product/buying/${post._id}`)}
+            onClick={() => navigate(`/product/buying/${post._id}`, { state: { product: post } })}
             className="card card-hover flex flex-col h-full group cursor-pointer"
         >
             {/* Image Header */}
@@ -59,6 +59,7 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                 <OptimizedImage 
                     src={photos[currentImageIndex]} 
                     alt={post.fishName}
+                    targetWidth={600}
                     className="object-cover w-full h-full group-hover/carousel:scale-105 transition-transform duration-500"
                 />
                 
@@ -112,19 +113,60 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                         )}
                     </h3>
 
-                    {/* Specs Grid */}
+                    {/* Specs Grid — category-aware */}
                     <div className="grid grid-cols-2 gap-2 bg-surface-1 p-2.5 rounded-lg text-xs">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                            <Ruler className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
-                            <div className="min-w-0">
-                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{post.category === 'fish' ? t.size : t.packingSize}</p>
-                                <p className="font-semibold text-text-primary truncate">{formatDigit(post.size)}</p>
+
+                        {/* Fish: Size */}
+                        {(!post.category || post.category === 'fish') && (
+                            <div className="flex items-center gap-1.5 min-w-0">
+                                <Ruler className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.fishSize || 'Fish Size'}</p>
+                                    <p className="font-semibold text-text-primary truncate">{formatDigit(post.size) || '—'}</p>
+                                </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* Feed: Feed Type */}
+                        {post.category === 'feed' && (
+                            <div className="flex items-center gap-1.5 min-w-0">
+                                <Ruler className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.feedType || 'Feed Type'}</p>
+                                    <p className="font-semibold text-text-primary truncate">{post.feedType || '—'}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Feed & Medicine: Packing/Size */}
+                        {(post.category === 'feed' || post.category === 'medicine') && (
+                            <div className="flex items-center gap-1.5 min-w-0">
+                                <Box className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.packingSizeLabel || 'Packing'}</p>
+                                    <p className="font-semibold text-text-primary truncate">
+                                        {post.packingSize || post.size || '—'}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Medicine: Medicine Type */}
+                        {post.category === 'medicine' && post.medicineType && (
+                            <div className="flex items-center gap-1.5 min-w-0">
+                                <Ruler className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.medicineType || 'Type'}</p>
+                                    <p className="font-semibold text-text-primary truncate">{post.medicineType}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Common: Required Quantity */}
                         <div className="flex items-center gap-1.5 min-w-0">
                             <Box className="w-3.5 h-3.5 text-text-tertiary flex-shrink-0" />
                             <div className="min-w-0">
-                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.quantity}</p>
+                                <p className="text-2xs text-text-tertiary font-semibold uppercase">{t.quantity || 'Quantity'}</p>
                                 <p className="font-semibold text-text-primary truncate">{formatDigit(post.requiredQuantity)}</p>
                             </div>
                         </div>
@@ -147,6 +189,16 @@ const BuyingPostCard = ({ post, isOwner, onEdit, onDelete }) => {
                         </div>
                     </div>
                 </div>
+
+                {isOwner && post.status === 'rejected' && post.rejectionReason && (
+                    <div className="bg-red-50 text-red-700 p-2.5 rounded-xl text-xs font-semibold border border-red-100 flex items-start gap-1.5 animate-in fade-in">
+                        <AlertCircle size={14} className="mt-0.5 flex-shrink-0 text-red-500" />
+                        <div>
+                            <p className="font-bold">Rejection Reason:</p>
+                            <p className="font-normal mt-0.5">{post.rejectionReason}</p>
+                        </div>
+                    </div>
+                )}
 
                 {/* Actions Footer */}
                 <div className="pt-2 border-t border-border">

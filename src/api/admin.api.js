@@ -49,7 +49,7 @@ export const approveListing = (id) => api.put(`/admin/listings/${id}/approve`);
 
 // ─── Reject Listing ───────────────────────────────────────────────────────────
 // PUT /api/admin/listings/:id/reject
-export const rejectListing = (id) => api.put(`/admin/listings/${id}/reject`);
+export const rejectListing = (id, reason) => api.put(`/admin/listings/${id}/reject`, { reason });
 
 // ─── Approve Buying Post ──────────────────────────────────────────────────────
 // PUT /api/admin/posts/:id/approve
@@ -57,7 +57,7 @@ export const approveBuyingPost = (id) => api.put(`/admin/posts/${id}/approve`);
 
 // ─── Reject Buying Post ───────────────────────────────────────────────────────
 // PUT /api/admin/posts/:id/reject
-export const rejectBuyingPost = (id) => api.put(`/admin/posts/${id}/reject`);
+export const rejectBuyingPost = (id, reason) => api.put(`/admin/posts/${id}/reject`, { reason });
 
 // ─── Submit Report ────────────────────────────────────────────────────────────
 // POST /api/admin  { targetId, type, reason }

@@ -58,6 +58,22 @@ const RoleDashboard = ({ allowedRole }) => {
 
     return (
         <div className="space-y-12 p-8">
+            {user?.accountStatus === 'pending' && (
+                <div className="bg-orange-50 border border-orange-200 p-6 rounded-[2rem] flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-orange-100 text-orange-600 rounded-2xl shrink-0">
+                            <Info size={24} />
+                        </div>
+                        <div>
+                            <h4 className="font-black text-orange-900 text-lg">Account Approval Pending</h4>
+                            <p className="text-orange-700 text-sm">Your profile has been submitted. Please wait for Admin approval before posting listings or conducting transactions.</p>
+                        </div>
+                    </div>
+                    <Link to="/verification" className="btn bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700 shrink-0">
+                        Check Verification Status
+                    </Link>
+                </div>
+            )}
             <header className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
                 <div className="flex items-center justify-center md:justify-start gap-3 text-primary font-black text-sm uppercase tracking-widest w-full">
                     <LayoutDashboard size={20} />

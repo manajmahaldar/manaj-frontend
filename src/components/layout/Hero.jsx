@@ -7,9 +7,9 @@ import OptimizedImage from '../common/OptimizedImage';
 import OptimizedVideo from '../common/OptimizedVideo';
 import HomeSearch from './HomeSearch';
 
-const FALLBACK_VIDEO1 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%2010.59.14%20PM.mp4';
-const FALLBACK_VIDEO2 = '/video-folder/WhatsApp%20Video%202026-05-14%20at%208.03.59%20PM.mp4';
-const FALLBACK_IMAGE  = '/hero-fish-new.png';
+const FALLBACK_VIDEO1 = 'https://res.cloudinary.com/dsxyyogdd/video/upload/v1779020829/fish_marketplace/admin_media/njabrgngxmfcxqklokdp.mp4';
+const FALLBACK_VIDEO2 = 'https://res.cloudinary.com/dsxyyogdd/video/upload/v1779025641/fish_marketplace/admin_media/zwlr2jvj0hzwh56uyxja.mp4';
+const FALLBACK_IMAGE  = 'https://res.cloudinary.com/dsxyyogdd/image/upload/v1779024029/fish_marketplace/admin_media/fdgdljdz1bf5wc2o4dnm.jpg';
 
 const Hero = ({ onOpenFarmingAI }) => {
     const { t, formatDigit } = useLanguage();
@@ -85,9 +85,10 @@ const Hero = ({ onOpenFarmingAI }) => {
                             {/* Video 1 */}
                             <div className="relative bg-surface-2 rounded-xl overflow-hidden shadow-md ring-1 ring-black/5 group">
                                 <OptimizedVideo
-                                    key={video1Src}
+                                    key="hero-video-1"
                                     src={video1Src}
                                     priority={true}
+                                    containerBg="bg-surface-2"
                                     className="w-full aspect-square group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
@@ -95,21 +96,24 @@ const Hero = ({ onOpenFarmingAI }) => {
                             {/* Video 2 */}
                             <div className="relative bg-surface-2 rounded-xl overflow-hidden shadow-md ring-1 ring-black/5 group">
                                 <OptimizedVideo
-                                    key={video2Src}
+                                    key="hero-video-2"
                                     src={video2Src}
                                     priority={true}
+                                    containerBg="bg-surface-2"
                                     className="w-full aspect-square group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
 
                             {/* Hero Image — spans full width */}
-                            <div className="col-span-2 relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 group">
+                            <div className="col-span-2 relative bg-surface-2 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 group">
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none" />
                                 <OptimizedImage
-                                    key={heroImageSrc}
+                                    key="hero-main-image"
                                     src={heroImageSrc}
                                     alt="Fresh Fish Marketplace"
                                     priority={true}
+                                    targetWidth={1200}
+                                    containerBg="bg-surface-2"
                                     className="w-full h-full aspect-video group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>

@@ -1,6 +1,7 @@
-import React, { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { lazy, Suspense, useContext } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { LearningProvider } from '../context/LearningContext';
+import { AuthContext } from '../../../context/AuthContext';
 import { PageLoaderSkeleton as PageLoader } from '../../../components/common/Skeletons';
 
 // Lazy load learning sub-pages
@@ -9,6 +10,8 @@ const Categories = lazy(() => import('./Categories'));
 const CategoryDetail = lazy(() => import('./CategoryDetail'));
 const Videos = lazy(() => import('./Videos'));
 const VideoDetail = lazy(() => import('./VideoDetail'));
+const ProblemsStory = lazy(() => import('./ProblemsStory'));
+const ProblemsStoryDetail = lazy(() => import('./ProblemsStoryDetail'));
 const Articles = lazy(() => import('./Articles'));
 const ArticleDetail = lazy(() => import('./ArticleDetail'));
 const Blogs = lazy(() => import('./Blogs'));
@@ -27,6 +30,9 @@ const MyProgress = lazy(() => import('./MyProgress'));
 const LearningAdminDashboard = lazy(() => import('../components/admin/LearningAdminDashboard'));
 
 const LearningHub = () => {
+    const { user } = useContext(AuthContext);
+    const isAdmin = user && (user.role === 'admin' || user.role === 'superadmin');
+
     return (
         <LearningProvider>
             <Suspense fallback={<PageLoader />}>
@@ -36,6 +42,8 @@ const LearningHub = () => {
                     <Route path="/categories/:slug" element={<CategoryDetail />} />
                     <Route path="/videos" element={<Videos />} />
                     <Route path="/videos/:slug" element={<VideoDetail />} />
+                    <Route path="/problems-story" element={<ProblemsStory />} />
+                    <Route path="/problems-story/:slug" element={<ProblemsStoryDetail />} />
                     <Route path="/articles" element={<Articles />} />
                     <Route path="/articles/:slug" element={<ArticleDetail />} />
                     <Route path="/blogs" element={<Blogs />} />
@@ -51,7 +59,7 @@ const LearningHub = () => {
                     <Route path="/bookmarks" element={<Bookmarks />} />
                     <Route path="/recent" element={<RecentlyViewed />} />
                     <Route path="/progress" element={<MyProgress />} />
-                    <Route path="/admin" element={<LearningAdminDashboard />} />
+                    <Route path="/admin" element={isAdmin ? <LearningAdminDashboard /> : <Navigate to="/learning" replace />} />
                 </Routes>
             </Suspense>
         </LearningProvider>

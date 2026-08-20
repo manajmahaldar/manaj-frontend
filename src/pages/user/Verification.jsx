@@ -143,16 +143,16 @@ const Verification = () => {
                     <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto text-primary animate-bounce">
                         <Loader2 size={48} className="animate-spin" />
                     </div>
-                    <h1 className="text-3xl font-black text-gray-900">Verification Submitted</h1>
+                    <h1 className="text-3xl font-black text-gray-900">Profile Submitted for Approval</h1>
                     <p className="text-gray-500 text-lg leading-relaxed">
-                        We have received your verification documents. Our admin team is reviewing them.
-                        Once approved, your account will display the Verified User Badge! You can continue posting listings anytime.
+                        We have received your profile &amp; verification details. Our admin team is reviewing your account.
+                        Once approved by an admin, you will receive full access to post listings, buy, and interact with the application.
                     </p>
                     <button 
                         onClick={() => navigate('/profile')} 
                         className="btn btn-primary py-4 px-8 text-lg rounded-2xl font-bold shadow-lg shadow-primary/20"
                     >
-                        Continue to Profile
+                        View Profile Status
                     </button>
                 </div>
             </div>
@@ -168,19 +168,12 @@ const Verification = () => {
                         <div className="relative z-10 max-w-xl">
                             <h1 className="text-3xl md:text-4xl font-black flex items-center gap-3">
                                 <ShieldCheck size={36} />
-                                Get Verified User Badge
+                                Complete Profile Verification
                             </h1>
                             <p className="mt-3 text-white/90 text-sm md:text-base font-medium">
-                                Verification (Aadhaar & 10s video) is <strong>optional</strong>. Uploading documents awards you the <strong>Verified Badge (✔)</strong> on your profile and listings to build trust!
+                                Complete your profile and verification documents (Aadhaar &amp; 10s video). Once submitted, an admin will review and approve your account so you can continue using the application!
                             </p>
                         </div>
-                        <button 
-                            type="button"
-                            onClick={() => navigate('/profile')}
-                            className="relative z-10 bg-white/20 hover:bg-white text-white hover:text-primary px-5 py-2.5 rounded-2xl font-bold transition-all text-xs md:text-sm shrink-0 border border-white/30"
-                        >
-                            Skip for Now
-                        </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-12 space-y-12">
@@ -379,22 +372,14 @@ const Verification = () => {
                                 {loading ? (
                                     <>
                                         <Loader2 className="animate-spin" />
-                                        Submitting Verification...
+                                        Submitting Profile for Approval...
                                     </>
                                 ) : (
                                     <>
                                         <CheckCircle2 size={24} />
-                                        Submit for Verification Badge
+                                        Submit Profile for Admin Approval
                                     </>
                                 )}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => navigate('/profile')}
-                                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-4 text-base font-bold rounded-2xl transition-all text-center"
-                            >
-                                Skip &amp; Continue to Profile / Dashboard
                             </button>
                         </div>
                     </form>

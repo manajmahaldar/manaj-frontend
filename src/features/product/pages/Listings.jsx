@@ -217,7 +217,7 @@ const Listings = () => {
                 </div>
 
                 {/* Listings Grid */}
-                {loading ? (
+                {loading && (viewType === 'selling' ? listings.length === 0 : buyingPosts.length === 0) ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                         {[1,2,3,4,5,6,7,8].map(n => (
                             <div key={n}>
@@ -227,7 +227,7 @@ const Listings = () => {
                     </div>
                 ) : (viewType === 'selling' ? listings.length > 0 : buyingPosts.length > 0) ? (
                     <div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 transition-opacity duration-200 ${loading ? 'opacity-70' : 'opacity-100'}`}>
                             {viewType === 'selling' 
                                 ? listings.map(l => <ListingCard key={l._id} item={l} userRole={user?.role} />)
                                 : buyingPosts.map(p => <BuyingPostCard key={p._id} post={p} />)

@@ -55,10 +55,25 @@ export const createCourse = (data) => api.post('/learning/admin/courses', data);
 export const updateCourse = (id, data) => api.put(`/learning/admin/courses/${id}`, data);
 export const deleteCourse = (id) => api.delete(`/learning/admin/courses/${id}`);
 
-export const getWebinars = () => api.get('/learning/admin/webinars');
+export const getWebinars = () => api.get('/learning/user/webinars');
 export const createWebinar = (data) => api.post('/learning/admin/webinars', data);
 export const updateWebinar = (id, data) => api.put(`/learning/admin/webinars/${id}`, data);
 export const deleteWebinar = (id) => api.delete(`/learning/admin/webinars/${id}`);
 
 export const bulkContentAction = (data) => api.post('/learning/admin/bulk-action', data);
 export const sendBroadcastNotification = (data) => api.post('/learning/admin/notifications/broadcast', data);
+
+// Upload a video/file directly to Cloudinary via backend
+export const uploadLearningVideo = (file, onProgress) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/learning/admin/upload-video', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e) => {
+            if (onProgress && e.total) {
+                onProgress(Math.round((e.loaded * 100) / e.total));
+            }
+        }
+    });
+};
+

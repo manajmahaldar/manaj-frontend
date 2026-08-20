@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MapPin, Phone, Clock, ArrowLeft, ShieldCheck, Ruler, Box, IndianRupee, Building2, Map } from 'lucide-react';
 import api from '../../../utils/api';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -13,34 +13,42 @@ import { PageLoaderSkeleton } from '../../../components/common/Skeletons';
 const ProductDetails = () => {
     const { type, id } = useParams(); // type is either 'selling' or 'buying'
     const navigate = useNavigate();
+    const location = useLocation();
     const { t, formatDigit, language } = useLanguage();
     const { user } = useContext(AuthContext);
 
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // Seed with data passed from the product card — avoids blank image flash on first render
+    const seedProduct = location.state?.product || null;
+
+    const [product, setProduct] = useState(seedProduct);
+    const [loading, setLoading] = useState(!seedProduct); // no full-screen skeleton when we already have data
     const [error, setError] = useState(null);
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchProductDetails = async () => {
-            setLoading(true);
+            // Only set loading=true (full screen) when there is no seed data at all
+            if (!product) setLoading(true);
             try {
                 const endpoint = type === 'selling' ? `/listings/${id}` : `/posts/${id}`;
                 const res = await api.get(endpoint);
-                setProduct(res.data);
+                setProduct(res.data); // background update — keeps existing image visible
             } catch (err) {
                 console.error(err);
-                setError(t.noDataFound || 'Product not found');
+                // Only show error when we have no fallback data to show
+                if (!product) setError(t.noDataFound || 'Product not found');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchProductDetails();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, type]);
 
-    if (loading) return <PageLoaderSkeleton />;
+    // Show full-page skeleton only when we have absolutely no data yet
+    if (loading && !product) return <PageLoaderSkeleton />;
     if (error || !product) return (
         <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
             <h2 className="text-2xl font-bold text-gray-700">{error}</h2>
@@ -88,7 +96,7 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* ── Media Gallery ── */}
                     <div className="space-y-4">
-                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-lg bg-black">
+                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-lg bg-[#E8E8E8]">
                             {media[currentMediaIndex].type === 'video' ? (
                                 <video 
                                     src={media[currentMediaIndex].url}
@@ -99,6 +107,8 @@ const ProductDetails = () => {
                                 <OptimizedImage 
                                     src={media[currentMediaIndex].url}
                                     alt={type === 'selling' ? product.productName : product.fishName}
+                                    targetWidth={1200}
+                                    priority={true}
                                     className="w-full h-full object-contain"
                                 />
                             )}
@@ -128,7 +138,7 @@ const ProductDetails = () => {
                                                 <div className="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center">▶</div>
                                             </div>
                                         ) : (
-                                            <img loading="lazy" src={item.url} alt="thumbnail" className="w-full h-full object-cover" />
+                                            <OptimizedImage src={item.url} alt="thumbnail" targetWidth={150} className="w-full h-full object-cover" />
                                         )}
                                     </button>
                                 ))}
@@ -206,13 +216,28 @@ const ProductDetails = () => {
                                 )}
                             </div>
 
-                            <div className="flex items-end gap-2 mb-6">
-                                <span className="text-4xl font-black text-primary">
-                                    {language === 'bn' ? 'টাকা' : '₹'} {formatDigit(type === 'selling' ? product.price : product.buyingPrice)}
-                                </span>
+                            {/* Swiggy-style price block */}
+                            <div className="flex flex-wrap items-end gap-3 mb-6">
+                                <div className="flex flex-col">
+                                    {/* Strikethrough MRP if discount exists */}
+                                    {type === 'selling' && product.mrp && parseFloat(product.mrp) > parseFloat(product.price) && (
+                                        <span className="text-lg text-gray-400 line-through font-semibold leading-tight">
+                                            {language === 'bn' ? 'টাকা' : '₹'} {formatDigit(product.mrp)}
+                                        </span>
+                                    )}
+                                    <span className="text-4xl font-black text-primary">
+                                        {language === 'bn' ? 'টাকা' : '₹'} {formatDigit(type === 'selling' ? product.price : product.buyingPrice)}
+                                    </span>
+                                </div>
                                 {type === 'selling' && (
                                     <span className="text-lg text-gray-500 font-bold mb-1">
-                                        / {t.per} {product.unit}
+                                        / {t.per} {t.units?.[product.unit] || product.unit}
+                                    </span>
+                                )}
+                                {/* Green discount badge */}
+                                {type === 'selling' && product.mrp && parseFloat(product.mrp) > parseFloat(product.price) && (
+                                    <span className="bg-green-500 text-white text-sm font-black px-3 py-1 rounded-full shadow-sm mb-1">
+                                        {Math.round((1 - parseFloat(product.price) / parseFloat(product.mrp)) * 100)}% {t.off || 'OFF'}
                                     </span>
                                 )}
                             </div>
@@ -237,7 +262,7 @@ const ProductDetails = () => {
                                         </div>
                                         <div>
                                             <p className="text-xs text-gray-500 font-bold uppercase">{t.quantity || 'Available'}</p>
-                                            <p className="font-semibold text-gray-900">{formatDigit(product.quantity)} {product.unit}</p>
+                                            <p className="font-semibold text-gray-900">{formatDigit(product.quantity)} {t.units?.[product.unit] || product.unit}</p>
                                         </div>
                                     </div>
                                 )}
@@ -286,7 +311,7 @@ const ProductDetails = () => {
                                     <div className="flex items-center gap-4 bg-gray-50 border border-gray-100 p-4 rounded-2xl">
                                         <div className="w-14 h-14 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
                                             {owner.profilePicture ? (
-                                                <img loading="lazy" src={owner.profilePicture} alt={owner.name} className="w-full h-full object-cover" />
+                                                <OptimizedImage src={owner.profilePicture} alt={owner.name} targetWidth={150} className="w-full h-full object-cover" />
                                             ) : (
                                                 <span className="text-2xl font-bold text-gray-400">{owner.name?.charAt(0)}</span>
                                             )}
