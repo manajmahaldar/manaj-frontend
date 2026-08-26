@@ -2,32 +2,96 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getContentDetails, trackProgress } from '../api/learningApi';
 import { Calendar, User, Eye, ChevronRight, CheckCircle, Moon, Sun, Printer, Share2 } from 'lucide-react';
-const renderFormattedContent = (content) => {
-    if (!content) return '';
-    if (/<[a-z][\s\S]*>/i.test(content)) {
-        return content;
-    }
-    const lines = content.split('\n');
-    return lines.map((line) => {
-        const trimmed = line.trim();
-        if (!trimmed) return '<br />';
-        if (/^(🟢|🔵|part\s*\d+|part)/i.test(trimmed)) {
-            return `<h2 class="text-base font-black text-primary mt-6 mb-3 pb-1 border-b border-gray-100 flex items-center gap-2">${trimmed}</h2>`;
+// Strip HTML tags and decode common HTML entities to plain text
+const stripHtml = (html) => {
+    if (!html) return '';
+    return html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<\/div>/gi, '\n')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+};
+
+const parseContent = (content) => {
+    if (!content) return [];
+
+    // Always strip HTML so accordion works regardless of how admin saved content
+    const plainText = /<[a-z][\s\S]*>/i.test(content) ? stripHtml(content) : content;
+
+    const lines = plainText.split('\n');
+    const parts = [];
+    let currentPart = { title: '', items: [] };
+    let currentQ = null;
+    let currentAns = null;
+
+    const flushQ = () => {
+        if (currentQ !== null) {
+            currentPart.items.push({ type: 'qa', question: currentQ, answer: currentAns || '' });
+            currentQ = null;
+            currentAns = null;
         }
-        if (/^\d+\./.test(trimmed) || /^qn?\s*\d+/i.test(trimmed)) {
-            return `<h3 class="text-xs font-bold text-gray-900 mt-4 mb-2 flex items-start gap-1 bg-gray-50 p-3 rounded-xl border-l-4 border-primary">${trimmed}</h3>`;
-        }
-        if (trimmed.toLowerCase().startsWith('ans')) {
-            const hasColon = trimmed.includes(':');
-            const ansText = hasColon ? trimmed.substring(trimmed.indexOf(':') + 1).trim() : trimmed.substring(3).trim();
-            if (ansText) {
-                return `<div class="pl-4 pb-4 text-xs font-semibold text-gray-600 leading-relaxed"><strong class="text-primary">Ans:</strong> ${ansText}</div>`;
-            } else {
-                return `<strong class="text-primary pl-4 block mt-1 font-bold">Ans:</strong>`;
+    };
+
+    for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trim();
+        if (!trimmed) continue;
+
+        // Is it a Part header?
+        if (/^(🟢|🔵|part\s*\d+)/i.test(trimmed)) {
+            flushQ();
+            if (currentPart.title || currentPart.items.length > 0) {
+                parts.push(currentPart);
             }
+            currentPart = { title: trimmed, items: [] };
+            continue;
         }
-        return `<p class="text-xs font-semibold text-gray-600 leading-relaxed mb-3">${trimmed}</p>`;
-    }).join('');
+
+        // Is it a Question? (e.g. "1." or "Q1" or "Qn1")
+        if (/^\d+[\.\)]/.test(trimmed) || /^q(n|ues(tion)?)?\s*\d+/i.test(trimmed)) {
+            flushQ();
+            currentQ = trimmed;
+            currentAns = null;
+            continue;
+        }
+
+        // Is it an Answer line?
+        if (/^ans(wer)?\s*[\:\-]?/i.test(trimmed)) {
+            const colonIdx = trimmed.indexOf(':');
+            const dashIdx = trimmed.indexOf('-');
+            const sepIdx = colonIdx > -1 ? colonIdx : dashIdx > -1 ? dashIdx : 2;
+            const ansText = trimmed.substring(sepIdx + 1).trim();
+            if (currentQ !== null) {
+                currentAns = ansText;
+            } else {
+                currentPart.items.push({ type: 'text', content: trimmed });
+            }
+            continue;
+        }
+
+        // Continuation of answer (line after "Ans:" that isn't a new Q or Part)
+        if (currentQ !== null && currentAns !== null) {
+            currentAns += ' ' + trimmed;
+            continue;
+        }
+
+        // Regular paragraph / content
+        flushQ();
+        currentPart.items.push({ type: 'text', content: trimmed });
+    }
+
+    flushQ();
+    if (currentPart.title || currentPart.items.length > 0) {
+        parts.push(currentPart);
+    }
+
+    return parts;
 };
 
 const ArticleDetail = () => {
@@ -36,6 +100,7 @@ const ArticleDetail = () => {
     const [loading, setLoading] = useState(true);
     const [isCompleted, setIsCompleted] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
+    const [activeQKey, setActiveQKey] = useState(null);
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -174,10 +239,62 @@ const ArticleDetail = () => {
                         />
                     )}
 
-                    <div 
-                        className="space-y-4 prose max-w-none text-sm"
-                        dangerouslySetInnerHTML={{ __html: renderFormattedContent(article.content) }} 
-                    />
+                    {(() => {
+                        const parsedParts = parseContent(article.content);
+                        if (!parsedParts || parsedParts.length === 0) {
+                            return <p className="text-sm text-gray-500 italic">No content available.</p>;
+                        }
+                        return (
+                            <div className="space-y-6">
+                                {parsedParts.map((part, partIdx) => (
+                                    <div key={partIdx} className="space-y-3">
+                                        {part.title && (
+                                            <h2 className="text-base font-black text-primary mt-6 mb-3 pb-1 border-b border-gray-100 flex items-center gap-2">
+                                                {part.title}
+                                            </h2>
+                                        )}
+                                        <div className="space-y-3">
+                                            {part.items.map((item, itemIdx) => {
+                                                const qKey = `${partIdx}-${itemIdx}`;
+                                                if (item.type === 'qa') {
+                                                    const isOpen = activeQKey === qKey;
+                                                    return (
+                                                        <div key={itemIdx} className="border border-gray-100 rounded-xl overflow-hidden">
+                                                            <h3
+                                                                onClick={() => setActiveQKey(isOpen ? null : qKey)}
+                                                                className="text-xs font-bold text-gray-900 flex items-center justify-between gap-2 bg-gray-50 p-3 rounded-xl border-l-4 border-primary cursor-pointer hover:bg-gray-100/80 transition-all select-none"
+                                                            >
+                                                                <span>{item.question}</span>
+                                                                <span
+                                                                    className="text-primary font-bold text-base transition-transform duration-200 shrink-0"
+                                                                    style={{ transform: isOpen ? 'rotate(90deg)' : 'none' }}
+                                                                >
+                                                                    ▶
+                                                                </span>
+                                                            </h3>
+                                                            {isOpen && (
+                                                                <div className="p-4 bg-white text-xs font-semibold text-gray-600 leading-relaxed border-t border-gray-100 animate-in fade-in slide-in-from-top-1 duration-200">
+                                                                    {item.answer
+                                                                        ? <><strong className="text-primary mr-1">Ans:</strong>{item.answer}</>
+                                                                        : <span className="italic text-gray-400">No answer provided.</span>
+                                                                    }
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                }
+                                                return (
+                                                    <p key={itemIdx} className="text-xs font-semibold text-gray-600 leading-relaxed mb-3">
+                                                        {item.content}
+                                                    </p>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    })()}
 
                     {/* Completion control */}
                     <div className="mt-10 pt-6 border-t border-gray-100 flex items-center justify-between">

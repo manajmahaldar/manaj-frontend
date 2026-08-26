@@ -16,7 +16,11 @@ const ResetPassword = () => {
         e.preventDefault();
         
         if (password !== confirmPassword) {
-            return toast.error(t.passwordsNotMatch);
+            return toast.error(t.passwordsNotMatch || "Passwords do not match.");
+        }
+
+        if (password.length !== 6 || !/^[0-9]{6}$/.test(password)) {
+            return toast.error("Password must contain exactly 6 digits.");
         }
 
         setLoading(true);
@@ -42,21 +46,46 @@ const ResetPassword = () => {
                         <input 
                             type="password" 
                             required 
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={6}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                            placeholder="******"
+                            placeholder="••••••"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                                const raw = e.target.value;
+                                if (/\D/.test(raw)) {
+                                    toast.error("Only digits (0-9) are allowed.");
+                                }
+                                const val = raw.replace(/\D/g, '');
+                                if (val.length <= 6) {
+                                    setPassword(val);
+                                }
+                            }}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Password must be exactly 6 digits</p>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t.confirmNewPassword}</label>
                         <input 
                             type="password" 
                             required 
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={6}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                            placeholder="******"
+                            placeholder="••••••"
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={(e) => {
+                                const raw = e.target.value;
+                                if (/\D/.test(raw)) {
+                                    toast.error("Only digits (0-9) are allowed.");
+                                }
+                                const val = raw.replace(/\D/g, '');
+                                if (val.length <= 6) {
+                                    setConfirmPassword(val);
+                                }
+                            }}
                         />
                     </div>
                     <button 

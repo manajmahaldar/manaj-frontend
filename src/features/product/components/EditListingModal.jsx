@@ -30,7 +30,11 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
     // All roles can select any category
     const categories = allCategories;
 
-    const units = ['kg', 'gm', 'piece', 'mound', 'ton'];
+    // Medicine gets extra volume units; all others use the standard weight/count list
+    const isMedicine = formData.category === 'Medicine';
+    const units = isMedicine
+        ? ['kg', 'gm', 'liter', 'ml', 'piece', 'packs', 'bottles']
+        : ['kg', 'gm', 'piece', 'mound', 'ton'];
     const states = Object.keys(stateDistricts);
 
     useEffect(() => {
@@ -202,9 +206,11 @@ const EditListingModal = ({ isOpen, onClose, onSuccess, listing }) => {
                         )}
                         <div className={`space-y-1 ${formData.category === 'Equipment' ? 'md:col-span-1' : ''}`}>
                             <label className="text-sm font-bold text-gray-700">
-                                {formData.category !== 'Equipment'
-                                    ? (t.pricePerKg || 'Price per kg (₹)')
-                                    : t.priceCurrency}
+                                {formData.category === 'Equipment'
+                                    ? t.priceCurrency
+                                    : formData.category === 'Medicine'
+                                        ? (t.price || 'Price (₹)')
+                                        : (t.pricePerKg || 'Price per kg (₹)')}
                             </label>
                             <input 
                                 type="text" required

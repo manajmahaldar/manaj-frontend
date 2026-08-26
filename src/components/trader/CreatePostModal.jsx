@@ -91,9 +91,10 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
     const states = Object.keys(stateDistricts);
 
     const categories = [
-        { id: 'fish',     label: t.categoryFish, icon: '🐟' },
-        { id: 'feed',     label: t.categoryFeed, icon: '🌾' },
-        { id: 'medicine', label: t.categoryMed,  icon: '💊' }
+        { id: 'fish',      label: t.categoryFish,  icon: '🐟' },
+        { id: 'feed',      label: t.categoryFeed,  icon: '🌾' },
+        { id: 'medicine',  label: t.categoryMed,   icon: '💊' },
+        { id: 'equipment', label: t.categoryEquip, icon: '⚙️' }
     ];
 
     const cat = formData.category || 'fish';
@@ -104,6 +105,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
             toast.error(
                 cat === 'fish' ? (t.validationFishName || 'Please enter the fish name.') :
                 cat === 'feed' ? (t.validationFeedName || 'Please enter the feed name.') :
+                cat === 'equipment' ? (t.validationEquipName || 'Please enter the equipment name.') :
                 (t.validationMedName || 'Please enter the medicine name.')
             );
             return false;
@@ -235,7 +237,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
                     {/* ── Category Selector ──────────────────────────────── */}
                     <div className="space-y-3">
                         <label className="text-sm font-bold text-gray-700">{t.selectCategory}</label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-4 gap-3">
                             {categories.map((c) => (
                                 <button
                                     key={c.id}
@@ -259,6 +261,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
                         <label className="text-sm font-bold text-gray-700">
                             {cat === 'fish' ? (t.fishName || 'Fish Name') :
                              cat === 'feed' ? (t.feedName || 'Feed Name') :
+                             cat === 'equipment' ? (t.equipName || 'Equipment Name') :
                              (t.medName || 'Medicine Name')}
                         </label>
                         <input
@@ -268,6 +271,7 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
                             placeholder={
                                 cat === 'fish' ? (t.egFish || 'e.g. Rohu') :
                                 cat === 'feed' ? (t.egFeedName || 'e.g. Pre-Starter Fish Feed') :
+                                cat === 'equipment' ? (t.egEquipName || 'e.g. Aerator, Water Pump, Net') :
                                 (t.egMedName || 'e.g. C-Pack')
                             }
                             value={formData.fishName}
@@ -379,7 +383,9 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
                                         ? (t.egReqQtyFish || 'e.g. 1000 kg')
                                         : cat === 'feed'
                                             ? (t.egReqQtyFeed || 'e.g. 100 bags')
-                                            : (t.egReqQtyMed || 'e.g. 20 packs')
+                                            : cat === 'equipment'
+                                                ? (t.egReqQtyEquip || 'e.g. 5 pieces')
+                                                : (t.egReqQtyMed || 'e.g. 20 packs')
                                 }
                                 value={formData.requiredQuantity}
                                 onChange={(e) => setFormData({ ...formData, requiredQuantity: e.target.value })}
@@ -398,7 +404,9 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
                                         ? (t.egBudgetFish || 'e.g. ₹220/kg')
                                         : cat === 'feed'
                                             ? (t.egBudgetFeed || 'e.g. ₹2500/bag')
-                                            : (t.egBudgetMed || 'e.g. ₹800/pack')
+                                            : cat === 'equipment'
+                                                ? (t.egBudgetEquip || 'e.g. ₹15000/piece')
+                                                : (t.egBudgetMed || 'e.g. ₹800/pack')
                                 }
                                 value={formData.buyingPrice}
                                 onChange={(e) => setFormData({ ...formData, buyingPrice: e.target.value })}
@@ -485,7 +493,9 @@ const CreatePostModal = ({ isOpen, onClose, onSuccess, initialData }) => {
                                     ? (t.egAdditionalFish || 'e.g. Fresh fish only, delivery required...')
                                     : cat === 'feed'
                                         ? (t.egAdditionalFeed || 'e.g. Preferred brand or delivery requirement...')
-                                        : (t.egAdditionalMed || 'e.g. Preferred brand...')
+                                        : cat === 'equipment'
+                                            ? (t.egAdditionalEquip || 'e.g. Prefer double impeller aerator, delivery required...')
+                                            : (t.egAdditionalMed || 'e.g. Preferred brand...')
                             }
                             value={formData.additionalRequirement}
                             onChange={(e) => setFormData({ ...formData, additionalRequirement: e.target.value })}

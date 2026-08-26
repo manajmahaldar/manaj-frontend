@@ -232,9 +232,6 @@ export function parseMarketplaceIntent(text = '', existingData = {}, user = {}) 
         }
     }
 
-    return generateNextState(result, user);
-}
-
     // Correction Intent Check (if user says "change price to 200", "district is Tamluk", "make quantity 600")
     const isCorrection = /(?:change|correct|update|instead|fix|make|set|paltao|bodlao|badlo|noy|paltao|bodla|নয়|পাল্টাও|বদল|পরিবর্তন|দাম|মূল্য|জেলা|থানা|পরিমাণ)/i.test(norm);
 

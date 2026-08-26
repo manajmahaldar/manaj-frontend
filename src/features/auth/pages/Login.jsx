@@ -26,6 +26,9 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (password.length !== 6 || !/^[0-9]{6}$/.test(password)) {
+            return toast.error("Password must be exactly 6 digits");
+        }
         try {
             const res = await api.post('/auth/login', { email, password });
             handleSuccess(res);
@@ -67,10 +70,22 @@ const Login = () => {
                         <input 
                             type="password" 
                             required 
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={6}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                            placeholder={t.enterPasswordPlaceholder || '******'}
+                            placeholder={t.enterPasswordPlaceholder || '••••••'}
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => {
+                                const raw = e.target.value;
+                                if (/\D/.test(raw)) {
+                                    toast.error("Only digits (0-9) are allowed.");
+                                }
+                                const val = raw.replace(/\D/g, '');
+                                if (val.length <= 6) {
+                                    setPassword(val);
+                                }
+                            }}
                         />
                         <div className="flex justify-end mt-1">
                             <Link to="/forgot-password" size="sm" className="text-sm text-primary hover:underline font-medium">

@@ -17,13 +17,164 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-const SUGGESTED_QUESTIONS = [
-    "🐟 My fish are gasping at the surface. What should I do?",
-    "🧪 How do I check and maintain ideal pond water pH & Oxygen?",
-    "🌾 What is the recommended feed percentage for Catla fingerlings?",
-    "🦐 How does Biofloc technology work for shrimp/fish farming?",
-    "📜 What government schemes are available for pond construction?"
-];
+const TRANSLATIONS = {
+    en: {
+        title: "Ask Farming AI",
+        subtitle: "Smart Aquaculture Advisor & Disease Diagnostic",
+        welcomeTitle: "Ask MatsyaLink AI Farming Assistant",
+        welcomeDesc: "Get instant recommendations on fish health, feed ratios, pond parameters, Biofloc, RAS, and government schemes.",
+        suggestedTitle: "Suggested Questions:",
+        suggested1: "🐟 My fish are gasping at the surface. What should I do?",
+        suggested2: "🧪 How do I check and maintain ideal pond water pH & Oxygen?",
+        suggested3: "🌾 What is the recommended feed percentage for Catla fingerlings?",
+        suggested4: "🦐 How does Biofloc technology work for shrimp/fish farming?",
+        suggested5: "📜 What government schemes are available for pond construction?",
+        farmContext: "Farm Context",
+        farmContextTitle: "Pond & Water Context (Optional for higher accuracy)",
+        fishSpeciesPlaceholder: "Species (e.g. Rohu, Shrimp)",
+        pondSizePlaceholder: "Pond Size (e.g. 1 Acre)",
+        numberOfFishPlaceholder: "Stocking Count",
+        waterTempPlaceholder: "Water Temp (°C)",
+        phPlaceholder: "Pond pH Level",
+        dissolvedOxygenPlaceholder: "Dissolved Oxygen (ppm)",
+        history: "History",
+        recentHistory: "Recent History",
+        newChat: "New Chat",
+        clearAll: "Clear All History",
+        confirmClearAll: "Clear all conversation history?",
+        noPastChats: "No past chats yet",
+        loginRequiredTitle: "Login to Use Farming AI",
+        loginRequiredDesc: "Get expert aquaculture advice, fish disease diagnosis, and personalised pond management tips — for free.",
+        loginToContinue: "Login to Continue",
+        registerFree: "Register Free",
+        freeForever: "Free forever · No credit card required",
+        placeholder: "Ask about fish disease, feed, pond water pH, DO...",
+        loading: "Evaluating farming parameters & Learning Hub knowledge...",
+        confidence: "Confidence",
+        recommended: "Recommended Learning Hub Articles:",
+        copy: "Copy",
+        copied: "Copied",
+        share: "Share",
+        speechNotSupported: "Speech recognition is not supported in your browser.",
+    },
+    bn: {
+        title: "ফার্মিং এআইকে জিজ্ঞাসা করুন",
+        subtitle: "স্মার্ট অ্যাকুয়াকালচার উপদেষ্টা ও রোগ নির্ণয়",
+        welcomeTitle: "মৎস্যলিংক এআই ফার্মিং সহকারীকে জিজ্ঞাসা করুন",
+        welcomeDesc: "মাছের স্বাস্থ্য, ফিডের অনুপাত, পুকুরের প্যারামিটার, বায়োফ্লক, আরএএস এবং সরকারি স্কিম সম্পর্কে তাৎক্ষণিক পরামর্শ পান।",
+        suggestedTitle: "প্রস্তাবিত প্রশ্নাবলী:",
+        suggested1: "🐟 আমার মাছ জলের উপরিভাগে খাবি খাচ্ছে। আমার কী করা উচিত?",
+        suggested2: "🧪 আমি কীভাবে পুকুরের জলের আদর্শ pH এবং অক্সিজেন পরীক্ষা ও বজায় রাখব?",
+        suggested3: "🌾 কাতলা পোনার জন্য প্রস্তাবিত ফিড শতাংশ কত?",
+        suggested4: "🦐 চিংড়ি/মাছ চাষের জন্য বায়োফ্লক প্রযুক্তি কীভাবে কাজ করে?",
+        suggested5: "📜 পুকুর তৈরির জন্য কী কী সরকারি প্রকল্প উপলব্ধ রয়েছে?",
+        farmContext: "খামারের বিবরণ",
+        farmContextTitle: "পুকুর এবং জলের বিবরণ (উচ্চতর নির্ভুলতার জন্য ঐচ্ছিক)",
+        fishSpeciesPlaceholder: "মাছের প্রজাতি (যেমন রুই, চিংড়ি)",
+        pondSizePlaceholder: "পুকুরের আকার (যেমন ১ একর)",
+        numberOfFishPlaceholder: "মাছের সংখ্যা",
+        waterTempPlaceholder: "জলোর তাপমাত্রা (°C)",
+        phPlaceholder: "পুকুরের pH মাত্রা",
+        dissolvedOxygenPlaceholder: "দ্রবীভূত অক্সিজেন (ppm)",
+        history: "ইতিহাস",
+        recentHistory: "সাম্প্রতিক ইতিহাস",
+        newChat: "নতুন চ্যাট",
+        clearAll: "সব ইতিহাস মুছুন",
+        confirmClearAll: "সব চ্যাট ইতিহাস মুছে ফেলবেন কি?",
+        noPastChats: "কোনো পূর্ববর্তী চ্যাট নেই",
+        loginRequiredTitle: "ফার্মিং এআই ব্যবহার করতে লগইন করুন",
+        loginRequiredDesc: "বিনামূল্যে বিশেষজ্ঞ অ্যাকুয়াকালচার পরামর্শ, মাছের রোগ নির্ণয় এবং ব্যক্তিগত পুকুর পরিচালনার টিप্স পান।",
+        loginToContinue: "चालিয়ে যেতে লগইন করুন",
+        registerFree: "বিনামূল্যে নিবন্ধন করুন",
+        freeForever: "সর্বদা বিনামূল্যে · কোনো ক্রেডিট কার্ডের প্রয়োজন নেই",
+        placeholder: "মাছের রোগ, খাদ্য, পুকুরের জলের pH, DO সম্পর্কে জিজ্ঞাসা করুন...",
+        loading: "প্যারামিটার এবং লার্নিং হাবের তথ্য মূল্যায়ন করা হচ্ছে...",
+        confidence: "নির্ভরযোগ্যতা",
+        recommended: "প্রস্তাবিত লার্নিং হাব নিবন্ধসমূহ:",
+        copy: "অনুলিপি করুন",
+        copied: "অনুলিপি করা হয়েছে",
+        share: "শেয়ার করুন",
+        speechNotSupported: "আপনার ব্রাউজারে ভয়েস সনাক্তকরণ সমর্থিত নয়।",
+    },
+    hi: {
+        title: "फार्मिंग एआई से पूछें",
+        subtitle: "स्मार्ट एक्वाकल्चर सलाहकार और रोग निदान",
+        welcomeTitle: "मत्स्यलिंक एआई फार्मिंग सहायक से पूछें",
+        welcomeDesc: "मछली के स्वास्थ्य, फ़ीड अनुपात, तालाब के मापदंडों, बायोफ्लॉक, आरएएस और सरकारी योजनाओं पर त्वरित सुझाव प्राप्त करें।",
+        suggestedTitle: "सुझाए गए प्रश्न:",
+        suggested1: "🐟 मेरी मछलियां सतह पर हांफ रही हैं। मुझे क्या करना चाहिए?",
+        suggested2: "🧪 मैं तालाब के पानी के आदर्श pH और ऑक्सीजन की जांच और नियंत्रण कैसे करूं?",
+        suggested3: "🌾 कतला उंगलियों (फ़िंगरलिंक्स) के लिए अनुशंसित फ़ीड प्रतिशत क्या है?",
+        suggested4: "🦐 झींगा/मछली पालन के लिए बायोफ्लॉक तकनीक कैसे काम करती है?",
+        suggested5: "📜 तालाब निर्माण के लिए कौन सी सरकारी योजनाएं उपलब्ध हैं?",
+        farmContext: "फार्म का संदर्भ",
+        farmContextTitle: "तालाब और पानी का संदर्भ (बेहतर सटीकता के लिए वैकल्पिक)",
+        fishSpeciesPlaceholder: "प्रजाति (जैसे रोहू, झींगा)",
+        pondSizePlaceholder: "तालाब का आकार (जैसे 1 एकड़)",
+        numberOfFishPlaceholder: "मछलियों की संख्या",
+        waterTempPlaceholder: "पानी का तापमान (°C)",
+        phPlaceholder: "तालाब का पीएच स्तर",
+        dissolvedOxygenPlaceholder: "घुलनशील ऑक्सीजन (ppm)",
+        history: "इतिहास",
+        recentHistory: "हाल का इतिहास",
+        newChat: "नया चैट",
+        clearAll: "सभी इतिहास हटाएं",
+        confirmClearAll: "क्या आप वाकई पूरी चैट हिस्ट्री हटाना चाहते हैं?",
+        noPastChats: "कोई पुराना चैट उपलब्ध नहीं है",
+        loginRequiredTitle: "फार्मिंग एआई का उपयोग करने के लिए लॉगिन करें",
+        loginRequiredDesc: "मुफ्त में विशेषज्ञ एक्वाकल्चर सलाह, मछली रोग निदान और व्यक्तिगत तालाब प्रबंधन युक्तियाँ प्राप्त करें।",
+        loginToContinue: "जारी रखने के लिए लॉगिन करें",
+        registerFree: "मुफ्त पंजीकरण करें",
+        freeForever: "हमेशा मुफ्त · किसी क्रेडिट कार्ड की आवश्यकता नहीं",
+        placeholder: "मछली रोग, फ़ीड, तालाब के पानी के pH, DO के बारे में पूछें...",
+        loading: "मापदंडों और ज्ञान का मूल्यांकन किया जा रहा है...",
+        confidence: "विश्वास स्तर",
+        recommended: "अनुशंसित लर्निंग हब लेख:",
+        copy: "कॉपी करें",
+        copied: "कॉपी हो गया",
+        share: "साझा करें",
+        speechNotSupported: "आपके ब्राउज़र में वॉयस पहचान समर्थित नहीं है।",
+    },
+    or: {
+        title: "ଫାର୍ମିଙ୍ଗ ଏଆଇ କୁ ପଚାରନ୍ତୁ",
+        subtitle: "ସ୍ମାର୍ଟ ମତ୍ସ୍ୟ ଚାଷ ପରାମର୍ଶଦାତା ଓ ରୋଗ ନିରୂପଣ",
+        welcomeTitle: "ମତ୍ସ୍ୟଲିଙ୍କ ଏଆଇ ଫାର୍ମିଙ୍ଗ ସହାୟକଙ୍କୁ ପଚାରନ୍ତୁ",
+        welcomeDesc: "ମାଛ ସ୍ୱାସ୍ଥ୍ୟ, ଖାଦ୍ୟ ଅନୁପାତ, ପୋଖରୀର ବିଭିନ୍ନ ମାପଦଣ୍ଡ, ବାୟୋଫ୍ଲକ, ଆରଏଏସ ଏବଂ ସରକାରୀ ଯୋଜନା ବିଷୟରେ ତୁରନ୍ତ ପରାମର୍ଶ ପାଆନ୍ତୁ।",
+        suggestedTitle: "ପ୍ରସ୍ତାବିତ ପ୍ରଶ୍ନଗୁଡ଼ିକ:",
+        suggested1: "🐟 ମୋର ମାଛଗୁଡ଼ିକ ପାଣି ଉପରକୁ ଆସି ବିକଳ ହେଉଛନ୍ତି। ମୁଁ କଣ କରିବି?",
+        suggested2: "🧪 ମୁଁ ପୋଖରୀ ପାଣିର ଆଦର୍ଶ pH ଏବଂ ଅମ୍ଳଜାନ କିପରି ଯାଞ୍ଚ ଓ ନିୟନ୍ତ୍ରଣ କରିବି?",
+        suggested3: "🌾 ଭାକୁର (କାତଲା) ଯାଆଁଳା ପାଇଁ ପ୍ରସ୍ତାବିତ ଖାଦ୍ୟ ଶତକଡ଼ା କେତେ?",
+        suggested4: "🦐 ଚିଙ୍ଗୁଡ଼ି/ମାଛ ଚାଷ ପାଇଁ ବାୟୋଫ୍ଲକ ପ୍ରଣାଳୀ କିପରି କାମ କରେ?",
+        suggested5: "📜 ପୋଖରୀ ଖୋଳିବା ପାଇଁ କେଉଁ ସରକାରୀ ଯୋଜନାଗୁଡ଼ିକ ଉପଲବ୍ଧ ଅଛି?",
+        farmContext: "ଫାର୍ମ ବିବରଣୀ",
+        farmContextTitle: "ପୋଖରୀ ଏବଂ ପାଣିର ବିବରଣୀ (ଅଧିକ ସଠିକତା ପାଇଁ ଇଚ୍ଛାଧୀନ)",
+        fishSpeciesPlaceholder: "ପ୍ରଜାତି (ଯେପରି ରୋହି, ଚିଙ୍ଗୁଡ଼ି)",
+        pondSizePlaceholder: "ପୋଖରୀର ଆକାର (ଯେପରି ୧ ଏକର)",
+        numberOfFishPlaceholder: "ମାଛ ସଂଖ୍ୟା",
+        waterTempPlaceholder: "ପାଣିର ତାପମାତ୍ରା (°C)",
+        phPlaceholder: "ପୋଖରୀର pH ସ୍ତର",
+        dissolvedOxygenPlaceholder: "ଦ୍ରବୀଭୂତ ଅମ୍ଳଜାନ (ppm)",
+        history: "ଇତିହାସ",
+        recentHistory: "ସାମ୍ପ୍ରତିକ ଇତିହାସ",
+        newChat: "ନୂଆ ଚାଟ୍",
+        clearAll: "ସମସ୍ତ ଇତିହାସ ଲିଭାନ୍ତୁ",
+        confirmClearAll: "ଆପଣ ସମସ୍ତ ଚାଟ୍ ଇତିହାସ ଲିଭାଇବାକୁ ଚାହାଁନ୍ତି କି?",
+        noPastChats: "କୌଣସି ପୂର୍ବ ଚାଟ୍ ନାହିଁ",
+        loginRequiredTitle: "ଫାର୍ମିଙ୍ଗ ଏଆଇ ବ୍ୟବହାର କରିବାକୁ ଲଗଇନ୍ କରନ୍ତୁ",
+        loginRequiredDesc: "ମାଗଣାରେ ବିଶେଷଜ୍ଞ ମତ୍ସ୍ୟ ଚାଷ ପରାମର୍ଶ, ମାଛ ରୋଗ ନିରୂପଣ ଏବଂ ବ୍ୟକ୍ତିଗତ ପୋଖରୀ ପରିଚାଳନା ଟିପ୍ସ ପାଆନ୍ତୁ।",
+        loginToContinue: "ଆଗକୁ ବଢିବାକୁ ଲଗଇନ୍ କରନ୍ତୁ",
+        registerFree: "ମାଗଣା ପଞ୍ଜିକରଣ କରନ୍ତୁ",
+        freeForever: "ସର୍ବଦା ମାଗଣା · କୌଣସି କ୍ରେଡିଟ୍ କାର୍ଡର ଆବଶ୍ୟକତା ନାହିଁ",
+        placeholder: "ମାଛ ରୋଗ, ଖାଦ୍ୟ, ପୋଖରୀ ପାଣିର pH, DO ବିଷୟରେ ପଚାରନ୍ତୁ...",
+        loading: "ପୋଖରୀ ମାପଦଣ୍ଡ ଏବଂ ଶିକ୍ଷା ସମ୍ବଳଗୁଡ଼ିକର ମୂଲ୍ୟାଙ୍କନ କରାଯାଉଛି...",
+        confidence: "ବିଶ୍ୱାସନୀୟତା",
+        recommended: "ପ୍ରସ୍ତାବିତ ଶିକ୍ଷଣ ବିଷୟବସ୍ତୁ:",
+        copy: "ନକଲ କରନ୍ତୁ",
+        copied: "ନକଲ ହେଲା",
+        share: "ସେୟାର୍ କରନ୍ତୁ",
+        speechNotSupported: "ଆପଣଙ୍କ ବ୍ରାଉଜର୍‌ରେ ଭଏସ୍ ଚିହ୍ନଟ ସମର୍ଥିତ ନୁହେଁ।",
+    }
+};
 
 const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
     const { user } = useAuth();
@@ -40,6 +191,18 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
 
+    // Active translation context
+    const activeLang = ['en', 'bn', 'hi', 'or'].includes(language) ? language : 'bn';
+    const t_ai = (key) => TRANSLATIONS[activeLang]?.[key] || TRANSLATIONS['en']?.[key] || key;
+
+    const SUGGESTED_QUESTIONS = [
+        t_ai('suggested1'),
+        t_ai('suggested2'),
+        t_ai('suggested3'),
+        t_ai('suggested4'),
+        t_ai('suggested5')
+    ];
+
     // Farm context state
     const [showFarmContext, setShowFarmContext] = useState(false);
     const [farmContext, setFarmContext] = useState({
@@ -53,6 +216,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
 
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
+    const isSendingRef = useRef(false);
 
     // Fetch conversation list on open — only when authenticated
     useEffect(() => {
@@ -109,7 +273,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
     };
 
     const handleClearAll = async () => {
-        if (!window.confirm('Clear all conversation history?')) return;
+        if (!window.confirm(t_ai('confirmClearAll'))) return;
         try {
             await clearAllFarmingAIConversations();
             startNewChat();
@@ -153,7 +317,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
     // Speech Recognition (Voice)
     const toggleSpeechToText = () => {
         if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            alert('Speech recognition is not supported in your browser.');
+            alert(t_ai('speechNotSupported'));
             return;
         }
 
@@ -190,14 +354,18 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
         }
         const queryText = overrideText || input;
         if (!queryText.trim() && images.length === 0) return;
+        if (isSendingRef.current) return;
+
+        const currentImages = [...images];
 
         const userMsg = {
             role: 'user',
             text: queryText,
-            imageUrls: [...images],
+            imageUrls: currentImages,
             hasAudio: isListening
         };
 
+        isSendingRef.current = true;
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         setImages([]);
@@ -206,7 +374,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
         try {
             const res = await sendFarmingAIChat({
                 message: queryText,
-                imageUrls: userMsg.imageUrls,
+                imageUrls: currentImages,
                 hasVoice: userMsg.hasAudio,
                 conversationId: currentConversationId,
                 farmContext,
@@ -232,6 +400,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
             ]);
         } finally {
             setLoading(false);
+            isSendingRef.current = false;
         }
     };
 
@@ -262,8 +431,8 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                 <Bot size={22} className="text-emerald-300" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-base text-white">Ask Farming AI</h3>
-                                <p className="text-xs text-emerald-200/80">Smart Aquaculture Advisor</p>
+                                <h3 className="font-bold text-base text-white">{t_ai('title')}</h3>
+                                <p className="text-xs text-emerald-200/80">{t_ai('subtitle')}</p>
                             </div>
                         </div>
                         <button onClick={onClose} className="p-2 rounded-xl text-emerald-100 hover:bg-red-500/30 transition-colors">
@@ -277,9 +446,9 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                             <Bot size={48} className="text-emerald-600" />
                         </div>
                         <div>
-                            <h4 className="text-lg font-bold text-slate-800 mb-1">Login to Use Farming AI</h4>
+                            <h4 className="text-lg font-bold text-slate-800 mb-1">{t_ai('loginRequiredTitle')}</h4>
                             <p className="text-sm text-slate-500 max-w-xs">
-                                Get expert aquaculture advice, fish disease diagnosis, and personalised pond management tips — for free.
+                                {t_ai('loginRequiredDesc')}
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 w-full">
@@ -289,17 +458,17 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                 className="flex-1 flex items-center justify-center gap-2 py-3 px-5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95"
                             >
                                 <LogIn size={18} />
-                                Login to Continue
+                                {t_ai('loginToContinue')}
                             </Link>
                             <Link
                                 to="/register"
                                 onClick={onClose}
                                 className="flex-1 flex items-center justify-center gap-2 py-3 px-5 border-2 border-emerald-600 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-all active:scale-95"
                             >
-                                Register Free
+                                {t_ai('registerFree')}
                             </Link>
                         </div>
-                        <p className="text-[11px] text-slate-400">Free forever · No credit card required</p>
+                        <p className="text-[11px] text-slate-400">{t_ai('freeForever')}</p>
                     </div>
                 </div>
             </div>
@@ -328,13 +497,13 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="font-bold text-base tracking-tight text-white">Ask Farming AI</h3>
+                                <h3 className="font-bold text-base tracking-tight text-white">{t_ai('title')}</h3>
                                 <span className="text-[10px] uppercase font-extrabold bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-400/30">
                                     Aqua-Expert
                                 </span>
                             </div>
                             <p className="text-xs text-emerald-200/90 font-medium">
-                                Smart Aquaculture Advisor & Disease Diagnostic
+                                {t_ai('subtitle')}
                             </p>
                         </div>
                     </div>
@@ -343,7 +512,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                         <button
                             onClick={() => setShowHistory(prev => !prev)}
                             className={`p-2 rounded-xl text-emerald-100 hover:text-white hover:bg-white/10 transition-colors ${showHistory ? 'bg-white/20 text-white' : ''}`}
-                            title="Conversation History"
+                            title={t_ai('history')}
                         >
                             <History size={18} />
                         </button>
@@ -351,7 +520,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                         <button
                             onClick={() => setShowFarmContext(prev => !prev)}
                             className={`p-2 rounded-xl text-emerald-100 hover:text-white hover:bg-white/10 transition-colors ${showFarmContext ? 'bg-white/20 text-white' : ''}`}
-                            title="Pond & Fish Parameters"
+                            title={t_ai('farmContext')}
                         >
                             <Sliders size={18} />
                         </button>
@@ -381,19 +550,19 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                         <aside className="absolute inset-y-0 left-0 z-20 w-72 bg-emerald-950 text-emerald-100 border-r border-emerald-800/50 flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
                             <div className="p-3.5 border-b border-emerald-800/50 flex items-center justify-between">
                                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
-                                    <History size={14} /> History
+                                    <History size={14} /> {t_ai('history')}
                                 </span>
                                 <button
                                     onClick={startNewChat}
                                     className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors"
                                 >
-                                    <Plus size={14} /> New Chat
+                                    <Plus size={14} /> {t_ai('newChat')}
                                 </button>
                             </div>
 
                             <div className="flex-1 overflow-y-auto p-2 space-y-1">
                                 {conversations.length === 0 ? (
-                                    <p className="text-xs text-emerald-400/60 p-4 text-center">No past chats yet</p>
+                                    <p className="text-xs text-emerald-400/60 p-4 text-center">{t_ai('noPastChats')}</p>
                                 ) : (
                                     conversations.map(conv => (
                                         <div
@@ -426,7 +595,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                         onClick={handleClearAll}
                                         className="w-full py-1.5 text-xs text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-lg flex items-center justify-center gap-1 transition-colors"
                                     >
-                                        <Trash2 size={13} /> Clear All History
+                                        <Trash2 size={13} /> {t_ai('clearAll')}
                                     </button>
                                 </div>
                             )}
@@ -441,7 +610,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                 <div className="flex items-center justify-between">
                                     <span className="font-bold text-emerald-900 flex items-center gap-1.5">
                                         <Sliders size={14} className="text-emerald-600" />
-                                        Pond & Water Context (Optional for higher accuracy)
+                                        {t_ai('farmContextTitle')}
                                     </span>
                                     <button
                                         onClick={() => setShowFarmContext(false)}
@@ -453,42 +622,42 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     <input
                                         type="text"
-                                        placeholder="Species (e.g. Rohu, Shrimp)"
+                                        placeholder={t_ai('fishSpeciesPlaceholder')}
                                         value={farmContext.fishSpecies}
                                         onChange={e => setFarmContext({ ...farmContext, fishSpecies: e.target.value })}
                                         className="p-2 bg-white border border-emerald-200 rounded-lg outline-none focus:border-emerald-500 text-xs"
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Pond Size (e.g. 1 Acre)"
+                                        placeholder={t_ai('pondSizePlaceholder')}
                                         value={farmContext.pondSize}
                                         onChange={e => setFarmContext({ ...farmContext, pondSize: e.target.value })}
                                         className="p-2 bg-white border border-emerald-200 rounded-lg outline-none focus:border-emerald-500 text-xs"
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Stocking Count"
+                                        placeholder={t_ai('numberOfFishPlaceholder')}
                                         value={farmContext.numberOfFish}
                                         onChange={e => setFarmContext({ ...farmContext, numberOfFish: e.target.value })}
                                         className="p-2 bg-white border border-emerald-200 rounded-lg outline-none focus:border-emerald-500 text-xs"
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Water Temp (°C)"
+                                        placeholder={t_ai('waterTempPlaceholder')}
                                         value={farmContext.waterTemp}
                                         onChange={e => setFarmContext({ ...farmContext, waterTemp: e.target.value })}
                                         className="p-2 bg-white border border-emerald-200 rounded-lg outline-none focus:border-emerald-500 text-xs"
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Pond pH Level"
+                                        placeholder={t_ai('phPlaceholder')}
                                         value={farmContext.ph}
                                         onChange={e => setFarmContext({ ...farmContext, ph: e.target.value })}
                                         className="p-2 bg-white border border-emerald-200 rounded-lg outline-none focus:border-emerald-500 text-xs"
                                     />
                                     <input
                                         type="text"
-                                        placeholder="Dissolved Oxygen (ppm)"
+                                        placeholder={t_ai('dissolvedOxygenPlaceholder')}
                                         value={farmContext.dissolvedOxygen}
                                         onChange={e => setFarmContext({ ...farmContext, dissolvedOxygen: e.target.value })}
                                         className="p-2 bg-white border border-emerald-200 rounded-lg outline-none focus:border-emerald-500 text-xs"
@@ -505,16 +674,16 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                         <Bot size={42} />
                                     </div>
                                     <h4 className="text-base font-bold text-slate-800">
-                                        Ask MatsyaLink AI Farming Assistant
+                                        {t_ai('welcomeTitle')}
                                     </h4>
                                     <p className="text-xs text-slate-500 max-w-md mt-1 mb-5">
-                                        Get instant recommendations on fish health, feed ratios, pond parameters, Biofloc, RAS, and government schemes.
+                                        {t_ai('welcomeDesc')}
                                     </p>
 
                                     {/* Suggested Prompts */}
                                     <div className="w-full max-w-lg space-y-2 text-left">
                                         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                                            Suggested Questions:
+                                            {t_ai('suggestedTitle')}
                                         </p>
                                         {SUGGESTED_QUESTIONS.map((q, idx) => (
                                             <button
@@ -566,7 +735,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
 
                                                 {m.role === 'assistant' && m.confidence && (
                                                     <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-2 text-[11px]">
-                                                        <span className="text-slate-400 font-medium">Confidence:</span>
+                                                        <span className="text-slate-400 font-medium">{t_ai('confidence')}:</span>
                                                         <span
                                                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                                 m.confidence === 'high'
@@ -587,7 +756,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                                 <div className="bg-emerald-50/80 border border-emerald-200 p-3 rounded-xl space-y-1.5">
                                                     <div className="text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
                                                         <BookOpen size={13} />
-                                                        Recommended Learning Hub Articles:
+                                                        {t_ai('recommended')}
                                                     </div>
                                                     <div className="grid gap-1.5 sm:grid-cols-2">
                                                         {m.recommendations.map((rec, i) => (
@@ -616,7 +785,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                                                         className="flex items-center gap-1 hover:text-slate-600 transition-colors"
                                                     >
                                                         {copiedIndex === idx ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                                                        <span>{copiedIndex === idx ? 'Copied' : 'Copy'}</span>
+                                                        <span>{copiedIndex === idx ? t_ai('copied') : t_ai('copy')}</span>
                                                     </button>
                                                 </div>
                                             )}
@@ -628,7 +797,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
                             {loading && (
                                 <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200/60 p-3 rounded-2xl max-w-[80%] animate-pulse">
                                     <Bot size={18} className="text-emerald-600 shrink-0" />
-                                    <span>Analyzing parameters & Learning Hub knowledge base...</span>
+                                    <span>{t_ai('loading')}</span>
                                 </div>
                             )}
                             <div ref={messagesEndRef} />
@@ -681,7 +850,7 @@ const FarmingAIAssistantModal = ({ isOpen, onClose }) => {
 
                                 <textarea
                                     rows={1}
-                                    placeholder="Ask about fish disease, feed, pond water pH, DO..."
+                                    placeholder={t_ai('placeholder')}
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => {

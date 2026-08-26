@@ -41,13 +41,8 @@ const Register = () => {
         navigate(getDashboardPath(user.role));
     };
 
-    const isStrongPassword = (pw) => {
-        const minLength = 8;
-        const hasUpperCase = /[A-Z]/.test(pw);
-        const hasLowerCase = /[a-z]/.test(pw);
-        const hasNumber = /[0-9]/.test(pw);
-        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pw);
-        return pw.length >= minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+    const isValidSixDigitPassword = (pw) => {
+        return /^[0-9]{6}$/.test(pw);
     };
 
     const handleSubmit = async (e) => {
@@ -58,11 +53,11 @@ const Register = () => {
         }
 
         if (formData.password !== formData.confirmPassword) {
-            return toast.error("Passwords do not match");
+            return toast.error("Passwords do not match.");
         }
 
-        if (!isStrongPassword(formData.password)) {
-            return toast.error("Password is too weak. It must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+        if (formData.password.length !== 6 || !isValidSixDigitPassword(formData.password)) {
+            return toast.error("Password must contain exactly 6 digits.");
         }
 
         try {
@@ -161,16 +156,14 @@ const Register = () => {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">{t.policeStation || 'Police Station'}</label>
-                            <select 
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none h-[50px]"
+                            <input
+                                type="text"
+                                required
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
+                                placeholder={t.enterPoliceStation || 'Enter your police station'}
                                 value={formData.policeStation}
                                 onChange={(e) => setFormData({...formData, policeStation: e.target.value})}
-                                required
-                                disabled={!formData.localDistrict}
-                            >
-                                <option value="">{t.selectPoliceStation || t.selectBtn || 'Select Police Station'}</option>
-                                {policeStationsList.map(ps => <option key={ps} value={ps}>{t.policeStations?.[ps] || ps}</option>)}
-                            </select>
+                            />
                         </div>
                     </div>
                     <div>
@@ -192,21 +185,45 @@ const Register = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t.newPassword}</label>
                         <input 
                             type="password" required 
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={6}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                            placeholder={t.enterPasswordSecurePlaceholder || 'Enter a secure password'}
+                            placeholder="••••••"
                             value={formData.password}
-                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                            onChange={(e) => {
+                                const raw = e.target.value;
+                                if (/\D/.test(raw)) {
+                                    toast.error("Only digits (0-9) are allowed.");
+                                }
+                                const val = raw.replace(/\D/g, '');
+                                if (val.length <= 6) {
+                                    setFormData({...formData, password: val});
+                                }
+                            }}
                         />
-                        <p className="text-xs text-gray-500 mt-1">{t.passwordHint || 'Must be at least 8 characters, include uppercase, lowercase, number, and special character.'}</p>
+                        <p className="text-xs text-gray-500 mt-1">Password must be exactly 6 digits</p>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t.confirmNewPassword}</label>
                         <input 
                             type="password" required 
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={6}
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
-                            placeholder={t.reenterPasswordPlaceholder || 'Re-enter your password'}
+                            placeholder="••••••"
                             value={formData.confirmPassword}
-                            onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                            onChange={(e) => {
+                                const raw = e.target.value;
+                                if (/\D/.test(raw)) {
+                                    toast.error("Only digits (0-9) are allowed.");
+                                }
+                                const val = raw.replace(/\D/g, '');
+                                if (val.length <= 6) {
+                                    setFormData({...formData, confirmPassword: val});
+                                }
+                            }}
                         />
                     </div>
                     <button type="submit" className="w-full btn btn-primary py-4">{t.registerBtn}</button>

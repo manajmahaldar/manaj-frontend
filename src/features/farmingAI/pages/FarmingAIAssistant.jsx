@@ -16,17 +16,171 @@ import {
 import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
 
-const SUGGESTED_QUESTIONS = [
-    "🐟 My fish are gasping at the surface. What should I do?",
-    "🧪 How do I check and maintain ideal pond water pH & Oxygen?",
-    "🌾 What is the recommended feed percentage for Catla fingerlings?",
-    "🦐 How does Biofloc technology work for shrimp/fish farming?",
-    "📜 What government schemes are available for pond construction?"
-];
+const TRANSLATIONS = {
+    en: {
+        newInquiry: 'New Farming Inquiry',
+        recentHistory: 'Recent History',
+        noPastInquiries: 'No past inquiries yet. Ask a question to start!',
+        clearAllHistory: 'Clear All History',
+        headerTitle: 'MatsyaLink Farming AI Assistant',
+        headerBadge: 'Aquaculture Expert',
+        headerSubtitle: 'Fish Health • Pond Guidance • Water Analysis • Learning Hub',
+        farmContext: 'Farm Context',
+        fishSpecies: 'Fish Species',
+        fishSpeciesPlaceholder: 'e.g. Rohu, Catla',
+        pondSize: 'Pond Size (Bigha/Acre)',
+        pondSizePlaceholder: 'e.g. 2 Bigha',
+        phLevel: 'pH Level',
+        phPlaceholder: 'e.g. 7.8',
+        dissolvedOxygen: 'Dissolved Oxygen',
+        doPlaceholder: 'e.g. 5.5 mg/L',
+        waterTemp: 'Water Temp (°C)',
+        waterTempPlaceholder: 'e.g. 28°C',
+        saveContext: 'Save Context',
+        welcomeHeading: 'How can I assist your fish farm today?',
+        welcomeSubtitle: 'Ask aquaculture questions, record voice notes, or upload fish & water photos for visual analysis.',
+        suggestedLabel: 'Suggested Questions',
+        inputPlaceholder: 'Ask about fish disease, feed, pond water, Biofloc, RAS...',
+        loadingText: 'Evaluating farming parameters & Learning Hub knowledge...',
+        confidence: 'Confidence',
+        recommendedResources: 'Recommended MatsyaLink Learning Resources:',
+        copied: 'Copied',
+        copy: 'Copy',
+        clearAllConfirm: 'Clear all conversation history?',
+        speechNotSupported: 'Speech recognition is not supported in your browser.',
+        suggestedQuestions: [
+            "🐟 My fish are gasping at the surface. What should I do?",
+            "🧪 How do I check and maintain ideal pond water pH & Oxygen?",
+            "🌾 What is the recommended feed percentage for Catla fingerlings?",
+            "🦐 How does Biofloc technology work for shrimp/fish farming?",
+            "📜 What government schemes are available for pond construction?"
+        ]
+    },
+    bn: {
+        newInquiry: 'নতুন কৃষি জিজ্ঞাসা',
+        recentHistory: 'সাম্প্রতিক ইতিহাস',
+        noPastInquiries: 'এখনো কোনো জিজ্ঞাসা নেই। শুরু করতে একটি প্রশ্ন করুন!',
+        clearAllHistory: 'সব ইতিহাস মুছুন',
+        headerTitle: 'MatsyaLink কৃষি AI সহকারী',
+        headerBadge: 'জলকৃষি বিশেষজ্ঞ',
+        headerSubtitle: 'মাছের স্বাস্থ্য • পুকুর পরামর্শ • জল বিশ্লেষণ • শেখার কেন্দ্র',
+        farmContext: 'খামার প্রসঙ্গ',
+        fishSpecies: 'মাছের প্রজাতি',
+        fishSpeciesPlaceholder: 'যেমন: রুই, কাতলা',
+        pondSize: 'পুকুরের আকার (বিঘা/একর)',
+        pondSizePlaceholder: 'যেমন: ২ বিঘা',
+        phLevel: 'pH মাত্রা',
+        phPlaceholder: 'যেমন: ৭.৮',
+        dissolvedOxygen: 'দ্রবীভূত অক্সিজেন',
+        doPlaceholder: 'যেমন: ৫.৫ mg/L',
+        waterTemp: 'জলের তাপমাত্রা (°C)',
+        waterTempPlaceholder: 'যেমন: ২৮°C',
+        saveContext: 'প্রসঙ্গ সংরক্ষণ করুন',
+        welcomeHeading: 'আজ আপনার মাছের খামারে আমি কীভাবে সাহায্য করতে পারি?',
+        welcomeSubtitle: 'জলকৃষি প্রশ্ন করুন, ভয়েস নোট রেকর্ড করুন, বা দৃশ্যমান বিশ্লেষণের জন্য মাছ ও জলের ছবি আপলোড করুন।',
+        suggestedLabel: 'প্রস্তাবিত প্রশ্ন',
+        inputPlaceholder: 'মাছের রোগ, খাবার, পুকুরের জল, বায়োফ্লক, RAS সম্পর্কে জিজ্ঞেস করুন...',
+        loadingText: 'কৃষি পরামিতি এবং শেখার কেন্দ্রের জ্ঞান মূল্যায়ন করা হচ্ছে...',
+        confidence: 'নির্ভরযোগ্যতা',
+        recommendedResources: 'প্রস্তাবিত MatsyaLink শিক্ষামূলক সংস্থান:',
+        copied: 'কপি হয়েছে',
+        copy: 'কপি করুন',
+        clearAllConfirm: 'সব কথোপকথনের ইতিহাস মুছবেন?',
+        speechNotSupported: 'আপনার ব্রাউজারে স্পিচ রিকগনিশন সমর্থিত নয়।',
+        suggestedQuestions: [
+            "🐟 আমার মাছ জলের উপরে শ্বাস নিচ্ছে। কী করব?",
+            "🧪 পুকুরের জলের pH ও অক্সিজেন আদর্শ রাখতে কীভাবে পরীক্ষা করব?",
+            "🌾 কাতলা আঙুলি মাছের জন্য প্রস্তাবিত খাদ্য শতাংশ কত?",
+            "🦐 চিংড়ি/মাছ চাষে বায়োফ্লক প্রযুক্তি কীভাবে কাজ করে?",
+            "📜 পুকুর নির্মাণে কোন সরকারি প্রকল্প পাওয়া যায়?"
+        ]
+    },
+    hi: {
+        newInquiry: 'नई कृषि पूछताछ',
+        recentHistory: 'हाल का इतिहास',
+        noPastInquiries: 'अभी तक कोई पूछताछ नहीं। शुरू करने के लिए एक प्रश्न पूछें!',
+        clearAllHistory: 'सभी इतिहास साफ़ करें',
+        headerTitle: 'MatsyaLink कृषि AI सहायक',
+        headerBadge: 'जलकृषि विशेषज्ञ',
+        headerSubtitle: 'मछली स्वास्थ्य • तालाब मार्गदर्शन • जल विश्लेषण • लर्निंग हब',
+        farmContext: 'फार्म संदर्भ',
+        fishSpecies: 'मछली प्रजाति',
+        fishSpeciesPlaceholder: 'जैसे: रोहू, कतला',
+        pondSize: 'तालाब का आकार (बीघा/एकड़)',
+        pondSizePlaceholder: 'जैसे: 2 बीघा',
+        phLevel: 'pH स्तर',
+        phPlaceholder: 'जैसे: 7.8',
+        dissolvedOxygen: 'घुलित ऑक्सीजन',
+        doPlaceholder: 'जैसे: 5.5 mg/L',
+        waterTemp: 'पानी का तापमान (°C)',
+        waterTempPlaceholder: 'जैसे: 28°C',
+        saveContext: 'संदर्भ सहेजें',
+        welcomeHeading: 'आज मैं आपके मछली फार्म में कैसे सहायता कर सकता हूँ?',
+        welcomeSubtitle: 'जलकृषि प्रश्न पूछें, वॉइस नोट रिकॉर्ड करें, या दृश्य विश्लेषण के लिए मछली और पानी की तस्वीरें अपलोड करें।',
+        suggestedLabel: 'सुझाए गए प्रश्न',
+        inputPlaceholder: 'मछली रोग, चारा, तालाब का पानी, बायोफ्लॉक, RAS के बारे में पूछें...',
+        loadingText: 'खेती के मापदंड और लर्निंग हब ज्ञान का मूल्यांकन हो रहा है...',
+        confidence: 'विश्वास',
+        recommendedResources: 'अनुशंसित MatsyaLink शिक्षण संसाधन:',
+        copied: 'कॉपी हो गया',
+        copy: 'कॉपी करें',
+        clearAllConfirm: 'सभी बातचीत का इतिहास साफ़ करें?',
+        speechNotSupported: 'आपके ब्राउज़र में वाक् पहचान समर्थित नहीं है।',
+        suggestedQuestions: [
+            "🐟 मेरी मछलियाँ पानी की सतह पर हाँफ रही हैं। मुझे क्या करना चाहिए?",
+            "🧪 तालाब के पानी का आदर्श pH और ऑक्सीजन कैसे जाँचें और बनाए रखें?",
+            "🌾 कतला फिंगरलिंग के लिए अनुशंसित फ़ीड प्रतिशत क्या है?",
+            "🦐 झींगा/मछली पालन में बायोफ्लॉक तकनीक कैसे काम करती है?",
+            "📜 तालाब निर्माण के लिए कौन सी सरकारी योजनाएं उपलब्ध हैं?"
+        ]
+    },
+    or: {
+        newInquiry: 'ନୂଆ କୃଷି ଅନୁସନ୍ଧାନ',
+        recentHistory: 'ସମ୍ପ୍ରତି ଇତିହାସ',
+        noPastInquiries: 'ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅନୁସନ୍ଧାନ ନାହିଁ। ଆରମ୍ଭ କରିବାକୁ ଏକ ପ୍ରଶ୍ନ କରନ୍ତୁ!',
+        clearAllHistory: 'ସମସ୍ତ ଇତିହାସ ସଫା କରନ୍ତୁ',
+        headerTitle: 'MatsyaLink କୃଷି AI ସହାୟକ',
+        headerBadge: 'ଜଳକୃଷି ବିଶେଷଜ୍ଞ',
+        headerSubtitle: 'ମାଛ ସ୍ୱାସ୍ଥ୍ୟ • ପୋଖରୀ ମାର୍ଗଦର୍ଶନ • ଜଳ ବିଶ୍ଳେଷଣ • ଶିକ୍ଷା କେନ୍ଦ୍ର',
+        farmContext: 'ଫାର୍ମ ପ୍ରସଙ୍ଗ',
+        fishSpecies: 'ମାଛ ପ୍ରଜାତି',
+        fishSpeciesPlaceholder: 'ଯଥା: ରୋହୁ, କାତଳ',
+        pondSize: 'ପୋଖରୀ ଆକାର (ବିଘା/ଏକର)',
+        pondSizePlaceholder: 'ଯଥା: ୨ ବିଘା',
+        phLevel: 'pH ସ୍ତର',
+        phPlaceholder: 'ଯଥା: ୭.୮',
+        dissolvedOxygen: 'ଦ୍ରବୀଭୂତ ଅମ୍ଳଜାନ',
+        doPlaceholder: 'ଯଥା: ୫.୫ mg/L',
+        waterTemp: 'ଜଳ ତାପମାତ୍ରା (°C)',
+        waterTempPlaceholder: 'ଯଥା: ୨୮°C',
+        saveContext: 'ପ୍ରସଙ୍ଗ ସଂରକ୍ଷଣ କରନ୍ତୁ',
+        welcomeHeading: 'ଆଜି ଆପଣଙ୍କ ମାଛ ଫାର୍ମରେ ମୁଁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?',
+        welcomeSubtitle: 'ଜଳକୃଷି ପ୍ରଶ୍ନ କରନ୍ତୁ, ଭଏସ ନୋଟ ରେକର୍ଡ କରନ୍ତୁ, କିମ୍ବା ଦୃଶ୍ୟ ବିଶ୍ଳେଷଣ ପାଇଁ ମାଛ ଓ ଜଳ ଫଟୋ ଅପଲୋଡ କରନ୍ତୁ।',
+        suggestedLabel: 'ପ୍ରସ୍ତାବିତ ପ୍ରଶ୍ନ',
+        inputPlaceholder: 'ମାଛ ରୋଗ, ଖାଦ୍ୟ, ପୋଖରୀ ଜଳ, ବାୟୋଫ୍ଲକ, RAS ବିଷୟରେ ପଚାରନ୍ତୁ...',
+        loadingText: 'କୃଷି ପ୍ୟାରାମିଟର ଓ ଶିକ୍ଷା କେନ୍ଦ୍ରର ଜ୍ଞାନ ମୂଲ୍ୟାୟନ ହେଉଛି...',
+        confidence: 'ଆତ୍ମବିଶ୍ୱାସ',
+        recommendedResources: 'ପ୍ରସ୍ତାବିତ MatsyaLink ଶିକ୍ଷା ସଂସ୍ଥାନ:',
+        copied: 'କପି ହୋଇଗଲା',
+        copy: 'କପି କରନ୍ତୁ',
+        clearAllConfirm: 'ସମସ୍ତ କଥୋପକଥନ ଇତିହାସ ସଫା କରିବେ?',
+        speechNotSupported: 'ଆପଣଙ୍କ ବ୍ରାଉଜରରେ ସ୍ପିଚ ରିକଗ୍ନିଶନ ସମର୍ଥିତ ନୁହେଁ।',
+        suggestedQuestions: [
+            "🐟 ମୋ ମାଛ ଜଳ ଉପରେ ଶ୍ୱାସ ନେଉଛି। ମୁଁ କ'ଣ କରିବି?",
+            "🧪 ପୋଖରୀ ଜଳର ଆଦର୍ଶ pH ଓ ଅମ୍ଳଜାନ କିପରି ଯାଞ୍ଚ କରିବି?",
+            "🌾 କାତଳ ଆଙ୍ଗୁଳି ମାଛ ପାଇଁ ଖାଦ୍ୟ ପ୍ରତିଶତ କ'ଣ ହେବା ଉଚିତ?",
+            "🦐 ଚିଙ୍ଗୁଡ଼ି/ମାଛ ଚାଷରେ ବାୟୋଫ୍ଲକ ପ୍ରଯୁକ୍ତି କିପରି କାମ କରେ?",
+            "📜 ପୋଖରୀ ନିର୍ମାଣ ପାଇଁ କେଉଁ ସରକାରୀ ଯୋଜନା ଉପଲବ୍ଧ?"
+        ]
+    }
+};
+
+const LANG_MAP = { en: 'en-IN', bn: 'bn-IN', hi: 'hi-IN', or: 'or-IN' };
 
 const FarmingAIAssistant = () => {
     const { user } = useAuth();
     const { language } = useLanguage();
+    const t_ai = (key) => (TRANSLATIONS[language] || TRANSLATIONS.en)[key] ?? key;
     const [conversations, setConversations] = useState([]);
     const [currentConversationId, setCurrentConversationId] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -49,6 +203,8 @@ const FarmingAIAssistant = () => {
 
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
+    // Guard against duplicate submissions on rapid double-click
+    const isSendingRef = useRef(false);
 
     // Fetch conversation list on mount
     useEffect(() => {
@@ -97,7 +253,7 @@ const FarmingAIAssistant = () => {
     };
 
     const handleClearAll = async () => {
-        if (!window.confirm('Clear all conversation history?')) return;
+        if (!window.confirm(t_ai('clearAllConfirm'))) return;
         try {
             await clearAllFarmingAIConversations();
             startNewChat();
@@ -141,7 +297,7 @@ const FarmingAIAssistant = () => {
     // Speech Recognition (Voice)
     const toggleSpeechToText = () => {
         if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            alert('Speech recognition is not supported in your browser.');
+            alert(t_ai('speechNotSupported'));
             return;
         }
 
@@ -153,7 +309,7 @@ const FarmingAIAssistant = () => {
             return;
         }
 
-        recognition.lang = 'en-IN';
+        recognition.lang = LANG_MAP[language] || 'en-IN';
         recognition.interimResults = false;
 
         recognition.onstart = () => setIsListening(true);
@@ -172,14 +328,20 @@ const FarmingAIAssistant = () => {
     const handleSend = async (overrideText = null) => {
         const queryText = overrideText || input;
         if (!queryText.trim() && images.length === 0) return;
+        // Prevent duplicate API calls on rapid double-click or Enter+button combo
+        if (isSendingRef.current) return;
+
+        // Capture current images before state is cleared
+        const currentImages = [...images];
 
         const userMsg = {
             role: 'user',
             text: queryText,
-            imageUrls: [...images],
+            imageUrls: currentImages,
             hasAudio: isListening
         };
 
+        isSendingRef.current = true;
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         setImages([]);
@@ -188,7 +350,7 @@ const FarmingAIAssistant = () => {
         try {
             const res = await sendFarmingAIChat({
                 message: queryText,
-                imageUrls: userMsg.imageUrls,
+                imageUrls: currentImages,
                 hasVoice: userMsg.hasAudio,
                 conversationId: currentConversationId,
                 farmContext,
@@ -204,18 +366,26 @@ const FarmingAIAssistant = () => {
             }
         } catch (err) {
             console.error('Failed to send AI message:', err);
+            const errMsgs = {
+                en: '⚠️ Sorry, there was an issue processing your aquaculture request. Please try again.',
+                bn: '⚠️ দুঃখিত, আপনার জলকৃষি অনুরোধ প্রক্রিয়া করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।',
+                hi: '⚠️ क्षमा करें, आपके जलकृषि अनुरोध को संसाधित करने में समस्या हुई। कृपया पुनः प्रयास करें।',
+                or: '⚠️ କ୍ଷମା କରନ୍ତୁ, ଆପଣଙ୍କ ଜଳକୃଷି ଅନୁରୋଧ ପ୍ରକ୍ରିୟା କରିବାରେ ସମସ୍ୟା ହୋଇଛି। ଦୟାକରି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।'
+            };
             setMessages(prev => [
                 ...prev,
                 {
                     role: 'assistant',
-                    text: '⚠️ Sorry, there was an issue processing your aquaculture request. Please try again.',
+                    text: errMsgs[language] || errMsgs.en,
                     confidence: 'uncertain'
                 }
             ]);
         } finally {
             setLoading(false);
+            isSendingRef.current = false;
         }
     };
+
 
     const copyToClipboard = (text, index) => {
         navigator.clipboard.writeText(text);
@@ -242,17 +412,17 @@ const FarmingAIAssistant = () => {
                         className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-primary text-white rounded-xl font-semibold hover:bg-primary-hover transition-all shadow-sm"
                     >
                         <Plus size={18} />
-                        New Farming Inquiry
+                        {t_ai('newInquiry')}
                     </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-3 space-y-1">
                     <div className="text-xs font-bold text-text-tertiary px-3 py-1 uppercase tracking-wider">
-                        Recent History
+                        {t_ai('recentHistory')}
                     </div>
                     {conversations.length === 0 ? (
                         <div className="text-center py-8 text-xs text-text-tertiary px-4">
-                            No past inquiries yet. Ask a question to start!
+                            {t_ai('noPastInquiries')}
                         </div>
                     ) : (
                         conversations.map((c) => (
@@ -289,7 +459,7 @@ const FarmingAIAssistant = () => {
                             className="w-full flex items-center justify-center gap-2 py-2 text-xs text-text-tertiary hover:text-red-500 transition-colors"
                         >
                             <Trash2 size={14} />
-                            Clear All History
+                            {t_ai('clearAllHistory')}
                         </button>
                     </div>
                 )}
@@ -305,12 +475,12 @@ const FarmingAIAssistant = () => {
                         </div>
                         <div>
                             <h1 className="font-extrabold text-base leading-tight flex items-center gap-2">
-                                MatsyaLink Farming AI Assistant
+                                {t_ai('headerTitle')}
                                 <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-300">
-                                    Aquaculture Expert
+                                    {t_ai('headerBadge')}
                                 </span>
                             </h1>
-                            <p className="text-xs text-text-tertiary">Fish Health • Pond Guidance • Water Analysis • Learning Hub</p>
+                            <p className="text-xs text-text-tertiary">{t_ai('headerSubtitle')}</p>
                         </div>
                     </div>
 
@@ -324,7 +494,7 @@ const FarmingAIAssistant = () => {
                             }`}
                         >
                             <Sliders size={14} />
-                            Farm Context
+                            {t_ai('farmContext')}
                         </button>
                     </div>
                 </header>
@@ -333,50 +503,50 @@ const FarmingAIAssistant = () => {
                 {showFarmContext && (
                     <div className="bg-surface-subtle border-b border-border p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 animate-in slide-in-from-top duration-200">
                         <div>
-                            <label className="text-[10px] font-bold text-text-tertiary">Fish Species</label>
+                            <label className="text-[10px] font-bold text-text-tertiary">{t_ai('fishSpecies')}</label>
                             <input
                                 type="text"
-                                placeholder="e.g. Rohu, Catla"
+                                placeholder={t_ai('fishSpeciesPlaceholder')}
                                 value={farmContext.fishSpecies}
                                 onChange={(e) => setFarmContext({ ...farmContext, fishSpecies: e.target.value })}
                                 className="w-full text-xs p-2 rounded border border-border bg-surface"
                             />
                         </div>
                         <div>
-                            <label className="text-[10px] font-bold text-text-tertiary">Pond Size (Bigha/Acre)</label>
+                            <label className="text-[10px] font-bold text-text-tertiary">{t_ai('pondSize')}</label>
                             <input
                                 type="text"
-                                placeholder="e.g. 2 Bigha"
+                                placeholder={t_ai('pondSizePlaceholder')}
                                 value={farmContext.pondSize}
                                 onChange={(e) => setFarmContext({ ...farmContext, pondSize: e.target.value })}
                                 className="w-full text-xs p-2 rounded border border-border bg-surface"
                             />
                         </div>
                         <div>
-                            <label className="text-[10px] font-bold text-text-tertiary">pH Level</label>
+                            <label className="text-[10px] font-bold text-text-tertiary">{t_ai('phLevel')}</label>
                             <input
                                 type="text"
-                                placeholder="e.g. 7.8"
+                                placeholder={t_ai('phPlaceholder')}
                                 value={farmContext.ph}
                                 onChange={(e) => setFarmContext({ ...farmContext, ph: e.target.value })}
                                 className="w-full text-xs p-2 rounded border border-border bg-surface"
                             />
                         </div>
                         <div>
-                            <label className="text-[10px] font-bold text-text-tertiary">Dissolved Oxygen</label>
+                            <label className="text-[10px] font-bold text-text-tertiary">{t_ai('dissolvedOxygen')}</label>
                             <input
                                 type="text"
-                                placeholder="e.g. 5.5 mg/L"
+                                placeholder={t_ai('doPlaceholder')}
                                 value={farmContext.dissolvedOxygen}
                                 onChange={(e) => setFarmContext({ ...farmContext, dissolvedOxygen: e.target.value })}
                                 className="w-full text-xs p-2 rounded border border-border bg-surface"
                             />
                         </div>
                         <div>
-                            <label className="text-[10px] font-bold text-text-tertiary">Water Temp (°C)</label>
+                            <label className="text-[10px] font-bold text-text-tertiary">{t_ai('waterTemp')}</label>
                             <input
                                 type="text"
-                                placeholder="e.g. 28°C"
+                                placeholder={t_ai('waterTempPlaceholder')}
                                 value={farmContext.waterTemp}
                                 onChange={(e) => setFarmContext({ ...farmContext, waterTemp: e.target.value })}
                                 className="w-full text-xs p-2 rounded border border-border bg-surface"
@@ -384,10 +554,10 @@ const FarmingAIAssistant = () => {
                         </div>
                         <div className="flex items-end">
                             <button
-                                onClick={() => alert('Farm context updated!')}
+                                onClick={() => alert(t_ai('saveContext'))}
                                 className="w-full py-2 bg-primary text-white rounded text-xs font-bold"
                             >
-                                Save Context
+                                {t_ai('saveContext')}
                             </button>
                         </div>
                     </div>
@@ -401,17 +571,17 @@ const FarmingAIAssistant = () => {
                                 <Sparkles size={32} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-text-primary">How can I assist your fish farm today?</h2>
+                                <h2 className="text-xl font-bold text-text-primary">{t_ai('welcomeHeading')}</h2>
                                 <p className="text-sm text-text-secondary mt-1 max-w-md mx-auto">
-                                    Ask aquaculture questions, record voice notes, or upload fish & water photos for visual analysis.
+                                    {t_ai('welcomeSubtitle')}
                                 </p>
                             </div>
 
                             {/* Suggested Questions */}
                             <div className="space-y-2 text-left max-w-lg mx-auto">
-                                <span className="text-xs font-bold text-text-tertiary uppercase tracking-wider">Suggested Questions</span>
+                                <span className="text-xs font-bold text-text-tertiary uppercase tracking-wider">{t_ai('suggestedLabel')}</span>
                                 <div className="space-y-2">
-                                    {SUGGESTED_QUESTIONS.map((q, idx) => (
+                                    {(t_ai('suggestedQuestions')).map((q, idx) => (
                                         <button
                                             key={idx}
                                             onClick={() => handleSend(q)}
@@ -470,7 +640,7 @@ const FarmingAIAssistant = () => {
                                         {/* Visual Assessment Confidence Pill */}
                                         {m.role === 'assistant' && m.confidence && (
                                             <div className="mt-3 pt-3 border-t border-border flex items-center gap-2 text-xs">
-                                                <span className="text-text-tertiary font-semibold">Confidence:</span>
+                                                <span className="text-text-tertiary font-semibold">{t_ai('confidence')}:</span>
                                                 <span
                                                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                                         m.confidence === 'high'
@@ -491,7 +661,7 @@ const FarmingAIAssistant = () => {
                                         <div className="bg-primary-muted/40 border border-primary-border p-4 rounded-xl space-y-2">
                                             <div className="text-xs font-bold text-primary flex items-center gap-1.5">
                                                 <BookOpen size={14} />
-                                                Recommended MatsyaLink Learning Resources:
+                                                {t_ai('recommendedResources')}
                                             </div>
                                             <div className="grid gap-2 sm:grid-cols-2">
                                                 {m.recommendations.map((rec, i) => (
@@ -517,7 +687,7 @@ const FarmingAIAssistant = () => {
                                                 className="flex items-center gap-1 hover:text-text-primary transition-colors"
                                             >
                                                 {copiedIndex === idx ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                                                <span>{copiedIndex === idx ? 'Copied' : 'Copy'}</span>
+                                                <span>{copiedIndex === idx ? t_ai('copied') : t_ai('copy')}</span>
                                             </button>
                                         </div>
                                     )}
@@ -528,7 +698,7 @@ const FarmingAIAssistant = () => {
                     {loading && (
                         <div className="flex gap-3 items-center text-xs text-text-tertiary italic animate-pulse">
                             <Bot size={18} className="text-primary" />
-                            Evaluating farming parameters & Learning Hub knowledge...
+                            {t_ai('loadingText')}
                         </div>
                     )}
                     <div ref={messagesEndRef} />
@@ -582,7 +752,7 @@ const FarmingAIAssistant = () => {
 
                         <textarea
                             rows={1}
-                            placeholder="Ask about fish disease, feed, pond water, Biofloc, RAS..."
+                            placeholder={t_ai('inputPlaceholder')}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => {
