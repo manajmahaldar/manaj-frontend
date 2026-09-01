@@ -14,11 +14,15 @@ const ForgotPassword = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await api.post('/auth/forgot-password', { email });
+            const res = await api.post('/auth/forgot-password', { email }, { timeout: 20000 });
             toast.success(res.data?.msg || t.emailSentSuccess);
             setSubmitted(true);
         } catch (err) {
-            toast.error(err.response?.data?.msg || t.emailSentFail);
+            if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+                toast.error("Server took too long to respond. Please try again.");
+            } else {
+                toast.error(err.response?.data?.msg || t.emailSentFail || "Failed to send reset link.");
+            }
         } finally {
             setLoading(false);
         }
