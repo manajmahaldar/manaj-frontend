@@ -1,18 +1,20 @@
 import axios from 'axios';
 
-const normalizeBaseUrl = (url) => {
-  if (!url || typeof url !== 'string') return 'http://localhost:5000/api';
-  const trimmed = url.trim();
-  if (trimmed.startsWith(':')) {
-    return `http://localhost${trimmed}`;
+const getProductionOrLocalBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
+    const trimmed = envUrl.trim();
+    if (!trimmed.includes('localhost') && !trimmed.includes('127.0.0.1')) {
+      return trimmed.replace(/\/$/, '');
+    }
   }
-  if (!/^https?:\/\//i.test(trimmed)) {
-    return `http://${trimmed}`;
+  if (typeof window !== 'undefined' && window.location && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://manaj-backend.onrender.com/api';
   }
-  return trimmed.replace(/\/$/, '');
+  return 'http://localhost:5000/api';
 };
 
-const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api');
+const API_BASE_URL = getProductionOrLocalBaseUrl();
 
 // ─── Base Instance ────────────────────────────────────────────────────────────
 // NOTE: This instance is used by api/auth.api.js for the raw auth endpoints
