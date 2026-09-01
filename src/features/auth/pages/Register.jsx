@@ -52,6 +52,14 @@ const Register = () => {
             return toast.error("Please select state, district, and police station.");
         }
 
+        if (!formData.phone) {
+            return toast.error("Mobile number is required.");
+        }
+
+        if (!formData.email) {
+            return toast.error("Email address is required.");
+        }
+
         if (formData.password !== formData.confirmPassword) {
             return toast.error("Passwords do not match.");
         }
@@ -99,13 +107,14 @@ const Register = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.phone}</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t.phone} <span className="text-red-500">*</span></label>
                             <div className="flex border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent">
                                 <select className="bg-gray-50 border-r border-gray-300 px-3 py-3 outline-none text-gray-700 text-sm font-medium cursor-pointer">
                                     <option value="+91">🇮🇳 +91</option>
                                 </select>
                                 <input 
-                                    type="tel" required 
+                                    type="tel"
+                                    required
                                     maxLength={10}
                                     className="w-full px-4 py-3 outline-none bg-transparent"
                                     placeholder={t.enterPhonePlaceholder || '98XXXXXXXX'}
@@ -119,9 +128,10 @@ const Register = () => {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddressLabel || t.emailAddress || 'Email Address'}</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddressLabel || t.emailAddress || 'Email Address'} <span className="text-red-500">*</span></label>
                         <input 
-                            type="email" required
+                            type="email"
+                            required
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none"
                             placeholder={t.enterEmailPlaceholder || 'example@gmail.com'}
                             value={formData.email}
