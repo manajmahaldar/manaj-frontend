@@ -9,7 +9,6 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import MobileBottomNav from './components/layout/MobileBottomNav';
 import ScrollToTop from './components/common/ScrollToTop';
-import ScrollToTopButton from './components/common/ScrollToTopButton';
 import InstallPrompt from './components/common/InstallPrompt';
 import NetworkStatus from './components/common/NetworkStatus';
 import GlobalErrorBoundary from './components/common/GlobalErrorBoundary';
@@ -33,7 +32,6 @@ function App() {
                   <main className="flex-grow">
                     <AppRoutes />
                   </main>
-                  <ScrollToTopButton />
                   <MobileBottomNav />
                   <Footer />
                 </div>

@@ -62,46 +62,48 @@ const InstallPrompt = () => {
     if (!showPrompt) return null;
 
     return (
-        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 animate-in slide-in-from-bottom-8 fade-in duration-500">
-            <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 p-4 md:p-6 overflow-hidden relative">
-                {/* Decorative background */}
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-50 rounded-full mix-blend-multiply opacity-70 blur-2xl"></div>
-                
-                <button 
-                    onClick={handleDismiss}
-                    className="absolute top-2 right-2 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors z-10"
-                >
-                    <X size={18} />
-                </button>
+        <div className="fixed bottom-[74px] md:bottom-6 left-3 right-20 md:left-6 md:right-auto md:w-96 z-40 animate-in slide-in-from-bottom-5 fade-in duration-300">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-blue-100/80 p-2.5 sm:p-3 md:p-4 relative overflow-hidden flex items-center justify-between gap-2 sm:gap-3">
+                {/* Subtle gradient glow decoration */}
+                <div className="absolute -top-6 -right-6 w-20 h-20 bg-blue-400/10 rounded-full blur-xl pointer-events-none" />
 
-                <div className="flex items-start gap-4 relative z-10">
-                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 text-white">
-                        <Download size={24} />
+                {/* Left: App Icon */}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 text-white">
+                        <Download size={20} className="stroke-[2.5]" />
                     </div>
                     
-                    <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
-                            Install Matsyalink
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-4">
-                            Add our app to your home screen for quick access and a better experience.
-                        </p>
-                        
-                        <div className="flex gap-2">
-                            <button 
-                                onClick={handleInstallClick}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-bold shadow-md shadow-blue-600/20 transition-colors"
-                            >
-                                Install Now
-                            </button>
-                            <button 
-                                onClick={handleDismiss}
-                                className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-sm font-semibold border border-gray-200 transition-colors"
-                            >
-                                Later
-                            </button>
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                            <h4 className="text-sm font-bold text-gray-900 truncate">
+                                {t.installMatsyalink || 'Install Matsyalink'}
+                            </h4>
+                            <span className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-semibold bg-blue-50 text-blue-600 rounded-md border border-blue-100">
+                                App
+                            </span>
                         </div>
+                        <p className="text-xs text-gray-500 truncate">
+                            {t.installPromptSub || 'Add app to home screen for fast access'}
+                        </p>
                     </div>
+                </div>
+
+                {/* Right: Actions */}
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button 
+                        onClick={handleInstallClick}
+                        className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold py-2 px-3.5 rounded-xl shadow-md shadow-blue-600/25 transition-all flex items-center gap-1.5"
+                    >
+                        <span>{t.install || 'Install'}</span>
+                    </button>
+                    
+                    <button 
+                        onClick={handleDismiss}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100/80 rounded-xl transition-colors"
+                        title="Dismiss"
+                    >
+                        <X size={18} />
+                    </button>
                 </div>
             </div>
         </div>
@@ -109,3 +111,4 @@ const InstallPrompt = () => {
 };
 
 export default InstallPrompt;
+
