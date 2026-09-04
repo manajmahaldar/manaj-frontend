@@ -25,6 +25,11 @@ const RoleRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
+    // Pending users must be verified by admin before entering dashboard
+    if (user.role !== 'admin' && user.accountStatus === 'pending') {
+        return <Navigate to="/pending-approval" replace />;
+    }
+
     if (allowedRoles && !allowedRoles.includes(user.role)) {
         // Redirect to their own dashboard based on their role
         const dashboardPaths = {

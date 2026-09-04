@@ -26,6 +26,11 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireVerification = 
         return <Navigate to="/" replace />;
     }
 
+    // If user account is pending approval and trying to access a protected dashboard route, redirect to /pending-approval
+    if (user.role !== 'admin' && user.accountStatus === 'pending') {
+        return <Navigate to="/pending-approval" replace />;
+    }
+
     return children;
 };
 

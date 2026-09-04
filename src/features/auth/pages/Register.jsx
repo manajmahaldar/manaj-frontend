@@ -6,7 +6,6 @@ import { GoogleLogin } from '@react-oauth/google';
 import api from '../../../utils/api';
 import toast from 'react-hot-toast';
 
-import { getDashboardPath } from '../../../utils/roleUtils';
 import { stateDistricts, getPoliceStations } from '../../../utils/districtsData';
 
 const Register = () => {
@@ -33,12 +32,10 @@ const Register = () => {
     const policeStationsList = formData.localDistrict ? getPoliceStations(formData.localDistrict) : [];
 
     const handleSuccessRedirect = (res) => {
-        const user = res.data.user;
         login(res.data);
         toast.success(t.registerSuccess);
-        
-        // Redirect to role-specific dashboard
-        navigate(getDashboardPath(user.role));
+        // New users must wait for admin approval — send to pending page
+        navigate('/pending-approval', { replace: true });
     };
 
     const isValidSixDigitPassword = (pw) => {

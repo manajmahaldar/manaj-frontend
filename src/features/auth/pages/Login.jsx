@@ -20,6 +20,12 @@ const Login = () => {
         login(res.data);
         toast.success(t.loginSuccess);
         
+        // If account is pending admin approval and not admin, send to /pending-approval
+        if (user.role !== 'admin' && user.accountStatus === 'pending') {
+            navigate('/pending-approval', { replace: true });
+            return;
+        }
+
         // Redirect to role-specific dashboard
         navigate(getDashboardPath(user.role));
     };

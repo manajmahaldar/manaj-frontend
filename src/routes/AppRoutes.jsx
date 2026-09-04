@@ -12,6 +12,7 @@ const Login            = lazy(() => import('../features/auth/pages/Login'));
 const Register         = lazy(() => import('../features/auth/pages/Register'));
 const ForgotPassword   = lazy(() => import('../features/auth/pages/ForgotPassword'));
 const ResetPassword    = lazy(() => import('../features/auth/pages/ResetPassword'));
+const PendingApproval  = lazy(() => import('../pages/user/PendingApproval'));
 const Listings         = lazy(() => import('../features/product/pages/Listings'));
 const BuyingPosts      = lazy(() => import('../features/product/pages/BuyingPosts'));
 const ProductDetails   = lazy(() => import('../features/product/pages/ProductDetails'));
@@ -41,6 +42,7 @@ const AppRoutes = () => {
           <Route path="/"                    element={<Home />} />
           <Route path="/login"               element={<Login />} />
           <Route path="/register"            element={<Register />} />
+          <Route path="/pending-approval"    element={<PendingApproval />} />
           <Route path="/forgot-password"     element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/listings"            element={<Listings />} />
