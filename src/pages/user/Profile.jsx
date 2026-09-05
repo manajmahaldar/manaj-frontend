@@ -75,7 +75,9 @@ const Profile = () => {
         formData.append('image', file);
         try {
             setIsUploading(true);
-            const res = await api.post('/users/profile-picture', formData);
+            const res = await api.post('/users/profile-picture', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             updateUser({ ...user, profilePicture: res.data.profilePicture });
             toast.success(t.imageUploadSuccess);
         } catch (err) {

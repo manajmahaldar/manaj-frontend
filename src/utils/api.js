@@ -41,7 +41,6 @@ export const registerAuthCallbacks = (refreshFn, logoutFn) => {
 const api = axios.create({
     baseURL:         API_BASE_URL,
     withCredentials: true, // send httpOnly refresh-token cookie automatically
-    headers: { 'Content-Type': 'application/json' }
 });
 
 // ── Request interceptor: attach access token ──────────────────────────────────
