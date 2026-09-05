@@ -142,18 +142,6 @@ const DashboardLayout = ({ children }) => {
                         isActive={isListingsActive}
                     />
 
-                    {/* Center FAB */}
-                    <div className="flex-1 flex items-center justify-center h-full relative">
-                        <button
-                            onClick={handleCreateClick}
-                            title={t.newListing || 'Create'}
-                            aria-label={t.createNewListing || 'Create new listing'}
-                            className="absolute -top-5 w-14 h-14 bg-primary hover:bg-primary-dark active:scale-95 text-white rounded-2xl shadow-md shadow-primary/30 transition-all duration-150 flex items-center justify-center border-4 border-surface-1"
-                        >
-                            <Plus size={22} strokeWidth={2.5} />
-                        </button>
-                    </div>
-
                     {/* SAVED */}
                     <NavItem
                         label={t.saved || 'Saved'}
