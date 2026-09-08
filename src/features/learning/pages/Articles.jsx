@@ -5,8 +5,12 @@ import ContentCard from '../components/ContentCard';
 import FilterBar from '../components/FilterBar';
 import SkeletonCard from '../components/SkeletonCard';
 import { BookOpen } from 'lucide-react';
+import { useLearning } from '../context/LearningContext';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const Articles = () => {
+    const { language } = useLearning();
+    const { t } = useLanguage();
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({ type: 'article', sort: 'newest' });
@@ -32,17 +36,17 @@ const Articles = () => {
 
     useEffect(() => {
         fetchArticles();
-    }, [filters, searchQuery]);
+    }, [filters, searchQuery, language]);
 
     return (
         <div className="space-y-6">
             <div className="space-y-1">
                 <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-primary" />
-                    Educational Articles
+                    {t.lh_articlesTitle || 'Educational Articles'}
                 </h1>
                 <p className="text-xs font-semibold text-gray-500">
-                    Deep dive into aquaculture water quality, seed stocking, and biofloc biology.
+                    {t.lh_articlesDesc || 'Deep dive into aquaculture water quality, seed stocking, and biofloc biology.'}
                 </p>
             </div>
 
@@ -57,7 +61,7 @@ const Articles = () => {
                 </div>
             ) : articles.length === 0 ? (
                 <div className="bg-white p-12 rounded-3xl border border-gray-100 text-center">
-                    <p className="text-gray-400 font-bold text-sm">No articles found matching your criteria.</p>
+                    <p className="text-gray-400 font-bold text-sm">{t.lh_noArticles || 'No articles found matching your criteria.'}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

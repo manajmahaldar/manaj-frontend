@@ -29,12 +29,15 @@ const RecentlyViewed = lazy(() => import('./RecentlyViewed'));
 const MyProgress = lazy(() => import('./MyProgress'));
 const LearningAdminDashboard = lazy(() => import('../components/admin/LearningAdminDashboard'));
 
+import LearningHubHeader from '../components/LearningHubHeader';
+
 const LearningHub = () => {
     const { user } = useContext(AuthContext);
     const isAdmin = user && (user.role === 'admin' || user.role === 'superadmin');
 
     return (
         <LearningProvider>
+            <LearningHubHeader />
             <Suspense fallback={<PageLoader />}>
                 <Routes>
                     <Route path="/" element={<LearningHome />} />

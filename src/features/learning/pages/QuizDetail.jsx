@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getQuizDetails, submitQuizAnswers } from '../api/learningApi';
 import { HelpCircle, Clock, AlertCircle } from 'lucide-react';
+import { useLearning } from '../context/LearningContext';
+import { useLanguage } from '../../../context/LanguageContext';
+import { getLocalizedQuiz } from '../utils/learningTranslationHelper';
 
 const QuizDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [quiz, setQuiz] = useState(null);
+    const { language } = useLearning();
+    const { t, formatDigit } = useLanguage();
+    const [rawQuiz, setRawQuiz] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
     const [answers, setAnswers] = useState([]); // Array of { questionId, selectedAnswers: [] }
@@ -18,7 +23,7 @@ const QuizDetail = () => {
                 setLoading(true);
                 const res = await getQuizDetails(id);
                 if (res.data.success) {
-                    setQuiz(res.data.data);
+                    setRawQuiz(res.data.data);
                     if (res.data.data.timeLimit > 0) {
                         setTimeLeft(res.data.data.timeLimit * 60);
                     }
@@ -33,6 +38,8 @@ const QuizDetail = () => {
         fetchQuiz();
     }, [id]);
 
+    const quiz = rawQuiz ? getLocalizedQuiz(rawQuiz, language) : null;
+
     useEffect(() => {
         if (timeLeft <= 0 || !quiz || quiz.timeLimit <= 0) return;
         const timer = setTimeout(() => {
@@ -43,7 +50,7 @@ const QuizDetail = () => {
 
     if (timeLeft === 0 && quiz && quiz.timeLimit > 0) {
         // Auto submit on time out
-        alert('Time is up! Submitting answers.');
+        alert(t.lh_time_up_submitting || 'Time is up! Submitting answers.');
         submitQuizAnswers(id, { answers, timeTaken: quiz.timeLimit * 60 }).then(res => {
             navigate(`/learning/quizzes/${id}/result`, { state: { result: res.data.data } });
         });
@@ -84,8 +91,8 @@ const QuizDetail = () => {
         }
     };
 
-    if (loading) return <div className="p-12 text-center animate-pulse">Loading Quiz details...</div>;
-    if (!quiz) return <div className="text-center p-12">Quiz not found</div>;
+    if (loading) return <div className="p-12 text-center animate-pulse">{t.lh_loading || 'Loading...'}</div>;
+    if (!quiz) return <div className="text-center p-12">{t.lh_no_quizzes || 'Quiz not found'}</div>;
 
     const currentQuestion = quiz.questions[currentQuestionIdx];
     const currentAnswer = answers.find(a => a.questionId === currentQuestion?._id);
@@ -98,13 +105,13 @@ const QuizDetail = () => {
                 <div>
                     <h2 className="font-extrabold text-gray-900 text-lg">{quiz.title}</h2>
                     <p className="text-xs text-gray-400 font-semibold mt-1">
-                        Question {currentQuestionIdx + 1} of {quiz.questions.length}
+                        {t.lh_question || 'Question'} {formatDigit(currentQuestionIdx + 1)} {t.lh_of || 'of'} {formatDigit(quiz.questions.length)}
                     </p>
                 </div>
                 {quiz.timeLimit > 0 && (
                     <div className="flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-500 rounded-2xl border border-red-100 font-extrabold text-xs">
                         <Clock className="w-4 h-4" />
-                        {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                        {formatDigit(Math.floor(timeLeft / 60))}:{formatDigit((timeLeft % 60).toString().padStart(2, '0'))}
                     </div>
                 )}
             </div>
@@ -145,7 +152,7 @@ const QuizDetail = () => {
                     onClick={() => setCurrentQuestionIdx(prev => prev - 1)}
                     className="px-5 py-3 rounded-2xl border border-gray-200 text-gray-600 font-bold text-xs hover:bg-gray-50 disabled:opacity-50"
                 >
-                    Previous
+                    {t.lh_previous || 'Previous'}
                 </button>
 
                 {currentQuestionIdx === quiz.questions.length - 1 ? (
@@ -153,14 +160,14 @@ const QuizDetail = () => {
                         onClick={handleSubmit}
                         className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/10 active:scale-95"
                     >
-                        Submit Quiz
+                        {t.lh_submit_quiz || 'Submit Quiz'}
                     </button>
                 ) : (
                     <button
                         onClick={() => setCurrentQuestionIdx(prev => prev + 1)}
                         className="px-6 py-3 rounded-2xl bg-primary hover:bg-blue-700 text-white font-bold text-xs active:scale-95"
                     >
-                        Next
+                        {t.lh_next || 'Next'}
                     </button>
                 )}
             </div>

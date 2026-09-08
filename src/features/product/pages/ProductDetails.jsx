@@ -9,6 +9,7 @@ import OptimizedImage from '../../../components/common/OptimizedImage';
 import ContactButtons from '../../../components/common/ContactButtons';
 import OrderModal from '../components/OrderModal';
 import { PageLoaderSkeleton } from '../../../components/common/Skeletons';
+import { translateText } from '../../learning/utils/autoTranslate';
 
 const ProductDetails = () => {
     const { type, id } = useParams(); // type is either 'selling' or 'buying'
@@ -21,6 +22,7 @@ const ProductDetails = () => {
     const seedProduct = location.state?.product || null;
 
     const [product, setProduct] = useState(seedProduct);
+    const [translatedDescription, setTranslatedDescription] = useState(seedProduct?.description || '');
     const [loading, setLoading] = useState(!seedProduct); // no full-screen skeleton when we already have data
     const [error, setError] = useState(null);
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -46,6 +48,25 @@ const ProductDetails = () => {
         fetchProductDetails();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, type]);
+
+    // Translate description when language or product description changes
+    useEffect(() => {
+        if (!product?.description) {
+            setTranslatedDescription('');
+            return;
+        }
+        if (language === 'en') {
+            setTranslatedDescription(product.description);
+            return;
+        }
+
+        let isMounted = true;
+        translateText(product.description, language).then(translated => {
+            if (isMounted) setTranslatedDescription(translated || product.description);
+        });
+
+        return () => { isMounted = false; };
+    }, [product?.description, language]);
 
     // Show full-page skeleton only when we have absolutely no data yet
     if (loading && !product) return <PageLoaderSkeleton />;
@@ -297,7 +318,7 @@ const ProductDetails = () => {
                                 <div className="mb-8">
                                     <h3 className="text-lg font-black text-gray-900 mb-3">{t.description || 'Description'}</h3>
                                     <p className="text-gray-600 leading-relaxed bg-gray-50 p-4 rounded-2xl border border-gray-100 whitespace-pre-line">
-                                        {product.description}
+                                        {translatedDescription || product.description}
                                     </p>
                                 </div>
                             )}

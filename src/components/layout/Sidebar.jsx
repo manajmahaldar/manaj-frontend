@@ -35,7 +35,7 @@ import AIAssistantButton from '../ai/AIAssistantButton';
 const Sidebar = memo(({ isOpen, toggleSidebar, onOpenAIAgent, onOpenFarmingAIAgent }) => {
     const { user } = useContext(AuthContext);
     const { logout } = useContext(AuthActionsContext);
-    const { t } = useLanguage();
+    const { t, language, changeLanguage } = useLanguage();
     const [isLearningHubOpen, setIsLearningHubOpen] = useState(false);
     const location = useLocation();
 
@@ -282,6 +282,30 @@ const Sidebar = memo(({ isOpen, toggleSidebar, onOpenAIAgent, onOpenFarmingAIAge
 
             {/* Sidebar Footer */}
             <div className="px-3 py-4 border-t border-border flex-shrink-0 space-y-2">
+                {/* Language Switcher */}
+                <div className="grid grid-cols-4 gap-1 p-1 bg-surface-1 rounded-xl border border-border">
+                    {[
+                        { code: 'en', label: 'EN', title: 'English' },
+                        { code: 'bn', label: 'বাং', title: 'বাংলা' },
+                        { code: 'hi', label: 'हिं', title: 'हिन्दी' },
+                        { code: 'or', label: 'ଓଡ଼ି', title: 'ଓଡ଼ିଆ' }
+                    ].map((l) => (
+                        <button
+                            key={l.code}
+                            type="button"
+                            onClick={() => changeLanguage(l.code)}
+                            className={`py-1 text-2xs font-extrabold rounded-lg transition-all ${
+                                language === l.code
+                                    ? 'bg-primary text-white shadow-xs'
+                                    : 'text-text-tertiary hover:text-text-primary hover:bg-white'
+                            }`}
+                            title={l.title}
+                        >
+                            {l.label}
+                        </button>
+                    ))}
+                </div>
+
                 {/* User card */}
                 <div className="flex items-center gap-3 px-3 py-2.5 bg-surface-1 rounded-lg border border-border">
                     <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">

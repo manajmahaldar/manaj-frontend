@@ -4,8 +4,10 @@ import ContentCard from '../components/ContentCard';
 import SkeletonCard from '../components/SkeletonCard';
 import { Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const Bookmarks = () => {
+    const { t } = useLanguage();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -32,10 +34,10 @@ const Bookmarks = () => {
             <div className="space-y-1">
                 <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
                     <Bookmark className="w-6 h-6 text-primary fill-primary/10" />
-                    Bookmarked Lessons
+                    {t.lh_nav_bookmarks || 'Bookmarked Lessons'}
                 </h1>
                 <p className="text-xs font-semibold text-gray-500">
-                    Quickly access all content resources saved to your learning list.
+                    {t.lh_bookmarks_subtitle || 'Quickly access all content resources saved to your learning list.'}
                 </p>
             </div>
 
@@ -48,15 +50,15 @@ const Bookmarks = () => {
                     <div className="w-16 h-16 bg-blue-50 text-primary rounded-2xl flex items-center justify-center text-2xl mx-auto">
                         🔖
                     </div>
-                    <h3 className="font-extrabold text-gray-900 text-base">No Saved Items</h3>
+                    <h3 className="font-extrabold text-gray-900 text-base">{t.lh_no_saved_items || 'No Saved Items'}</h3>
                     <p className="text-xs text-gray-500 leading-relaxed">
-                        Add bookmark flags to videos, articles, and blogs to keep reference materials easily accessible.
+                        {t.lh_no_saved_desc || 'Add bookmark flags to videos, articles, and blogs to keep reference materials easily accessible.'}
                     </p>
                     <Link
                         to="/learning"
                         className="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-xs inline-block hover:bg-blue-700 transition-colors"
                     >
-                        Browse Dashboard
+                        {t.lh_browse_dashboard || 'Browse Dashboard'}
                     </Link>
                 </div>
             ) : (

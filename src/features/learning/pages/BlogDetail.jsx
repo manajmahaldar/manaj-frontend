@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getContentDetails, trackProgress } from '../api/learningApi';
+import { getContentDetails } from '../api/learningApi';
 import { Calendar, User, Eye, ChevronRight, Moon, Sun, Printer, Share2 } from 'lucide-react';
+import { useLanguage } from '../../../context/LanguageContext';
+import { getLocalizedContent } from '../utils/learningTranslationHelper';
 
 const BlogDetail = () => {
     const { slug } = useParams();
-    const [blog, setBlog] = useState(null);
+    const { t, language, formatDigit } = useLanguage();
+    const [rawBlog, setRawBlog] = useState(null);
     const [loading, setLoading] = useState(true);
     const [darkMode, setDarkMode] = useState(false);
 
@@ -15,14 +18,7 @@ const BlogDetail = () => {
                 setLoading(true);
                 const res = await getContentDetails(slug);
                 if (res.data.success) {
-                    setBlog(res.data.data);
-                    // Automatically track viewed history
-                    await trackProgress({
-                        contentId: res.data.data._id,
-                        progress: 100,
-                        watchedSeconds: 0,
-                        lastPosition: 0
-                    });
+                    setRawBlog(res.data.data);
                 }
             } catch (err) {
                 console.error(err);
@@ -34,15 +30,17 @@ const BlogDetail = () => {
         fetchDetails();
     }, [slug]);
 
+    const blog = getLocalizedContent(rawBlog, language);
+
     const handleShare = () => {
         if (navigator.share) {
             navigator.share({
-                title: blog.title,
+                title: blog?.title,
                 url: window.location.href
             }).catch(console.error);
         } else {
             navigator.clipboard.writeText(window.location.href);
-            alert('Blog link copied to clipboard!');
+            alert(t.lh_copiedLink || 'Blog link copied to clipboard!');
         }
     };
 
@@ -59,8 +57,10 @@ const BlogDetail = () => {
     if (!blog) {
         return (
             <div className="text-center py-20">
-                <p className="text-gray-500 font-bold">Blog not found</p>
-                <Link to="/learning/blogs" className="text-primary font-bold mt-2 inline-block">Back to Blogs</Link>
+                <p className="text-gray-500 font-bold">{t.lh_blogNotFound || 'Blog not found'}</p>
+                <Link to="/learning/blogs" className="text-primary font-bold mt-2 inline-block">
+                    {t.lh_backToBlogs || 'Back to Blogs'}
+                </Link>
             </div>
         );
     }
@@ -70,9 +70,9 @@ const BlogDetail = () => {
             <div className="lg:col-span-2 space-y-6">
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-1.5 text-xs text-gray-500 font-bold">
-                    <Link to="/learning" className="hover:text-primary">Learning Hub</Link>
+                    <Link to="/learning" className="hover:text-primary">{t.learningHub || 'Learning Hub'}</Link>
                     <ChevronRight className="w-3.5 h-3.5" />
-                    <Link to="/learning/blogs" className="hover:text-primary">Blogs</Link>
+                    <Link to="/learning/blogs" className="hover:text-primary">{t.lh_navStories || 'Blogs'}</Link>
                     <ChevronRight className="w-3.5 h-3.5" />
                     <span className="text-gray-900 truncate max-w-[200px]">{blog.title}</span>
                 </div>
@@ -84,28 +84,28 @@ const BlogDetail = () => {
                         <span>•</span>
                         <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {new Date(blog.publishAt).toLocaleDateString()}</span>
                         <span>•</span>
-                        <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {blog.viewCount} views</span>
+                        <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {formatDigit(blog.viewCount || 0)} {t.lh_views || 'views'}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
                         <button 
                             onClick={() => setDarkMode(!darkMode)}
                             className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-                            title="Toggle Reader Mode"
+                            title={t.lh_readerMode || 'Toggle Reader Mode'}
                         >
                             {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
                         <button 
                             onClick={handleShare}
                             className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-                            title="Share Link"
+                            title={t.lh_shareLink || 'Share Link'}
                         >
                             <Share2 className="w-4 h-4" />
                         </button>
                         <button 
                             onClick={() => window.print()}
                             className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-                            title="Print Blog"
+                            title={t.lh_printArticle || 'Print Blog'}
                         >
                             <Printer className="w-4 h-4" />
                         </button>
@@ -130,7 +130,7 @@ const BlogDetail = () => {
 
                     <div 
                         className="space-y-4 prose max-w-none text-sm"
-                        dangerouslySetInnerHTML={{ __html: blog.content }} 
+                        dangerouslySetInnerHTML={{ __html: blog.content || blog.description }} 
                     />
                 </article>
             </div>
@@ -138,7 +138,7 @@ const BlogDetail = () => {
             {/* Author Sidebar */}
             <div className="space-y-6">
                 <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm space-y-4">
-                    <h3 className="font-extrabold text-gray-900 text-sm">Author</h3>
+                    <h3 className="font-extrabold text-gray-900 text-sm">{t.lh_author || 'Author'}</h3>
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
                             {blog.author?.name ? blog.author.name.charAt(0) : 'E'}

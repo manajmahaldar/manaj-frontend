@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Bookmark, Clock, Eye, Play, BookOpen, FileText } from 'lucide-react';
 import { toggleBookmark } from '../api/learningApi';
+import { useLanguage } from '../../../context/LanguageContext';
+import { getLocalizedContent, getLocalizedLevel } from '../utils/learningTranslationHelper';
 
-const ContentCard = ({ content, onProgressUpdate }) => {
+const ContentCard = ({ content }) => {
+    const { language, t, formatDigit } = useLanguage();
     const [bookmarked, setBookmarked] = useState(false);
+
+    const localized = getLocalizedContent(content, language) || content || {};
 
     useEffect(() => {
         if (content && content.userProgress) {
@@ -23,23 +28,32 @@ const ContentCard = ({ content, onProgressUpdate }) => {
     };
 
     const getIcon = () => {
-        switch (content.type) {
+        switch (content?.type) {
             case 'video': return <Play className="w-4 h-4 text-white" />;
             case 'pdf': return <FileText className="w-4 h-4 text-white" />;
             default: return <BookOpen className="w-4 h-4 text-white" />;
         }
     };
 
-    const badgeColor = content.type === 'video' ? 'bg-red-500' : content.type === 'pdf' ? 'bg-blue-500' : 'bg-emerald-500';
+    const badgeColor = content?.type === 'video' ? 'bg-red-500' : content?.type === 'pdf' ? 'bg-blue-500' : 'bg-emerald-500';
+
+    const getLangLabel = (code) => {
+        switch (code) {
+            case 'bn': return 'বাংলা';
+            case 'hi': return 'हिन्दी';
+            case 'or': return 'ଓଡ଼ିଆ';
+            default: return 'English';
+        }
+    };
 
     return (
         <div className="card group hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col h-full bg-white rounded-2xl border border-gray-100">
             {/* Thumbnail Header */}
             <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
-                {content.thumbnail ? (
+                {localized.thumbnail ? (
                     <img 
-                        src={content.thumbnail} 
-                        alt={content.title} 
+                        src={localized.thumbnail} 
+                        alt={localized.title} 
                         className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
                 ) : (
@@ -52,9 +66,9 @@ const ContentCard = ({ content, onProgressUpdate }) => {
                     {getIcon()}
                 </div>
                 {/* Duration Badge */}
-                {content.duration > 0 && (
+                {localized.duration > 0 && (
                     <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-black/70 text-white text-[10px] font-bold">
-                        {content.duration} mins
+                        {formatDigit(localized.duration)} {t.lh_mins || 'mins'}
                     </div>
                 )}
             </div>
@@ -63,20 +77,20 @@ const ContentCard = ({ content, onProgressUpdate }) => {
             <div className="p-5 flex-1 flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary">
-                        {content.level}
+                        {localized.displayLevel || getLocalizedLevel(localized.level, language)}
                     </span>
                     <span className="w-1 h-1 rounded-full bg-gray-300" />
                     <span className="text-[10px] font-semibold text-gray-500">
-                        {content.language === 'bn' ? 'বাংলা' : content.language === 'hi' ? 'हिन्दी' : 'English'}
+                        {getLangLabel(localized.language || language)}
                     </span>
                 </div>
 
                 <h3 className="font-bold text-gray-900 leading-snug text-base mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    {content.title}
+                    {localized.title}
                 </h3>
 
                 <p className="text-xs text-gray-500 line-clamp-2 mb-4 flex-1">
-                    {content.description || 'MatsyaLink expert resources for aquaculture and sustainable fish farming.'}
+                    {localized.description || 'MatsyaLink expert resources for aquaculture and sustainable fish farming.'}
                 </p>
 
                 {/* Footer Info */}
@@ -84,18 +98,19 @@ const ContentCard = ({ content, onProgressUpdate }) => {
                     <div className="flex items-center gap-3 text-[10px] font-bold text-gray-400">
                         <span className="flex items-center gap-1">
                             <Eye className="w-3.5 h-3.5" />
-                            {content.viewCount}
+                            {formatDigit(localized.viewCount || 0)} {t.lh_views || 'views'}
                         </span>
-                        {content.readingTime > 0 && (
+                        {localized.readingTime > 0 && (
                             <span className="flex items-center gap-1">
                                 <Clock className="w-3.5 h-3.5" />
-                                {content.readingTime}m read
+                                {formatDigit(localized.readingTime)} {t.lh_readTime || 'm read'}
                             </span>
                         )}
                     </div>
 
                     <button 
                         onClick={handleBookmark}
+                        title={bookmarked ? (t.lh_bookmarked || 'Saved') : (t.lh_bookmark || 'Bookmark')}
                         className={`p-2 rounded-xl border transition-all ${
                             bookmarked 
                                 ? 'bg-primary/5 border-primary/20 text-primary' 

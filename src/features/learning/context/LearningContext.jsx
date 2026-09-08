@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as learningApi from '../api/learningApi';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const LearningContext = createContext();
 
@@ -10,7 +11,9 @@ export const LearningProvider = ({ children }) => {
     const [bookmarks, setBookmarks] = useState([]);
     const [progressStats, setProgressStats] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [language, setLanguage] = useState('en'); // Defaults to English, dynamically controlled
+    // Read language from the global LanguageContext so the Learning Hub
+    // stays in sync whenever the user switches language in the sidebar/header.
+    const { language, changeLanguage: setLanguage } = useLanguage();
 
     const fetchCategories = async () => {
         try {

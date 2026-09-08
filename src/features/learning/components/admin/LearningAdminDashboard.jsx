@@ -743,9 +743,14 @@ const LearningAdminDashboard = () => {
                                             </td>
                                             <td className="p-4">
                                                 <div className="font-bold text-gray-900 text-sm line-clamp-1">{item.title}</div>
-                                                <span className="uppercase text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full inline-block mt-1">
-                                                    {item.type}
-                                                </span>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="uppercase text-[10px] font-black text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full inline-block">
+                                                        {item.type}
+                                                    </span>
+                                                    <span className="uppercase text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full inline-block">
+                                                        {item.language === 'bn' ? 'বাংলা' : item.language === 'hi' ? 'हिन्दी' : item.language === 'or' ? 'ଓଡ଼ିଆ' : 'English'}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="p-4 text-gray-600 font-medium">
                                                 {item.categories?.map(c => c.name || c).join(', ') || 'Uncategorized'}
@@ -811,7 +816,7 @@ const LearningAdminDashboard = () => {
                     </h2>
 
                     <form onSubmit={handleContentSubmit} className="space-y-5 text-xs">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block font-bold text-gray-700 mb-1">Content Title *</label>
                                 <input 
@@ -822,6 +827,20 @@ const LearningAdminDashboard = () => {
                                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-medium focus:bg-white"
                                     placeholder="Enter descriptive title"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block font-bold text-gray-700 mb-1">Content Language *</label>
+                                <select
+                                    value={contentForm.language || 'en'}
+                                    onChange={(e) => setContentForm({...contentForm, language: e.target.value})}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-700 bg-white"
+                                >
+                                    <option value="en">English</option>
+                                    <option value="bn">বাংলা (Bengali)</option>
+                                    <option value="hi">हिन्दी (Hindi)</option>
+                                    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                                </select>
                             </div>
 
                             <div>

@@ -4,8 +4,10 @@ import ContentCard from '../components/ContentCard';
 import SkeletonCard from '../components/SkeletonCard';
 import { History } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../../context/LanguageContext';
 
 const RecentlyViewed = () => {
+    const { t } = useLanguage();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -32,10 +34,10 @@ const RecentlyViewed = () => {
             <div className="space-y-1">
                 <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
                     <History className="w-6 h-6 text-primary" />
-                    Recently Viewed History
+                    {t.lh_nav_recently_viewed || 'Recently Viewed History'}
                 </h1>
                 <p className="text-xs font-semibold text-gray-500">
-                    Review history of recently opened videos, articles, and guidelines.
+                    {t.lh_recently_viewed_subtitle || 'Review history of recently opened videos, articles, and guidelines.'}
                 </p>
             </div>
 
@@ -48,15 +50,15 @@ const RecentlyViewed = () => {
                     <div className="w-16 h-16 bg-blue-50 text-primary rounded-2xl flex items-center justify-center text-2xl mx-auto">
                         ⏳
                     </div>
-                    <h3 className="font-extrabold text-gray-900 text-base">History Empty</h3>
+                    <h3 className="font-extrabold text-gray-900 text-base">{t.lh_history_empty || 'History Empty'}</h3>
                     <p className="text-xs text-gray-500 leading-relaxed">
-                        Articles, video courses, or schemes will show up here as you click and read them.
+                        {t.lh_history_empty_desc || 'Articles, video courses, or schemes will show up here as you click and read them.'}
                     </p>
                     <Link
                         to="/learning"
                         className="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-xs inline-block hover:bg-blue-700 transition-colors"
                     >
-                        Browse Courses
+                        {t.lh_browse_courses || 'Browse Courses'}
                     </Link>
                 </div>
             ) : (

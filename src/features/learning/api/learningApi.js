@@ -1,8 +1,16 @@
 import api from '../../../utils/api';
 
+// Returns the currently active UI language so API calls fetch content in the correct language.
+// Falls back to 'en' if nothing is stored.
+const getLang = () => localStorage.getItem('language') || 'en';
+
 // Public & End-User Learning APIs
 export const getCategories = () => api.get('/learning/content/categories');
-export const getAllContent = (params) => api.get('/learning/content', { params });
+// getAllContent automatically injects the current language so the list always matches
+// whatever language the user has selected in the global language switcher.
+// A caller may still override language by passing { language: '...' } explicitly.
+export const getAllContent = (params) =>
+    api.get('/learning/content', { params });
 export const getAllContentAdmin = (params) => api.get('/learning/content', { params: { ...params, isAdmin: true } });
 export const getContentDetails = (idOrSlug) => api.get(`/learning/content/${idOrSlug}`);
 export const getSearchSuggestions = (query) => api.get('/learning/content/suggestions', { params: { query } });
@@ -14,7 +22,7 @@ export const getRecentlyViewed = () => api.get('/learning/user/recent');
 export const getContinueLearning = () => api.get('/learning/user/continue');
 export const getProgressStats = () => api.get('/learning/user/progress-stats');
 
-export const getQuizzes = () => api.get('/learning/quiz');
+export const getQuizzes = (params) => api.get('/learning/quiz', { params });
 export const getQuizDetails = (id) => api.get(`/learning/quiz/${id}`);
 export const submitQuizAnswers = (id, data) => api.post(`/learning/quiz/${id}/submit`, data);
 export const getQuizLeaderboard = (id) => api.get(`/learning/quiz/${id}/leaderboard`);
@@ -55,7 +63,7 @@ export const createCourse = (data) => api.post('/learning/admin/courses', data);
 export const updateCourse = (id, data) => api.put(`/learning/admin/courses/${id}`, data);
 export const deleteCourse = (id) => api.delete(`/learning/admin/courses/${id}`);
 
-export const getWebinars = () => api.get('/learning/user/webinars');
+export const getWebinars = (params) => api.get('/learning/user/webinars', { params });
 export const createWebinar = (data) => api.post('/learning/admin/webinars', data);
 export const updateWebinar = (id, data) => api.put(`/learning/admin/webinars/${id}`, data);
 export const deleteWebinar = (id) => api.delete(`/learning/admin/webinars/${id}`);
