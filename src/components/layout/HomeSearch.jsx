@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Mic } from 'lucide-react';
+import { Search, Mic, MapPin, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import SpeechInputModal from '../common/SpeechInputModal';
 
 const HomeSearch = () => {
     const { t, language } = useLanguage();
@@ -16,34 +17,17 @@ const HomeSearch = () => {
         navigate(`/listings?${params.toString()}`);
     };
 
+    const [speechModalOpen, setSpeechModalOpen] = useState(false);
+
     const startListening = () => {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
+        setSpeechModalOpen(true);
+    };
 
-            if (language === 'bn') recognition.lang = 'bn-IN';
-            else if (language === 'hi') recognition.lang = 'hi-IN';
-            else if (language === 'or') recognition.lang = 'or-IN';
-            else recognition.lang = 'en-US';
-
-            recognition.onstart  = () => setIsListening(true);
-            recognition.onend    = () => setIsListening(false);
-            recognition.onerror  = () => setIsListening(false);
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                setSearch(transcript);
-                const params = new URLSearchParams();
-                params.set('search', transcript);
-                navigate(`/listings?${params.toString()}`);
-            };
-
-            recognition.start();
-        } else {
-            alert('Microphone search is not supported in this browser.');
-        }
+    const handleSpeechAccept = (text) => {
+        setSearch(text);
+        const params = new URLSearchParams();
+        params.set('search', text);
+        navigate(`/listings?${params.toString()}`);
     };
 
     return (
@@ -83,6 +67,14 @@ const HomeSearch = () => {
                     </button>
                 </div>
             </form>
+
+            <SpeechInputModal 
+                isOpen={speechModalOpen}
+                onClose={() => setSpeechModalOpen(false)}
+                onAccept={handleSpeechAccept}
+                language={language}
+                placeholder="Search fish, feed, medicine..."
+            />
         </div>
     );
 };

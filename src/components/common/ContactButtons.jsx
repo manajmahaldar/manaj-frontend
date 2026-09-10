@@ -3,6 +3,7 @@ import { Phone, MessageCircle, X, UserPlus, LogIn, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import useAuth from '../../features/auth/hooks/useAuth';
+import api from '../../utils/api';
 
 const AuthModal = ({ onClose, t }) => {
     const navigate = useNavigate();
@@ -83,6 +84,9 @@ const ContactButtons = ({ phone, message = "", variant = "colored" }) => {
             setShowModal(true);
             return;
         }
+
+        // Asynchronously record click event for admin analytics
+        api.post('/contact-clicks', { type: action, targetPhone: phone }).catch(() => {});
     };
 
     return (

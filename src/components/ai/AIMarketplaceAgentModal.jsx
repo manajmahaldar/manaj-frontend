@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext, useCallback } from 'react';
-import { Bot, Mic, MicOff, Send, Sparkles, X, CheckCircle2, AlertCircle, ArrowRight, RefreshCw, BookOpen, Volume2, VolumeX } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, Sparkles, X, CheckCircle2, AlertCircle, ArrowRight, RefreshCw, BookOpen, Volume2, VolumeX, Edit3, Loader2 } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import api from '../../utils/api';
@@ -53,6 +53,15 @@ const AIMarketplaceAgentModal = ({ isOpen, onClose, onLaunchForm, onApplySearch 
     const [loading, setLoading] = useState(false);
     const [guidedMode, setGuidedMode] = useState(false);
     const [ttsEnabled, setTtsEnabled] = useState(true);
+
+    // Voice State Machine: IDLE | RECORDING | STOPPING | UPLOADING | TRANSCRIBING | CONFIRMATION
+    const [voiceState, setVoiceState] = useState('IDLE');
+    const [pendingTranscript, setPendingTranscript] = useState(null);
+
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
+    const mediaStreamRef = useRef(null);
+
     const [extractedData, setExtractedData] = useState({
         actionType: null,
         category: null,
@@ -187,82 +196,105 @@ const AIMarketplaceAgentModal = ({ isOpen, onClose, onLaunchForm, onApplySearch 
     }, []);
 
     // ──────────────────────────────────────────────────────────────
-    // Speech Recognition helpers
     // ──────────────────────────────────────────────────────────────
-    const startListening = useCallback((onFinalTranscript) => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            toast.error(t.voiceSearchNotSupported || 'Voice input is not supported in this browser.');
+    // Speech Recognition helpers (MediaRecorder + Groq STT)
+    // ──────────────────────────────────────────────────────────────
+    const startListening = useCallback(async (onTranscriptComplete) => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            toast.error(t.voiceSearchNotSupported || 'Microphone recording is not supported in this browser.');
             return;
         }
+
         try {
-            if (recognitionRef.current) { recognitionRef.current.stop(); }
-            if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); }
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+                mediaRecorderRef.current.stop();
+            }
 
-            const recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            const langMap = { bn: 'bn-IN', hi: 'hi-IN', or: 'or-IN', en: 'en-IN' };
-            recognition.lang = langMap[language] || 'en-US';
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaStreamRef.current = stream;
 
-            let fullTranscript = '';
+            const mimeTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg', 'audio/wav'];
+            const supportedMime = mimeTypes.find(type => window.MediaRecorder && window.MediaRecorder.isTypeSupported(type)) || 'audio/webm';
 
-            recognition.onstart = () => setIsListening(true);
-            recognition.onresult = (event) => {
-                let currentInterim = '';
-                let currentFinal = '';
+            const mediaRecorder = new MediaRecorder(stream, { mimeType: supportedMime });
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
 
-                for (let i = 0; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        currentFinal += event.results[i][0].transcript + ' ';
-                    } else {
-                        currentInterim += event.results[i][0].transcript;
-                    }
-                }
-
-                fullTranscript = (currentFinal + currentInterim).trim();
-                setInputText(fullTranscript);
-
-                // 2.5s silence = auto-submit
-                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                if (onFinalTranscript && fullTranscript.length > 0) {
-                    silenceTimerRef.current = setTimeout(() => {
-                        if (recognitionRef.current) {
-                            recognitionRef.current.stop();
-                        }
-                    }, 2500);
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) {
+                    audioChunksRef.current.push(e.data);
                 }
             };
 
-            recognition.onerror = (e) => {
-                if (e.error !== 'no-speech') {
-                    console.warn('Speech recognition error:', e.error);
-                }
-            };
-
-            recognition.onend = () => {
+            mediaRecorder.onstop = async () => {
                 setIsListening(false);
-                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                if (fullTranscript && onFinalTranscript) {
-                    onFinalTranscript(fullTranscript);
+                setVoiceState('UPLOADING');
+
+                if (mediaStreamRef.current) {
+                    mediaStreamRef.current.getTracks().forEach(track => track.stop());
+                    mediaStreamRef.current = null;
+                }
+
+                const audioBlob = new Blob(audioChunksRef.current, { type: supportedMime });
+                if (!audioBlob || audioBlob.size < 100) {
+                    setVoiceState('IDLE');
+                    toast.error("I couldn't hear that clearly. Please try again.");
+                    return;
+                }
+
+                try {
+                    setVoiceState('TRANSCRIBING');
+                    const formData = new FormData();
+                    const fileExt = supportedMime.includes('mp4') ? 'm4a' : supportedMime.includes('ogg') ? 'ogg' : supportedMime.includes('wav') ? 'wav' : 'webm';
+                    formData.append('audio', audioBlob, `speech.${fileExt}`);
+                    formData.append('language', language || 'auto');
+
+                    const res = await api.post('/ai/transcribe', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+
+                    if (res.data && res.data.success && res.data.text && res.data.text.trim()) {
+                        const text = res.data.text.trim();
+                        setVoiceState('CONFIRMATION');
+                        setPendingTranscript({ text, language: res.data.language });
+                        if (onTranscriptComplete) {
+                            onTranscriptComplete(text);
+                        }
+                    } else {
+                        setVoiceState('IDLE');
+                        toast.error("I couldn't hear that clearly. Please try again.");
+                    }
+                } catch (err) {
+                    console.error('STT API upload error:', err);
+                    setVoiceState('IDLE');
+                    toast.error("I couldn't hear that clearly. Please try again.");
                 }
             };
 
-            recognitionRef.current = recognition;
-            recognition.start();
+            mediaRecorder.start();
+            setIsListening(true);
+            setVoiceState('RECORDING');
+
         } catch (err) {
-            console.error(err);
+            console.error('Microphone recording error:', err);
             setIsListening(false);
+            setVoiceState('IDLE');
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                toast.error('Microphone permission denied. Please allow access.');
+            } else {
+                toast.error('Failed to access microphone. Please try again.');
+            }
         }
     }, [language, t]);
 
     const stopListening = useCallback(() => {
-        if (recognitionRef.current) {
-            recognitionRef.current.stop();
-            recognitionRef.current = null;
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            setVoiceState('STOPPING');
+            mediaRecorderRef.current.stop();
+        } else {
+            setIsListening(false);
+            setVoiceState('IDLE');
         }
-        setIsListening(false);
-        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     }, []);
 
     // ──────────────────────────────────────────────────────────────
@@ -376,7 +408,11 @@ const AIMarketplaceAgentModal = ({ isOpen, onClose, onLaunchForm, onApplySearch 
     // Mic button: starts guided voice mode from scratch
     // ──────────────────────────────────────────────────────────────
     const toggleListening = useCallback(() => {
-        if (isListening) {
+        if (voiceState === 'UPLOADING' || voiceState === 'TRANSCRIBING') {
+            return; // Block duplicate clicks during STT processing
+        }
+
+        if (isListening || voiceState === 'RECORDING') {
             stopListening();
             stopSpeaking();
             return;
@@ -406,48 +442,28 @@ const AIMarketplaceAgentModal = ({ isOpen, onClose, onLaunchForm, onApplySearch 
             };
             setMessages(prev => [...prev, aiMsg]);
 
-            // Speak the question, then auto-listen
             speak(firstQuestion, () => {
                 setTimeout(() => {
-                    startListening((transcript) => {
-                        setInputText('');
-                        setExtractedData(prev => {
-                            handleSend(transcript, { ...prev, nextField: 'actionType' });
-                            return prev;
-                        });
-                    });
+                    startListening();
                 }, 300);
             });
 
-            // If TTS not enabled, start listening immediately
             if (!ttsEnabled) {
-                startListening((transcript) => {
-                    setInputText('');
-                    setExtractedData(prev => {
-                        handleSend(transcript, { ...prev, nextField: 'actionType' });
-                        return prev;
-                    });
-                });
+                startListening();
             }
 
         } else {
-            // Already in guided mode — just toggle mic
-            startListening((transcript) => {
-                setInputText('');
-                setExtractedData(prev => {
-                    handleSend(transcript, prev);
-                    return prev;
-                });
-            });
+            // Already in guided mode — just start voice recording
+            startListening();
             const listeningMsg = {
-                en: '🎙️ Listening in English... Speak now!',
-                bn: '🎙️ বাংলায় শুনছি... এখন বলুন!',
-                hi: '🎙️ हिंदी में सुन रहे हैं... अब बोलें!',
-                or: '🎙️ ଓଡ଼ିଆରେ ଶୁଣୁଛୁ... ଏବେ କୁହନ୍ତୁ!'
-            }[language] || '🎙️ Listening... Speak now!';
+                en: '🎙️ Recording speech... Tap mic to stop!',
+                bn: '🎙️ বক্তব্য রেকর্ড হচ্ছে... বন্ধ করতে মাইকে চাপ দিন!',
+                hi: '🎙️ आवाज रिकॉर्ड हो रही है... रोकने के लिए माइक दबाएं!',
+                or: '🎙️ ରେକର୍ଡିଂ ହେଉଛି... ବନ୍ଦ କରିବାକୁ ମାଇକ୍ ଦବାନ୍ତୁ!'
+            }[language] || '🎙️ Recording... Tap mic to stop!';
             toast.success(listeningMsg, { duration: 2500 });
         }
-    }, [isListening, isSpeaking, guidedMode, language, ttsEnabled, speak, startListening, stopListening, stopSpeaking, handleSend]);
+    }, [isListening, isSpeaking, guidedMode, language, ttsEnabled, speak, startListening, stopListening, stopSpeaking, voiceState]);
 
     // Stop speaking/listening when language is switched from navbar
     useEffect(() => {
@@ -643,11 +659,59 @@ const AIMarketplaceAgentModal = ({ isOpen, onClose, onLaunchForm, onApplySearch 
                         ))}
                         {loading && (
                             <div className="flex justify-start">
-                                <div className="bg-white border border-gray-200 rounded-2xl p-3 text-xs text-gray-500 animate-pulse">
+                                <div className="bg-white border border-gray-200 rounded-2xl p-3 text-xs text-gray-500 animate-pulse flex items-center gap-2">
+                                    <Loader2 size={14} className="animate-spin text-emerald-600" />
                                     {t.aiAgentProcessing || "AI is processing..."}
                                 </div>
                             </div>
                         )}
+
+                        {/* Voice Upload / STT Processing Status */}
+                        {(voiceState === 'UPLOADING' || voiceState === 'TRANSCRIBING') && (
+                            <div className="flex justify-center my-2">
+                                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl px-4 py-2.5 text-xs font-semibold animate-pulse flex items-center gap-2 shadow-sm">
+                                    <Loader2 size={16} className="animate-spin text-emerald-600" />
+                                    <span>Transcribing speech with Groq Whisper...</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Transcript Confirmation Card */}
+                        {voiceState === 'CONFIRMATION' && pendingTranscript && (
+                            <div className="p-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl shadow-md space-y-3 animate-in fade-in zoom-in duration-200">
+                                <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs uppercase tracking-wide">
+                                    <Mic size={16} className="text-emerald-600 animate-pulse" />
+                                    <span>🎤 I heard:</span>
+                                </div>
+                                <p className="text-gray-900 font-bold text-sm bg-white p-3 rounded-xl border border-emerald-200 shadow-inner">
+                                    "{pendingTranscript.text}"
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => {
+                                            const textToSend = pendingTranscript.text;
+                                            setPendingTranscript(null);
+                                            setVoiceState('IDLE');
+                                            handleSend(textToSend);
+                                        }}
+                                        className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                                    >
+                                        <CheckCircle2 size={15} /> Use this
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setInputText(pendingTranscript.text);
+                                            setPendingTranscript(null);
+                                            setVoiceState('IDLE');
+                                        }}
+                                        className="px-4 py-2.5 bg-white hover:bg-slate-100 border border-gray-300 text-gray-700 font-bold text-xs rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                                    >
+                                        <Edit3 size={15} /> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <div ref={messagesEndRef} />
                     </div>
 
@@ -674,21 +738,25 @@ const AIMarketplaceAgentModal = ({ isOpen, onClose, onLaunchForm, onApplySearch 
                         <button
                             onClick={toggleListening}
                             type="button"
+                            disabled={voiceState === 'UPLOADING' || voiceState === 'TRANSCRIBING'}
                             className={`p-3 rounded-2xl transition-all relative ${
-                                isListening
+                                isListening || voiceState === 'RECORDING'
                                     ? 'bg-red-500 text-white shadow-lg shadow-red-500/40'
-                                    : isSpeaking
-                                        ? 'bg-amber-400 text-white animate-pulse'
-                                        : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                    : voiceState === 'UPLOADING' || voiceState === 'TRANSCRIBING'
+                                        ? 'bg-emerald-100 text-emerald-400 opacity-60 cursor-not-allowed'
+                                        : isSpeaking
+                                            ? 'bg-amber-400 text-white animate-pulse'
+                                            : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                             }`}
-                            title={isListening ? 'Stop listening' : isSpeaking ? 'AI is speaking…' : guidedMode ? 'Continue guided voice' : 'Start guided voice listing'}
+                            title={isListening ? 'Stop recording' : voiceState === 'UPLOADING' || voiceState === 'TRANSCRIBING' ? 'Transcribing...' : isSpeaking ? 'AI is speaking…' : guidedMode ? 'Continue guided voice' : 'Start guided voice listing'}
                         >
-                            {isListening ? (
+                            {isListening || voiceState === 'RECORDING' ? (
                                 <>
                                     <MicOff size={20} />
-                                    {/* Pulsing ring when listening */}
                                     <span className="absolute inset-0 rounded-2xl animate-ping bg-red-400 opacity-30" />
                                 </>
+                            ) : voiceState === 'UPLOADING' || voiceState === 'TRANSCRIBING' ? (
+                                <Loader2 size={20} className="animate-spin text-emerald-600" />
                             ) : (
                                 <Mic size={20} />
                             )}

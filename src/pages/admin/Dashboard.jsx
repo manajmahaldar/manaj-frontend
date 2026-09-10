@@ -1,9 +1,10 @@
-import { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import api from '../../utils/api';
 import { AuthContext } from '../../context/AuthContext';
 import { 
     User as UserIcon, Package, MessageSquare, ShieldCheck, 
-    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2, Eye, Flag, Mic
+    Check, X, AlertCircle, BarChart3, Users, ThumbsUp, ThumbsDown, Image, Clock, Trash2, Eye, Flag, Mic,
+    Phone, MessageCircle
 } from 'lucide-react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -11,6 +12,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import MediaManager from './MediaManager';
 import UserManagement from './UserManagement';
 import AdminAnalytics from './AdminAnalytics';
+import SpeechInputModal from '../../components/common/SpeechInputModal';
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -23,9 +25,27 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [rejectionReason, setRejectionReason] = useState("");
     const [rejectingUserId, setRejectingUserId] = useState(null);
+
+    // Speech modal state
+    const [speechModalOpen, setSpeechModalOpen] = useState(false);
+    const [speechTargetSetter, setSpeechTargetSetter] = useState(null);
+
+    const openSpeechModal = (setter) => {
+        setSpeechTargetSetter(() => setter);
+        setSpeechModalOpen(true);
+    };
+
+    const handleSpeechAccept = (text) => {
+        if (speechTargetSetter) {
+            speechTargetSetter(prev => prev ? `${prev} ${text}` : text);
+        }
+    };
     const [rejectingItemId, setRejectingItemId] = useState(null);
     const [itemRejectionReason, setItemRejectionReason] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
+    const [reviewingItem, setReviewingItem] = useState(null);  // listing/post review modal
+    const [reviewRejectMode, setReviewRejectMode] = useState(false);
+    const [reviewRejectReason, setReviewRejectReason] = useState("");
     const location = useLocation();
 
     useEffect(() => {
@@ -71,33 +91,6 @@ const AdminDashboard = () => {
         } catch (err) { toast.error("Failed to approve verification"); }
     };
 
-    const startSpeechRecognition = (setValue) => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            toast.error("Speech recognition is not supported in this browser. Please use Google Chrome.");
-            return;
-        }
-        const recognition = new SpeechRecognition();
-        recognition.lang = language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        toast.success("Listening... Please speak now.");
-
-        recognition.onresult = (event) => {
-            const speechToText = event.results[0][0].transcript;
-            setValue(prev => prev ? prev + " " + speechToText : speechToText);
-            toast.success("Voice capture successful!");
-        };
-
-        recognition.onerror = (event) => {
-            console.error("Speech recognition error", event.error);
-            toast.error("Voice capture failed. Please try again.");
-        };
-
-        recognition.start();
-    };
-
     const handleRejectVerification = async () => {
         if (!rejectionReason) return toast.error("Please provide a reason");
         try {
@@ -114,6 +107,9 @@ const AdminDashboard = () => {
             const url = type === 'listing' ? `/admin/listings/${itemId}/approve` : `/admin/posts/${itemId}/approve`;
             await api.put(url, {});
             toast.success(t.updateSuccess);
+            setReviewingItem(null);
+            setReviewRejectMode(false);
+            setReviewRejectReason("");
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
@@ -133,6 +129,28 @@ const AdminDashboard = () => {
             toast.success(t.updateSuccess);
             setRejectingItemId(null);
             setItemRejectionReason("");
+            fetchData();
+        } catch (err) { toast.error(t.updateFail); }
+    };
+
+    // Review modal approve/reject
+    const handleReviewApprove = async () => {
+        if (!reviewingItem) return;
+        await handleApproveListing(reviewingItem._id, reviewingItem.type);
+    };
+
+    const handleReviewRejectConfirm = async () => {
+        if (!reviewRejectReason.trim()) return toast.error("Please provide a reason for rejection");
+        if (!reviewingItem) return;
+        try {
+            const url = reviewingItem.type === 'listing'
+                ? `/admin/listings/${reviewingItem._id}/reject`
+                : `/admin/posts/${reviewingItem._id}/reject`;
+            await api.put(url, { reason: reviewRejectReason });
+            toast.success(t.updateSuccess);
+            setReviewingItem(null);
+            setReviewRejectMode(false);
+            setReviewRejectReason("");
             fetchData();
         } catch (err) { toast.error(t.updateFail); }
     };
@@ -181,19 +199,21 @@ const AdminDashboard = () => {
                 <p className="text-gray-500 font-medium">{t.adminStatsDesc}</p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                 {[
                     { label: t.totalUsers, value: stats?.totalUsers || 0, icon: <Users size={24} />, col: 'bg-blue-600 shadow-blue-500/20' },
                     { label: t.totalListings, value: stats?.totalListings || 0, icon: <Package size={24} />, col: 'bg-green-600 shadow-green-500/20' },
                     { label: t.activePosts, value: stats?.activePosts || 0, icon: <MessageSquare size={24} />, col: 'bg-purple-600 shadow-purple-500/20' },
                     { label: t.verifiedUsers, value: stats?.verifiedUsers || 0, icon: <ShieldCheck size={24} />, col: 'bg-orange-600 shadow-orange-500/20' },
+                    { label: 'Call Now Clicks', value: stats?.callClicks || 0, icon: <Phone size={24} />, col: 'bg-cyan-600 shadow-cyan-500/20' },
+                    { label: 'WhatsApp Clicks', value: stats?.whatsappClicks || 0, icon: <MessageCircle size={24} />, col: 'bg-emerald-600 shadow-emerald-500/20' },
                 ].map((stat, i) => (
-                    <div key={i} className={`rounded-[2rem] p-8 text-white ${stat.col} shadow-2xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
+                    <div key={i} className={`rounded-[2rem] p-6 text-white ${stat.col} shadow-xl relative overflow-hidden group transition-all hover:scale-[1.02]`}>
                         <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 transform group-hover:scale-[2] transition-transform duration-500">
                             {stat.icon}
                         </div>
-                        <p className="text-sm font-black uppercase tracking-widest opacity-80">{stat.label}</p>
-                        <p className="text-5xl font-black mt-4">{formatDigit(stat.value)}</p>
+                        <p className="text-xs font-black uppercase tracking-widest opacity-80">{stat.label}</p>
+                        <p className="text-4xl font-black mt-4">{formatDigit(stat.value)}</p>
                     </div>
                 ))}
             </div>
@@ -301,7 +321,7 @@ const AdminDashboard = () => {
                                             />
                                             <button
                                                 type="button"
-                                                onClick={() => startSpeechRecognition(setRejectionReason)}
+                                                onClick={() => openSpeechModal(setRejectionReason)}
                                                 className="absolute right-3 top-3 p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
                                                 title="Speak Rejection Reason"
                                             >
@@ -528,6 +548,201 @@ const AdminDashboard = () => {
         </div>
     );
 
+    // ── Listing Review Modal ───────────────────────────────────────────────────
+    const ListingReviewModal = () => {
+        if (!reviewingItem) return null;
+        const item = reviewingItem;
+        const currencySymbol = language === 'bn' ? 'টাকা' : '₹';
+        return (
+            <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto bg-gray-900/70 backdrop-blur-sm" onClick={() => { setReviewingItem(null); setReviewRejectMode(false); setReviewRejectReason(""); }}>
+                <div
+                    className="relative w-full max-w-4xl my-8 bg-white rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-10 py-7 border-b border-gray-100">
+                        <div className="flex items-center gap-4">
+                            <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider ${
+                                item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                            }`}>
+                                {item.type === 'listing' ? '🛒 Sale Listing' : '📦 Buying Demand'}
+                            </span>
+                            {item.isFlagged && (
+                                <span className="px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-red-100 text-red-700 flex items-center gap-1.5">
+                                    <Flag size={12} /> Flagged
+                                </span>
+                            )}
+                        </div>
+                        <button
+                            onClick={() => { setReviewingItem(null); setReviewRejectMode(false); setReviewRejectReason(""); }}
+                            className="p-2.5 rounded-2xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900 transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    <div className="px-10 py-8 space-y-8">
+                        {/* Title + basic info row */}
+                        <div>
+                            <h2 className="text-3xl font-black text-gray-900 leading-tight">{item.productName || item.fishName}</h2>
+                            <p className="text-gray-400 font-bold text-sm mt-1 uppercase tracking-widest">{item.category}</p>
+                        </div>
+
+                        {/* Photos */}
+                        {item.photos && item.photos.length > 0 && (
+                            <div className="space-y-3">
+                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Photos ({item.photos.length})</p>
+                                <div className="flex gap-3 overflow-x-auto pb-2">
+                                    {item.photos.map((photo, idx) => (
+                                        <a key={idx} href={photo} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                                            <img
+                                                loading="lazy"
+                                                src={photo}
+                                                alt={`photo-${idx + 1}`}
+                                                className="w-36 h-36 object-cover rounded-2xl border-4 border-gray-50 shadow-md hover:scale-105 transition-transform duration-300"
+                                            />
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Video */}
+                        {item.video && (
+                            <div className="space-y-3">
+                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Video</p>
+                                <div className="rounded-2xl overflow-hidden bg-black max-h-64 w-full">
+                                    <video src={item.video} controls className="w-full max-h-64 object-contain" />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Details Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {[
+                                { label: 'Price / Budget', value: `${currencySymbol}${formatDigit(item.price || item.buyingPrice)}${item.unit ? ` / ${item.unit}` : ''}` },
+                                item.mrp && { label: 'MRP', value: `${currencySymbol}${formatDigit(item.mrp)}` },
+                                { label: 'Quantity', value: item.quantity || item.requiredQuantity || '—' },
+                                item.size && { label: 'Size', value: item.size },
+                                item.stock !== undefined && item.stock !== null && { label: 'Stock', value: `${item.stock} units` },
+                                item.feedType && { label: 'Feed Type', value: item.feedType },
+                                item.medicineType && { label: 'Medicine Type', value: item.medicineType },
+                                item.packingSize && { label: 'Packing Size', value: item.packingSize },
+                                { label: 'Contact Phone', value: formatDigit(item.phoneNumber) },
+                                { label: 'State', value: item.district || '—' },
+                                { label: 'District', value: item.localDistrict || '—' },
+                                item.policeStation && { label: 'Police Station', value: item.policeStation },
+                                { label: 'Posted On', value: new Date(item.createdAt).toLocaleString() },
+                            ].filter(Boolean).map((detail, idx) => (
+                                <div key={idx} className="bg-gray-50 rounded-2xl p-4">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{detail.label}</p>
+                                    <p className="font-black text-gray-900 text-sm">{detail.value}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Description */}
+                        {item.description && (
+                            <div className="space-y-2">
+                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Description</p>
+                                <div className="bg-gray-50 rounded-2xl p-5 text-gray-700 font-medium text-sm leading-relaxed whitespace-pre-wrap">
+                                    {item.description}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Additional requirements (buying posts) */}
+                        {item.additionalRequirement && (
+                            <div className="space-y-2">
+                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Additional Requirements</p>
+                                <div className="bg-blue-50 rounded-2xl p-5 text-gray-700 font-medium text-sm leading-relaxed whitespace-pre-wrap border border-blue-100">
+                                    {item.additionalRequirement}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Fraud / Flag warning */}
+                        {item.isFlagged && (
+                            <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-start gap-3">
+                                <AlertCircle size={20} className="text-red-600 mt-0.5 shrink-0" />
+                                <div>
+                                    <p className="font-black text-red-900 text-sm">This listing has been flagged for potential fraud.</p>
+                                    <p className="text-red-700 font-medium text-sm mt-1">Reason: {item.fraudReason}</p>
+                                    <p className="text-red-500 font-medium text-xs mt-1">Fraud Score: {item.fraudScore}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Action Area ── */}
+                        {!reviewRejectMode ? (
+                            <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-100">
+                                <button
+                                    onClick={handleReviewApprove}
+                                    className="flex items-center gap-2 px-8 py-4 bg-green-600 text-white rounded-2xl font-black shadow-lg shadow-green-500/20 hover:bg-green-700 transition-all"
+                                >
+                                    <ThumbsUp size={18} /> Approve Listing
+                                </button>
+                                <button
+                                    onClick={() => setReviewRejectMode(true)}
+                                    className="flex items-center gap-2 px-8 py-4 bg-red-50 text-red-600 rounded-2xl font-black border border-red-200 hover:bg-red-600 hover:text-white transition-all"
+                                >
+                                    <ThumbsDown size={18} /> Reject Listing
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 pt-4 border-t border-red-100 animate-in fade-in slide-in-from-top-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                                        <ThumbsDown size={16} />
+                                    </div>
+                                    <p className="font-black text-red-700 text-base">Provide a Rejection Reason</p>
+                                </div>
+                                <p className="text-gray-500 text-sm font-medium">This reason will be shared with the user so they can understand what needs to be fixed.</p>
+                                <div className="relative">
+                                    <textarea
+                                        placeholder="Type the rejection reason clearly… e.g. 'Photo is blurry', 'Price is missing', 'Description is incomplete'..."
+                                        className="w-full p-5 pr-16 rounded-2xl bg-red-50 border border-red-200 outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium resize-none"
+                                        value={reviewRejectReason}
+                                        onChange={e => setReviewRejectReason(e.target.value)}
+                                        rows={4}
+                                        autoFocus
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => openSpeechModal(setReviewRejectReason)}
+                                        className="absolute right-4 top-4 p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition-colors"
+                                        title="Speak rejection reason"
+                                    >
+                                        <Mic size={18} />
+                                    </button>
+                                </div>
+                                {reviewRejectReason && (
+                                    <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-amber-800 text-sm font-medium">
+                                        <span className="font-black">Preview: </span>{reviewRejectReason}
+                                    </div>
+                                )}
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleReviewRejectConfirm}
+                                        className="flex items-center gap-2 px-8 py-3.5 bg-red-600 text-white rounded-2xl font-black shadow-lg shadow-red-500/20 hover:bg-red-700 transition-all"
+                                    >
+                                        <ThumbsDown size={16} /> Confirm Rejection
+                                    </button>
+                                    <button
+                                        onClick={() => { setReviewRejectMode(false); setReviewRejectReason(""); }}
+                                        className="px-6 py-3.5 bg-gray-100 text-gray-600 rounded-2xl font-black hover:bg-gray-200 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     const ListingApprovalsView = ({ filterType, customTitle, customDesc }) => {
         const filteredItems = filterType 
             ? pendingListings.filter(item => item.type === filterType) 
@@ -570,12 +785,16 @@ const AdminDashboard = () => {
                                                 <td className="px-10 py-6">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xl uppercase overflow-hidden ring-2 ring-white">
-                                                            {item.photos && item.photos.length > 0 ? <img loading="lazy" src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} /> : <Image size={24} />}
+                                                            {item.photos && item.photos.length > 0
+                                                                ? <img loading="lazy" src={item.photos[0]} className="w-full h-full object-cover" alt={item.productName || item.fishName} />
+                                                                : <Image size={24} />}
                                                         </div>
                                                         <div>
                                                             <div className="font-black text-gray-900 flex items-center gap-2">
                                                                 {item.productName || item.fishName}
-                                                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                                                                    item.type === 'listing' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                                                                }`}>
                                                                     {item.type === 'listing' ? 'Sale' : 'Buy'}
                                                                 </span>
                                                                 {item.isFlagged && (
@@ -591,7 +810,7 @@ const AdminDashboard = () => {
                                                             </div>
                                                             {item.isFlagged && (
                                                                 <div className="text-[10px] text-red-600 font-bold tracking-tight mt-1">
-                                                                    Reason: {item.fraudReason}
+                                                                    Fraud reason: {item.fraudReason}
                                                                 </div>
                                                             )}
                                                         </div>
@@ -606,22 +825,38 @@ const AdminDashboard = () => {
                                                 <td className="px-6 py-6 text-sm">
                                                     <div className="flex items-center gap-2">
                                                         <Clock size={16} className="text-gray-400" />
-                                                        <span className="font-bold text-gray-700">{new Date(item.createdAt).toLocaleDateString(language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN')}</span>
+                                                        <span className="font-bold text-gray-700">
+                                                            {new Date(item.createdAt).toLocaleDateString(
+                                                                language === 'bn' ? 'bn-BD' : language === 'hi' ? 'hi-IN' : 'en-IN'
+                                                            )}
+                                                        </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-10 py-6 text-right">
                                                     <div className="flex justify-end gap-2">
+                                                        {/* Review button — opens full detail modal */}
+                                                        <button
+                                                            onClick={() => {
+                                                                setReviewingItem(item);
+                                                                setReviewRejectMode(false);
+                                                                setReviewRejectReason("");
+                                                            }}
+                                                            className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm text-xs font-bold"
+                                                            title="Review Full Details"
+                                                        >
+                                                            <Eye size={14} /> Review
+                                                        </button>
                                                         <button
                                                             onClick={() => handleApproveListing(item._id, item.type)}
                                                             className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                            title="Approve"
+                                                            title="Quick Approve"
                                                         >
                                                             <ThumbsUp size={14} /> {t.approve}
                                                         </button>
                                                         <button
                                                             onClick={() => handleRejectListing(item._id, item.type)}
                                                             className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm text-xs font-bold"
-                                                            title="Reject"
+                                                            title="Quick Reject"
                                                         >
                                                             <ThumbsDown size={14} /> {t.reject}
                                                         </button>
@@ -635,14 +870,14 @@ const AdminDashboard = () => {
                                                             <div className="relative">
                                                                 <textarea 
                                                                     placeholder="Reason for listing rejection..."
-                                                                    className="w-full p-4 pr-12 rounded-2xl border border-red-100 outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium"
+                                                                    className="w-full p-4 pr-14 rounded-2xl border border-red-100 outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium"
                                                                     value={itemRejectionReason}
                                                                     onChange={(e) => setItemRejectionReason(e.target.value)}
                                                                     rows={2}
                                                                 />
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() => startSpeechRecognition(setItemRejectionReason)}
+                                                                    onClick={() => openSpeechModal(setItemRejectionReason)}
                                                                     className="absolute right-3 top-3 p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
                                                                     title="Speak Rejection Reason"
                                                                 >
@@ -653,18 +888,11 @@ const AdminDashboard = () => {
                                                                 <button 
                                                                     onClick={() => handleRejectListingConfirm(item._id, item.type)} 
                                                                     className="btn bg-red-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs"
-                                                                >
-                                                                    Confirm Reject
-                                                                </button>
+                                                                >Confirm Reject</button>
                                                                 <button 
-                                                                    onClick={() => {
-                                                                        setRejectingItemId(null);
-                                                                        setItemRejectionReason("");
-                                                                    }} 
+                                                                    onClick={() => { setRejectingItemId(null); setItemRejectionReason(""); }} 
                                                                     className="btn bg-gray-100 text-gray-500 px-4 py-2.5 rounded-xl font-bold text-xs"
-                                                                >
-                                                                    Cancel
-                                                                </button>
+                                                                >Cancel</button>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -683,6 +911,9 @@ const AdminDashboard = () => {
 
     return (
         <div className="w-full">
+            {/* Listing / Buying Post full-detail review modal */}
+            <ListingReviewModal />
+
             <Routes>
                 <Route path="/" element={<UserManagement />} />
                 <Route path="/farmers" element={<UserManagement forcedRole="farmer" title="Farmers Management" description="Dedicated view for managing and inspecting registered farmers." />} />
@@ -710,6 +941,14 @@ const AdminDashboard = () => {
                 <Route path="/analytics" element={<AdminAnalytics />} />
                 <Route path="*" element={<div className="text-center py-20 font-black text-2xl text-gray-300">{t.adminPageNotFound}</div>} />
             </Routes>
+            {/* Voice Input Modal */}
+            <SpeechInputModal 
+                isOpen={speechModalOpen}
+                onClose={() => setSpeechModalOpen(false)}
+                onAccept={handleSpeechAccept}
+                language={language}
+                placeholder="Speak the rejection reason..."
+            />
         </div>
     );
 };

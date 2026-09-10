@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    Bot, Send, Mic, Image as ImageIcon, Plus, Trash2, Copy, Check,
+    Bot, Send, Mic, MicOff, Image as ImageIcon, Plus, Trash2, Copy, Check,
     Sparkles, AlertTriangle, ExternalLink, ChevronRight, HelpCircle,
     BookOpen, Video, FileText, Award, RefreshCw, X, Sliders, Volume2
 } from 'lucide-react';
@@ -15,6 +15,7 @@ import {
 } from '../api/farmingAIApi';
 import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../context/LanguageContext';
+import SpeechInputModal from '../../../components/common/SpeechInputModal';
 
 const TRANSLATIONS = {
     en: {
@@ -294,34 +295,11 @@ const FarmingAIAssistant = () => {
         setImages(prev => prev.filter((_, i) => i !== index));
     };
 
-    // Speech Recognition (Voice)
+    // Speech Modal State
+    const [speechModalOpen, setSpeechModalOpen] = useState(false);
+
     const toggleSpeechToText = () => {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            alert(t_ai('speechNotSupported'));
-            return;
-        }
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-
-        if (isListening) {
-            setIsListening(false);
-            return;
-        }
-
-        recognition.lang = LANG_MAP[language] || 'en-IN';
-        recognition.interimResults = false;
-
-        recognition.onstart = () => setIsListening(true);
-        recognition.onresult = (e) => {
-            const transcript = e.results[0][0].transcript;
-            setInput(prev => (prev ? `${prev} ${transcript}` : transcript));
-            setIsListening(false);
-        };
-        recognition.onerror = () => setIsListening(false);
-        recognition.onend = () => setIsListening(false);
-
-        recognition.start();
+        setSpeechModalOpen(true);
     };
 
     // Send Message Handler
@@ -774,6 +752,14 @@ const FarmingAIAssistant = () => {
                     </div>
                 </div>
             </main>
+
+            <SpeechInputModal 
+                isOpen={speechModalOpen}
+                onClose={() => setSpeechModalOpen(false)}
+                onAccept={(text) => setInput(prev => prev ? `${prev} ${text}` : text)}
+                language={language}
+                placeholder="Ask Farming AI..."
+            />
         </div>
     );
 };

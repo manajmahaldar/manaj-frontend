@@ -13,6 +13,7 @@ import AIAssistantButton from '../../../components/ai/AIAssistantButton';
 import AIMarketplaceAgentModal from '../../../components/ai/AIMarketplaceAgentModal';
 import CreateListingModal from '../components/CreateListingModal';
 import CreatePostModal from '../../../components/trader/CreatePostModal';
+import SpeechInputModal from '../../../components/common/SpeechInputModal';
 
 const Listings = () => {
     const { t, formatDigit, language } = useLanguage();
@@ -33,35 +34,10 @@ const Listings = () => {
     const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
     const [page, setPage] = useState(parseInt(searchParams.get('page')) || 1);
 
+    const [speechModalOpen, setSpeechModalOpen] = useState(false);
+
     const startListening = () => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            toast.error(t.voiceSearchNotSupported || 'Voice search is not supported in this browser.');
-            return;
-        }
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = language === 'bn' ? 'bn-BD' : 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onstart = () => {
-            toast.success(t.listening || 'Listening...', { icon: '🎙️' });
-        };
-
-        recognition.onresult = (event) => {
-            const speechResult = event.results[0][0].transcript;
-            setSearch(speechResult);
-            toast.success(speechResult);
-        };
-
-        recognition.onerror = (event) => {
-            if (event.error !== 'no-speech') {
-                toast.error('Voice search failed. Please try again.');
-            }
-        };
-
-        recognition.start();
+        setSpeechModalOpen(true);
     };
 
     useEffect(() => {
@@ -292,6 +268,14 @@ const Listings = () => {
                 onClose={() => setIsPostModalOpen(false)}
                 onSuccess={() => fetchData()}
                 initialData={aiInitialData}
+            />
+
+            <SpeechInputModal 
+                isOpen={speechModalOpen}
+                onClose={() => setSpeechModalOpen(false)}
+                onAccept={(text) => setSearch(text)}
+                language={language}
+                placeholder="Search products, species, locations..."
             />
         </div>
     );

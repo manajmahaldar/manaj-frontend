@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import api from '../../utils/api';
 import { 
     LayoutDashboard, Package, PlusCircle, ArrowUpRight, ArrowDownRight, 
-    ShoppingCart, Loader2, Info
+    ShoppingCart, Loader2, Info, AlertCircle, XCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -13,6 +13,7 @@ const RoleDashboard = ({ allowedRole }) => {
     const { t, formatDigit } = useLanguage();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [rejectedCounts, setRejectedCounts] = useState({ listings: 0, posts: 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -21,8 +22,18 @@ const RoleDashboard = ({ allowedRole }) => {
                     setLoading(false);
                     return;
                 }
-                const res = await api.get(`/${allowedRole}/dashboard`);
-                setStats(res.data.stats);
+                const [dashRes, listingsRes, postsRes] = await Promise.all([
+                    api.get(`/${allowedRole}/dashboard`),
+                    api.get('/listings/my-listings'),
+                    api.get('/posts/my-posts')
+                ]);
+                setStats(dashRes.data.stats);
+                const listings = listingsRes.data || [];
+                const posts = postsRes.data || [];
+                setRejectedCounts({
+                    listings: listings.filter(l => l.status === 'rejected').length,
+                    posts: posts.filter(p => p.status === 'rejected').length
+                });
             } catch (err) {
                 console.error(`Failed to fetch ${allowedRole} stats`, err);
             } finally {
@@ -72,6 +83,38 @@ const RoleDashboard = ({ allowedRole }) => {
                     <Link to="/verification" className="btn bg-orange-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-700 shrink-0">
                         Check Verification Status
                     </Link>
+                </div>
+            )}
+
+            {/* Rejection alert */}
+            {(rejectedCounts.listings > 0 || rejectedCounts.posts > 0) && (
+                <div className="bg-red-50 border border-red-200 p-6 rounded-[2rem] flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-red-100 text-red-600 rounded-2xl shrink-0">
+                            <AlertCircle size={24} />
+                        </div>
+                        <div>
+                            <h4 className="font-black text-red-900 text-lg">Action Required — Rejected Items</h4>
+                            <p className="text-red-700 text-sm mt-0.5">
+                                {rejectedCounts.listings > 0 && `${rejectedCounts.listings} listing${rejectedCounts.listings > 1 ? 's' : ''} `}
+                                {rejectedCounts.listings > 0 && rejectedCounts.posts > 0 && 'and '}
+                                {rejectedCounts.posts > 0 && `${rejectedCounts.posts} buying post${rejectedCounts.posts > 1 ? 's' : ''} `}
+                                {' '}were rejected by admin. Review the reason and re-submit after fixing.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                        {rejectedCounts.listings > 0 && (
+                            <Link to="/profile/listings" className="btn bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 text-sm">
+                                View Listings
+                            </Link>
+                        )}
+                        {rejectedCounts.posts > 0 && (
+                            <Link to="/profile/posts" className="btn bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 text-sm">
+                                View Posts
+                            </Link>
+                        )}
+                    </div>
                 </div>
             )}
             <header className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">

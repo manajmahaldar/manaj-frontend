@@ -9,7 +9,7 @@ import EditPostModal from '../../components/trader/EditPostModal';
 import EditProfileModal from '../../components/user/EditProfileModal';
 import { 
     User, MapPin, Phone, BadgeCheck, PlusCircle, Camera, Loader2, 
-    Edit, Trash2, Package, ShoppingCart,
+    Edit, Trash2, Package, ShoppingCart, AlertCircle,
     CheckCircle, Clock, XCircle, Settings, Heart, LogOut, Wrench, ShieldCheck
 } from 'lucide-react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
@@ -232,7 +232,7 @@ const Profile = () => {
             <Routes>
                 <Route path="/" element={<DashboardOverview />} />
                 <Route path="/listings" element={
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         <div className="flex justify-between items-center">
                             <h1 className="text-2xl font-bold text-text-primary">{t.myListings}</h1>
                             <button 
@@ -242,27 +242,65 @@ const Profile = () => {
                                 <PlusCircle size={16} /> {t.newListing || "Add New"}
                             </button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                            {myListings.map(item => (
-                                <div key={item._id}>
-                                    <ListingCard 
-                                        item={item} 
-                                        isOwner={true} 
-                                        userRole={user.role} 
-                                        onEdit={(l) => { setSelectedListing(l); setIsEditModalOpen(true); }} 
-                                        onDelete={handleDeleteListing} 
-                                    />
-                                </div>
-                            ))}
-                            {myListings.length === 0 && (
-                                <div className="col-span-full empty-state py-20">
-                                    <div className="empty-state-icon">
-                                        <Package size={28} />
+
+                        {/* ── Rejected listings — shown first with clear notice ── */}
+                        {myListings.filter(l => l.status === 'rejected').length > 0 && (
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-2xl">
+                                    <AlertCircle size={22} className="text-red-500 shrink-0" />
+                                    <div>
+                                        <p className="font-black text-red-900 text-base">Some listings were rejected by admin</p>
+                                        <p className="text-red-700 text-sm font-medium mt-0.5">
+                                            Read the rejection reason below, make the necessary fixes, then edit and re-submit.
+                                        </p>
                                     </div>
-                                    <p className="text-text-secondary font-bold text-base">{t.noSalesPost}</p>
                                 </div>
-                            )}
-                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                                    {myListings.filter(l => l.status === 'rejected').map(item => (
+                                        <div key={item._id} className="ring-2 ring-red-300 rounded-2xl">
+                                            <ListingCard 
+                                                item={item} 
+                                                isOwner={true} 
+                                                userRole={user.role} 
+                                                onEdit={(l) => { setSelectedListing(l); setIsEditModalOpen(true); }} 
+                                                onDelete={handleDeleteListing} 
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Approved / Pending listings ── */}
+                        {myListings.filter(l => l.status !== 'rejected').length > 0 && (
+                            <div className="space-y-4">
+                                {myListings.filter(l => l.status === 'rejected').length > 0 && (
+                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Active Listings</p>
+                                )}
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                                    {myListings.filter(l => l.status !== 'rejected').map(item => (
+                                        <div key={item._id}>
+                                            <ListingCard 
+                                                item={item} 
+                                                isOwner={true} 
+                                                userRole={user.role} 
+                                                onEdit={(l) => { setSelectedListing(l); setIsEditModalOpen(true); }} 
+                                                onDelete={handleDeleteListing} 
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {myListings.length === 0 && (
+                            <div className="col-span-full empty-state py-20">
+                                <div className="empty-state-icon">
+                                    <Package size={28} />
+                                </div>
+                                <p className="text-text-secondary font-bold text-base">{t.noSalesPost}</p>
+                            </div>
+                        )}
                     </div>
                 } />
                 <Route path="/equipment" element={
@@ -345,7 +383,7 @@ const Profile = () => {
                     </div>
                 } />
                 <Route path="/posts" element={
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 card p-6">
                             <div>
                                 <h1 className="text-2xl font-bold text-text-primary">{t.buyingRequirements}</h1>
@@ -359,26 +397,63 @@ const Profile = () => {
                                 {t.newRequirement}
                             </button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            {myPosts.map(post => (
-                                <div key={post._id}>
-                                    <BuyingPostCard 
-                                        post={post} 
-                                        isOwner={true} 
-                                        onEdit={(p) => { setSelectedPost(p); setIsEditPostModalOpen(true); }} 
-                                        onDelete={handleDeletePost} 
-                                    />
-                                </div>
-                            ))}
-                            {myPosts.length === 0 && (
-                                <div className="col-span-full empty-state py-20">
-                                    <div className="empty-state-icon">
-                                        <ShoppingCart size={28} />
+
+                        {/* ── Rejected buying posts — shown first with clear notice ── */}
+                        {myPosts.filter(p => p.status === 'rejected').length > 0 && (
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-2xl">
+                                    <AlertCircle size={22} className="text-red-500 shrink-0" />
+                                    <div>
+                                        <p className="font-black text-red-900 text-base">Some buying posts were rejected by admin</p>
+                                        <p className="text-red-700 text-sm font-medium mt-0.5">
+                                            Read the rejection reason on each post, make the required changes, then edit and re-submit.
+                                        </p>
                                     </div>
-                                    <p className="text-text-secondary font-bold text-base">{t.noPurchasePost}</p>
                                 </div>
-                            )}
-                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    {myPosts.filter(p => p.status === 'rejected').map(post => (
+                                        <div key={post._id} className="ring-2 ring-red-300 rounded-2xl">
+                                            <BuyingPostCard 
+                                                post={post} 
+                                                isOwner={true} 
+                                                onEdit={(p) => { setSelectedPost(p); setIsEditPostModalOpen(true); }} 
+                                                onDelete={handleDeletePost} 
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Approved / Pending buying posts ── */}
+                        {myPosts.filter(p => p.status !== 'rejected').length > 0 && (
+                            <div className="space-y-4">
+                                {myPosts.filter(p => p.status === 'rejected').length > 0 && (
+                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Active Posts</p>
+                                )}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    {myPosts.filter(p => p.status !== 'rejected').map(post => (
+                                        <div key={post._id}>
+                                            <BuyingPostCard 
+                                                post={post} 
+                                                isOwner={true} 
+                                                onEdit={(p) => { setSelectedPost(p); setIsEditPostModalOpen(true); }} 
+                                                onDelete={handleDeletePost} 
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {myPosts.length === 0 && (
+                            <div className="col-span-full empty-state py-20">
+                                <div className="empty-state-icon">
+                                    <ShoppingCart size={28} />
+                                </div>
+                                <p className="text-text-secondary font-bold text-base">{t.noPurchasePost}</p>
+                            </div>
+                        )}
                     </div>
                 } />
                 <Route path="/orders-received" element={<OrdersView title={t.receivedOrders} orders={incomingOrders} showActions={true} />} />
